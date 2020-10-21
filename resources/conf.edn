@@ -1,10 +1,15 @@
 {
- :redis-conn {:pool {}
-              :spec {:host "127.0.0.1" :port 6379 :db 0}}
+ :couch {:conn "http://a73434:5984/vl_db"
+         :all-tasks-view ["dbmp" "tasks"]
+         :devices-view ["share" "DeviceClass"]
+         :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
+ :redis {:conn {:pool {}
+              :spec {:host "127.0.0.1" :port 6379 :db 0}}}
  :server {:port 8009 :join? false}
- :se3 {:no-of-lines 5}
- :page-title "aoc"
- :main-title "~A~O~C~"
+ :se3 {:items {:fullscale ["0.1T" "1T"]
+               :branch ["dut-a" "dut-b" "dut-c"]}}
+ :page-title "AoC"
+ :main-title "~AoC~"
  :years ["2020" "2021"]
  :maintainers ["C" "T"]
  :gases ["N2" "He"]

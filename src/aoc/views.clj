@@ -3,7 +3,6 @@
    [hiccup.page :as hp]
    [hiccup.form :as hf]))
 
-
 (defn page-header
   [conf]
   [:head
@@ -55,7 +54,7 @@
      (vl-select "id" ["a" "b"])
      (vl-select "fullscale" ["0.1T" "1T"])
      (vl-select "branch" ["a" "b" "c"])
-     
+     [:i {:class "fas fa-external-link-alt fa-3x"}]  
      ]]])
 
 (defn index
@@ -68,5 +67,5 @@
     (condp = (keyword std)
       :se3 (items-se3 conf)
       (not-found))
-    [:i {:class "fas fa-user fa-3x fa-info"}] 
+    
     ]))

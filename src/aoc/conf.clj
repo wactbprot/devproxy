@@ -1,4 +1,4 @@
-(ns aoc.config
+(ns aoc.conf
   (:require [clojure.edn :as edn]))
 
 (defn config

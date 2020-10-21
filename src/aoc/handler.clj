@@ -1,9 +1,9 @@
 (ns aoc.handler
-  (:require [compojure.core :refer :all]
-            [compojure.route    :as route]
-            [aoc.views          :as v]
-            [aoc.config         :as c]
-            [ring.adapter.jetty :refer [run-jetty]]
+  (:require [compojure.route          :as route]
+            [aoc.views                :as v]
+            [aoc.conf                 :as c]
+            [compojure.core           :refer :all]
+            [ring.adapter.jetty       :refer [run-jetty]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]))
 
 (def conf (c/config))
