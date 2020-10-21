@@ -1,0 +1,12 @@
+{
+ :redis-conn {:pool {}
+              :spec {:host "127.0.0.1" :port 6379 :db 0}}
+ :server {:port 8009 :join? false}
+ :se3 {:no-of-lines 5}
+ :page-title "aoc"
+ :main-title "~A~O~C~"
+ :years ["2020" "2021"]
+ :maintainers ["C" "T"]
+ :gases ["N2" "He"]
+ :modes ["seq" "para"] 
+ }
