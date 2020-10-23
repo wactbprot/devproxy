@@ -9,7 +9,7 @@
 (def conf (c/config))
 
 (defroutes app-routes
-  (GET "/std/:std" [std] (v/index std conf))
+  (GET "/std/:std" [std] (v/index :main std conf))
   (route/resources "/")
   (route/not-found (v/not-found)))
 

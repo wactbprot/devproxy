@@ -9,9 +9,10 @@
  :se3 {:items {:fullscale ["0.1T" "1T"]
                :branch ["dut-a" "dut-b" "dut-c"]}}
  :page-title "AoC"
- :main-title "~AoC~"
+ :main-title "~a~o~c~"
  :years ["2020" "2021"]
  :maintainers ["C" "T"]
  :gases ["N2" "He"]
  :modes ["seq" "para"] 
+ :elem-sep "@"
  }
