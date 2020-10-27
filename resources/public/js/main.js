@@ -1,5 +1,12 @@
-var exampleSocket = new WebSocket("ws://127.0.0.1:8009/ws")
-
-exampleSocket.onopen = function (event) {
-    exampleSocket.send(JSON.stringify({"DD":1})); 
-};
+$("#year").change(function() {
+    var year = $(this).val();
+    if(! year.startsWith("select")){
+	$.ajax({
+	    type: "POST",
+	    url: "/year",
+	    data: {"year": year},
+	    success: console.log("ok"),
+	    dataType: "json"
+	});
+    }
+});

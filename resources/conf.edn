@@ -3,17 +3,16 @@
          :all-tasks-view ["dbmp" "tasks"]
          :devices-view ["share" "DeviceClass"]
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
- :redis {:conn {:pool {}
-              :spec {:host "127.0.0.1" :port 6379 :db 0}}}
+ :redis {:conn {:pool {} :spec {:host "127.0.0.1" :port 6379 :db 1}}}
  :server {:port 8009 :join? false}
  :se3 {:no-of-devs 10
        :items {:fullscale ["0.1T" "1T"]
                :branch ["dut-a" "dut-b" "dut-c"]}}
  :page-title "AoC"
- :main-title "~a~o~c~"
- :years ["2020" "2021"]
- :maintainers ["C" "T"]
- :gases ["N2" "He"]
- :modes ["seq" "para"] 
+ :main-title "~A~o~C~"
+ :years ["select year" "2020" "2021"]
+ :maintainers ["select maintainer" "C" "T"]
+ :gases ["select gas" "N2" "He"]
+ :modes ["select mode" "seq" "para"] 
  :elem-sep "@"
  }

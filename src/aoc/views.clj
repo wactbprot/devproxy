@@ -1,8 +1,10 @@
 (ns aoc.views
   (:require
-   [hiccup.page :as hp]
+   [aoc.conf    :as c]
    [hiccup.form :as hf]
-   [aoc.conf    :as c]))
+   [hiccup.page :as hp]
+   [aoc.utils    :as u]
+   ))
 
 (defn page-header
   [conf]
@@ -17,9 +19,6 @@
     [:b "Page not found!"]
     [:p [:a {:href ".."} "Return to main page"]]))
 
-(defn elem-id
-  [conf a b]
-  (str a (:elem-sep conf) b))
 
 (defn vl-select
   ([conf e-name init-vec]
@@ -30,7 +29,7 @@
     [:div {:class "field"}
     [:div {:class "control"}
      [:div
-      (hf/drop-down {:id (if row (elem-id conf e-name row)  e-name)
+      (hf/drop-down {:id (if row (u/elem-id conf e-name row)  e-name)
                      :class (str "input is-primary " e-name)}
                          e-name init-vec)]]]]))
 
@@ -101,5 +100,7 @@
     (condp = (keyword std)
       :se3 (items-se3 conf)
       (not-found))
+    (hp/include-js "/js/jquery-3.5.1.min.js")
+    (hp/include-js "/js/ws.js")
     (hp/include-js "/js/main.js")
     ]))

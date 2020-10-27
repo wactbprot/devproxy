@@ -10,11 +10,13 @@
 (defonce ws-clients (atom {}))
 (defonce server (atom nil))
 
-(defn mesg-received [msg]
+(defn mesg-received
+  [msg]
   (let [data (j/read-json msg)]
     (log/info "mesg received" data)))
 
-(defn ws-handler [req]
+(defn ws-handler
+  [req]
   (with-channel req channel
     (log/info channel "connected")
     (swap! ws-clients assoc channel true)
@@ -23,13 +25,22 @@
                         (swap! ws-clients dissoc channel)
                         (log/info channel "closed, status" status)))))
 
+(defn year-handler
+  [req]
+  (prn ",,,")
+  (prn (:body req))
+  {:status  200
+   :headers {"Content-Type" "application/json"}})
+
 (defroutes app-routes
   (GET "/ws" []  ws-handler)
   (GET "/std/:std" [std] (v/index :main std (c/config)))
+  (POST "/year" [] year-handler) 
   (route/resources "/")
   (route/not-found (v/not-found)))
 
-(defn stop-server []
+  (defn stop-server
+    []
   (when-not (nil? @server)
     (@server :timeout 100)
     (reset! server nil)))

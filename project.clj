@@ -6,6 +6,7 @@
                  [compojure "1.6.1"]
                  [http-kit "2.5.0"]
                  [hiccup "1.0.5"]
+                 [com.taoensso/carmine "3.0.0"]
                  [com.ashafa/clutch "0.4.0"]
                  [org.clojure/data.json "1.0.0"]
                  [org.clojure/tools.logging "1.1.0"]
