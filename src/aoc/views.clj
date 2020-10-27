@@ -1,7 +1,8 @@
 (ns aoc.views
   (:require
    [hiccup.page :as hp]
-   [hiccup.form :as hf]))
+   [hiccup.form :as hf]
+   [aoc.conf    :as c]))
 
 (defn page-header
   [conf]
@@ -21,15 +22,17 @@
   (str a (:elem-sep conf) b))
 
 (defn vl-select
-  ([conf name init-vec]
-   (vl-select conf name init-vec nil))
-  ([conf name init-vec row]
+  ([conf e-name init-vec]
+   (vl-select conf e-name init-vec nil))
+  ([conf e-name init-vec row]
+   (prn init-vec)
    [:div {:class "column"}
     [:div {:class "field"}
     [:div {:class "control"}
-     [:div (hf/drop-down {:id (if row (elem-id conf name row)  name)
-                          :class (str "input is-primary " name)}
-                         name init-vec)]]]]))
+     [:div
+      (hf/drop-down {:id (if row (elem-id conf e-name row)  e-name)
+                     :class (str "input is-primary " e-name)}
+                         e-name init-vec)]]]]))
 
 (defn device-link
   [conf row]
@@ -67,20 +70,26 @@
   [conf row]
   [:div {:class "columns"}
    (vl-select conf "id" [] row)
-   (vl-select conf "fullscale" (get-in conf [:se3 :items :fullscale] row))
+   (vl-select conf "fullscale" (get-in conf [:se3 :items :fullscale]) row)
    (vl-select conf "branch"    (get-in conf [:se3 :items :branch]) row)
    (device-link conf row)])
   
 (defn items-se3
+  "BTW:
+  ```clojure
+  (into [:div ] (range 9))
+  ;; =>
+  ;; [:div 0 1 2 3 4 5 6 7 8]
+  ```
+  "
   [conf]
   [:section {:class "section"}
-   [:div {:class "container content"}
-    (item-se3 conf 0)
-    (item-se3 conf 1)
-    (item-se3 conf 2)
-    (item-se3 conf 3)
-    (item-se3 conf 4)
-     ]])
+   (into
+    [:div {:class "container content"}]
+
+   (map (fn [i] (item-se3 conf i))
+         (range (get-in conf [:se3 :no-of-devs]))))
+     ])
 
 (defn index
   [page-type std conf]
@@ -92,5 +101,5 @@
     (condp = (keyword std)
       :se3 (items-se3 conf)
       (not-found))
-    
+    (hp/include-js "/js/main.js")
     ]))

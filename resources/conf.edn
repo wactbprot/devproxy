@@ -6,7 +6,8 @@
  :redis {:conn {:pool {}
               :spec {:host "127.0.0.1" :port 6379 :db 0}}}
  :server {:port 8009 :join? false}
- :se3 {:items {:fullscale ["0.1T" "1T"]
+ :se3 {:no-of-devs 10
+       :items {:fullscale ["0.1T" "1T"]
                :branch ["dut-a" "dut-b" "dut-c"]}}
  :page-title "AoC"
  :main-title "~a~o~c~"
