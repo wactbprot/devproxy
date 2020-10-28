@@ -14,5 +14,6 @@
  :maintainers ["select maintainer" "C" "T"]
  :gases ["select gas" "N2" "He"]
  :modes ["select mode" "seq" "para"] 
- :elem-sep "@"
+ :sep "@"
+ 
  }

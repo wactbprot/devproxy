@@ -4,7 +4,7 @@
 
 (defn elem-id
   [conf a b]
-  (str a (:elem-sep conf) b))
+  (str a (:sep conf) b))
 
 (defn json->map
   "Transforms a json object to a map."
