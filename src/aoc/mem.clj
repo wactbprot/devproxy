@@ -14,8 +14,13 @@
 (defn set-val!
   "Sets the value `v` for the key `k`."
   [k v]
-  (when (and (string? k) (some? v))
-    (wcar conn (car/set k (u/clj->val v)))))
+  (if (and (string? k) (some? v))
+    (do
+      (wcar conn (car/set k (u/clj->val v)))
+      {:ok true})
+    {:error "no key or value"}))
+
+
 ;;------------------------------
 ;; del
 ;;------------------------------
@@ -23,6 +28,16 @@
   "Delets the key `k`."
   [k]
   (wcar conn (car/del k)))
+
+(defn del-keys!
+  "Deletes all given keys (`ks`)."
+  [ks]
+  (if (some? ks)
+    (do 
+      (run! del-key! ks)
+      {:ok true})
+    {:error "no keys to del"}))
+
 
 ;;------------------------------
 ;; get value(s)
@@ -33,3 +48,7 @@
   [k]
   (u/val->clj (wcar conn (car/get k))))
 
+(defn pat->keys
+  "Get all keys matching  the given pattern `pat`."
+  [pat]
+  (sort (wcar conn (car/keys pat))))

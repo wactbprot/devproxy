@@ -39,6 +39,7 @@
   "Returns all calibration ids belonging to a standard and a year."
   [conf std year]
   (let [couch-conf (:couch conf)
-        view       (:calibration-ids-view couch-conf)]
-    (couch/get-view (:conn couch-conf) (first view) (second view)
-                    {:key (str year "_" std)})))
+        view       (:calibration-ids-view couch-conf)
+        res        (couch/get-view (:conn couch-conf) (first view) (second view)
+                                   {:key (str year "_" std)})]
+    (mapv :id res)))

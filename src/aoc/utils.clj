@@ -6,6 +6,10 @@
   [conf a b]
   (str a (:sep conf) b))
 
+(defn fill
+  [conf item kw]
+  (into (if item [item] [(:select conf)]) (kw conf)))
+
 (defn json->map
   "Transforms a json object to a map."
   [j]

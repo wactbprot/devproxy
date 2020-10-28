@@ -5,15 +5,22 @@
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
  :redis {:conn {:pool {} :spec {:host "127.0.0.1" :port 6379 :db 1}}}
  :server {:port 8009 :join? false}
- :se3 {:no-of-devs 10
+ :se3 {:no-of-devs 5
        :items {:fullscale ["0.1T" "1T"]
                :branch ["dut-a" "dut-b" "dut-c"]}}
  :page-title "AoC"
  :main-title "~A~o~C~"
- :years ["select year" "2020" "2021"]
- :maintainers ["select maintainer" "C" "T"]
- :gases ["select gas" "N2" "He"]
- :modes ["select mode" "seq" "para"] 
+ :select "select"
+ :years [ "2020" "2021"]
+ :maintainers ["C" "T"]
+ :gases ["N2" "He"]
+ :standards ["SE3" "SE1" "CE3"]
+ :modes ["seq" "para"] 
  :sep "@"
- 
+ :prefix "anselm"
+ :keys {:year "year"
+        :gas "gas"
+        :mode "mode"
+        :standard "standard"
+        :maintainer "maintainer"}
  }
