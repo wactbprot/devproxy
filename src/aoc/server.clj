@@ -1,11 +1,15 @@
 (ns aoc.server
   (:require [compojure.route          :as route]
-            [clojure.tools.logging   :as log]
-            [clojure.data.json       :as  j]
+            [clojure.tools.logging    :as log]
+            [clojure.data.json        :as  j]
             [aoc.views                :as v]
             [aoc.conf                 :as c]
             [compojure.core           :refer :all]
-            [org.httpkit.server       :refer :all] ))
+            [compojure.handler :as handler]
+            [org.httpkit.server       :refer :all]
+            [ring.middleware.json :as middleware]
+            [ring.util.response :as res]
+            ))
 
 (defonce ws-clients (atom {}))
 (defonce server (atom nil))
@@ -27,23 +31,27 @@
 
 (defn year-handler
   [req]
-  (prn ",,,")
-  (prn (:body req))
-  {:status  200
-   :headers {"Content-Type" "application/json"}})
+  (if-let [year (get-in req [:body :year])] 
+    (res/response {:ok true})
+    (res/response {:error true}))
 
 (defroutes app-routes
   (GET "/ws" []  ws-handler)
   (GET "/std/:std" [std] (v/index :main std (c/config)))
-  (POST "/year" [] year-handler) 
+  (POST "/year" []  year-handler) 
   (route/resources "/")
   (route/not-found (v/not-found)))
 
-  (defn stop-server
-    []
+(def app
+(-> (handler/site app-routes)
+    (middleware/wrap-json-body {:keywords? true})
+    middleware/wrap-json-response))
+
+(defn stop-server
+  []
   (when-not (nil? @server)
     (@server :timeout 100)
     (reset! server nil)))
 
 (defn start-server []
-  (reset! server (run-server app-routes {:port 8009})))
+  (reset! server (run-server app {:port 8009})))

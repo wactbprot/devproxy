@@ -51,11 +51,12 @@
   [conf]
   [:section {:class "section"}
    [:div {:class "container content"}
-    [:div {:class "columns"}
-     (vl-select conf "year" (:years conf))
+    [:div {:class "box"}
+     [:div {:class "columns"}
+      (vl-select conf "year" (:years conf))
      (vl-select conf "maintainer" (:maintainers conf))
      (vl-select conf "gas" (:gases conf))
-     (vl-select conf "mode" (:modes conf))]]])
+     (vl-select conf "mode" (:modes conf))]]]])
 
 (defn index-title
   [page-type std conf]
@@ -83,12 +84,12 @@
   "
   [conf]
   [:section {:class "section"}
+   [:div {:class "container content"}
    (into
-    [:div {:class "container content"}]
-
-   (map (fn [i] (item-se3 conf i))
+    [:div {:class "box"}]
+    (map (fn [i] (item-se3 conf i))
          (range (get-in conf [:se3 :no-of-devs]))))
-     ])
+     ]])
 
 (defn index
   [page-type std conf]

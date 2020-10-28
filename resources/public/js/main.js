@@ -4,8 +4,9 @@ $("#year").change(function() {
 	$.ajax({
 	    type: "POST",
 	    url: "/year",
-	    data: {"year": year},
+	    data: JSON.stringify({"year": year}),
 	    success: console.log("ok"),
+	    contentType: "application/json; charset=utf-8",
 	    dataType: "json"
 	});
     }
