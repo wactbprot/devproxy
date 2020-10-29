@@ -1,37 +1,47 @@
-var post = function($this, name, val) {
-    if(!val) {val = $this.val();}
-    data = {};
-    data[name] = val;
+
+var post = function($this, path, val, row) {
+    data = {"value": val}
+    if (typeof row !== 'undefined') {
+	data["row"] = row;
+    }
     $.ajax( {
 	type: "POST",
-	url: "/" + name,
+	url: "/" + path,
 	data: JSON.stringify(data),
 	success: console.log("ok"),
 	contentType: "application/json; charset=utf-8",
 	dataType: "json"
     });
 }
-
 $("#year").change(function() {
-    post($(this), "year");
+    var $this = $(this);
+    post($this, "year", $this.val());
     location.reload();
 });
-
 $("#standard").change(function() {
-    post($(this), "standard");
+    var $this = $(this);
+    post($this, "standard",$this.val());
     location.reload();
 });
-
 $("#gas").change(function() {
-    post($(this), "gas")
+    var $this = $(this);
+    post($this, "gas",$this.val())
 });
 $("#mode").change(function() {
-    post($(this), "mode")
+    var $this = $(this);
+    post($this, "mode",$this.val())
 });
 $("#maintainer").change(function() {
-    post($(this), "maintainer")
+    var $this = $(this);
+    post($this, "maintainer",$this.val())
 });
 $("#reset").click(function() {
-    post($(this), "reset", true)
+    var $this = $(this);
+    post($this, "reset", true)
     location.reload();
 });    
+$(".id").change(function() {
+    var $this = $(this),
+	row = $this.data("row");
+    post($this, "id", $this.val(), row);
+});

@@ -47,7 +47,8 @@
     [:div {:class "control"}
      [:div
       (hf/drop-down {:id (if row (u/elem-id conf e-name row)  e-name)
-                     :class (str "input is-primary " e-name)}
+                     :class (str "input is-primary " e-name)
+                     :data-row row}
                     e-name init-vec)]]]]))
 
 (defn device-link
@@ -64,24 +65,23 @@
      [:div {:class "control"}
       (hf/submit-button {:id id :class "button is-primary"} text)]])
 
-(defn index-top
+(defn main-select
   [conf]
   (let [standard   (m/get-val! (k/standard conf))
         year       (m/get-val! (k/year conf))
         maintainer (m/get-val! (k/maintainer conf))
         gas        (m/get-val! (k/gas conf))
-        mode       (m/get-val! (k/mode conf))
-        ]
+        mode       (m/get-val! (k/mode conf))]
   [:section {:class "section"}
    [:div {:class "container content"}
     [:div {:class "box"}
      [:div {:class "columns"}
       (vl-button "reset" "reset")
-      (vl-select conf "standard"   (u/fill conf standard :standards))
-      (vl-select conf "year"       (u/fill conf year :years))
-      (vl-select conf "maintainer" (u/fill conf maintainer :maintainers))
-      (vl-select conf "gas"        (u/fill conf gas :gases))
-      (vl-select conf "mode"       (u/fill conf mode :modes))]]]]))
+      (vl-select conf "standard"   (u/fill-kw conf standard :standards))
+      (vl-select conf "year"       (u/fill-kw conf year :years))
+      (vl-select conf "maintainer" (u/fill-kw conf maintainer :maintainers))
+      (vl-select conf "gas"        (u/fill-kw conf gas :gases))
+      (vl-select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
 
 (defn index-title
   [page-type std conf]
@@ -94,10 +94,11 @@
 (defn item-se3
   [conf row]
   (let [standard   (m/get-val! (k/standard conf))
-        year       (m/get-val! (k/year conf))]
+        year       (m/get-val! (k/year conf))
+        id         (m/get-val! (k/id conf row))]
     (if (and standard year)
       [:div {:class "columns"}
-       (vl-select conf "id" (db/cal-ids conf standard year) row)
+       (vl-select conf "id" (u/fill-vec conf id (db/cal-ids conf standard year)) row)
        (vl-select conf "fullscale" (get-in conf [:se3 :items :fullscale]) row)
        (vl-select conf "branch"    (get-in conf [:se3 :items :branch]) row)
        (device-link conf row)])))
@@ -118,20 +119,20 @@
        [:div {:class "container content"}
         (into
          [:div {:class "box"}]
-         (map (fn [i] (item-se3 conf i))
-              (range (get-in conf [:se3 :no-of-devs]))))
-        ]]
+         (map (fn [i]
+                (item-se3 conf i))
+              (range (get-in conf [:se3 :no-of-devs]))))]]
       (missing conf))))
 
 (defn index
-  [page-type req conf]
+  [conf req page-type]
   (let [standard (m/get-val! (k/standard conf))
         standard (if standard standard "~")]
     (hp/html5
      (page-header conf)
      [:body
       (index-title page-type standard  conf)
-      (index-top  conf)
+      (main-select conf)
       (condp = (keyword standard)
         :SE3 (items-se3 conf)
         :SE1 (not-implemented conf)

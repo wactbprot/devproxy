@@ -18,7 +18,8 @@
  :modes ["seq" "para"] 
  :sep "@"
  :prefix "anselm"
- :keys {:year "year"
+ :keys {:id "id"
+        :year "year"
         :gas "gas"
         :mode "mode"
         :standard "standard"

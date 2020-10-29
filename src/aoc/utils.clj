@@ -2,11 +2,16 @@
   (:require [clojure.string :as string]
             [clojure.data.json :as json]))
 
-(defn elem-id
-  [conf a b]
-  (str a (:sep conf) b))
+(defn get-val [req] (get-in req [:body :value]))
+(defn get-row [req] (get-in req [:body :row]))
 
-(defn fill
+(defn elem-id [conf a b] (str a (:sep conf) b))
+
+(defn fill-vec
+  [conf item vec]
+  (into (if item [item] [(:select conf)]) vec))
+
+(defn fill-kw
   [conf item kw]
   (into (if item [item] [(:select conf)]) (kw conf)))
 

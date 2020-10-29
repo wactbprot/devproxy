@@ -25,3 +25,7 @@
 (defn standard
   [conf]
   (from-conf conf :standard))
+
+(defn id
+  [conf row]
+  (str (from-conf conf :id) (:sep conf) row))

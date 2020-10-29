@@ -12,14 +12,15 @@
 (defonce server (atom nil))
 (defroutes app-routes
 
-  (GET "/"            [:as req] (v/index :main req (c/config)))
-  (POST "/year"       [:as req] (h/year        req (c/config)))
-  (POST "/standard"   [:as req] (h/standard    req (c/config)))
-  (POST "/mode"       [:as req] (h/mode        req (c/config)))
-  (POST "/gas"        [:as req] (h/gas         req (c/config)))
-  (POST "/maintainer" [:as req] (h/maintainer  req (c/config)))
-  (POST "/reset"      [:as req] (h/reset       req (c/config))) 
-  (GET "/ws"          [:as req] (h/ws          req (c/config)))
+  (GET "/"            [:as req] (v/index        (c/config) req :main))
+  (GET "/ws"          [:as req] (h/ws           (c/config) req))
+  (POST "/year"       [:as req] (h/year         (c/config) req))
+  (POST "/standard"   [:as req] (h/standard     (c/config) req))
+  (POST "/mode"       [:as req] (h/mode         (c/config) req))
+  (POST "/gas"        [:as req] (h/gas          (c/config) req))
+  (POST "/maintainer" [:as req] (h/maintainer   (c/config) req))
+  (POST "/reset"      [:as req] (h/reset        (c/config) req)) 
+  (POST "/id"         [:as req] (h/id           (c/config) req))
   (route/resources "/")
   (route/not-found (v/not-found)))
 
