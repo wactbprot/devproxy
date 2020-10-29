@@ -11,8 +11,8 @@
 
 (defonce server (atom nil))
 (defroutes app-routes
-
-  (GET "/"            [:as req] (v/index        (c/config) req :main))
+  (GET "/"            [:as req] (v/index        (c/config) req))
+  (GET "/device"      [:as req] (v/device       (c/config) req))
   (GET "/ws"          [:as req] (h/ws           (c/config) req))
   (POST "/year"       [:as req] (h/year         (c/config) req))
   (POST "/standard"   [:as req] (h/standard     (c/config) req))

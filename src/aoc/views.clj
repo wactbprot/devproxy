@@ -48,27 +48,13 @@
      [:div
       (hf/drop-down {:id (if row (u/elem-id conf ename row) ename)
                      :class (if row
-                              (str "input is-primary " ename)
+                              (str "input is-info " ename)
                               (str "input is-info " ename))
                      :data-row row}
                     ename init-vec)]]]]))
 
 
-
-(defn device-link
-  [conf row]
-  [:a {:href "https://google.com"}
-   [:i {:class "fas fa-external-link-alt is-small"}]])
-
-(defn device
-  [conf row]
-  [:article {:class "message is-primary column is-3"}
-   [:div {:class "message-header"}
-    (device-link conf row)]
-   [:div {:id (u/elem-id conf "device-out" row)
-          :class "message-body"
-          :data-row row}]])
-
+ 
 (defn button
   ([conf ename text]
    (button conf ename text nil))
@@ -76,8 +62,25 @@
    [:div {:class "column is-1"}
     [:div {:class "control"}
      (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
-                        :class (str "button " (if row "is-primary " "is-primary ") ename)
+                        :class (str "button " (if row "is-info " "is-info ") ename)
                         :data-row row} text)]]))
+
+(defn device-link
+  [conf row]
+  [:div {:class "column is-1"}
+   [:div {:class "control"}
+    [:a {:href "/device"
+         :class "button is-link"} "setup"]
+    ;;[:i {:class "fas fa-external-link-alt fa-2x"} ]
+    ]])
+
+(defn device-out
+  [conf row]
+  [:div {:class "column is-3"}
+  [:div {:class "control"}
+   [:textarea {:id (u/elem-id conf "device-out" row)
+               :class "textarea is-info"
+               :data-row row}]]])
 
 (defn main-select
   [conf]
@@ -97,13 +100,32 @@
       (select conf "gas"        (u/fill-kw conf gas :gases))
       (select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
 
+
+(defn device-select
+  [conf]
+  (let [standard   (m/get-val! (k/standard conf))]
+  [:section {:class "section"}
+   [:div {:class "container content"}
+    [:div {:class "box"}
+     [:div {:class "columns"}
+      (button conf "reset" "reset")]]]]))
+
 (defn index-title
-  [page-type std conf]
-  [:section {:class "hero is-dark"}
+  [conf std]
+  [:section {:class "hero is-info"}
    [:div {:class "hero-body"}
       [:div {:class "container"}
        [:h1 {:class "title"} (:main-title conf)]
        [:h2 {:class "subtitle"} (str "standard: " std)]]]])
+
+
+(defn device-title
+  [conf row]
+  [:section {:class "hero is-info"}
+   [:div {:class "hero-body"}
+      [:div {:class "container"}
+       [:h1 {:class "title"} (:main-title conf)]
+       [:h2 {:class "subtitle"} (str "device row: " row)]]]])
 
 (defn item-se3
   [conf row]
@@ -121,8 +143,10 @@
        (select conf "id"        (u/fill-vec conf id id-vec) row)
        (select conf "fullscale" (u/fill-vec conf fs fs-vec) row)
        (select conf "branch"    (u/fill-vec conf br br-vec) row)
-       
-       (device conf row)])))
+
+       (device-link conf row)
+       (device-out conf row)
+       ])))
     
 (defn items-se3
   "BTW:
@@ -145,19 +169,33 @@
       (missing conf))))
 
 (defn index
-  [conf req page-type]
-  (let [standard (m/get-val! (k/standard conf))
-        standard (if standard standard "~")]
+  [conf req]
+  (let [s        (m/get-val! (k/standard conf))
+        standard (if s s "~")]
     (hp/html5
      (page-header conf)
      [:body
-      (index-title page-type standard  conf)
+      (index-title conf standard)
       (main-select conf)
       (condp = (keyword standard)
         :SE3 (items-se3 conf)
         :SE1 (not-implemented conf)
         :CE3 (not-implemented conf)
         (missing conf))
+      (hp/include-js "/js/jquery-3.5.1.min.js")
+      (hp/include-js "/js/ws.js")
+      (hp/include-js "/js/main.js")])))
+
+(defn device
+  [conf req]
+  (let [row (u/get-row req)
+        s        (m/get-val! (k/standard conf))
+        standard (if s s "~")]
+    (hp/html5
+     (page-header conf)
+     [:body
+      (device-title conf standard)
+      (device-select conf)
       (hp/include-js "/js/jquery-3.5.1.min.js")
       (hp/include-js "/js/ws.js")
       (hp/include-js "/js/main.js")])))
