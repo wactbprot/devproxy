@@ -21,6 +21,8 @@
   (POST "/maintainer" [:as req] (h/maintainer   (c/config) req))
   (POST "/reset"      [:as req] (h/reset        (c/config) req)) 
   (POST "/id"         [:as req] (h/id           (c/config) req))
+  (POST "/branch"     [:as req] (h/branch       (c/config) req))
+  (POST "/fullscale"  [:as req] (h/fullscale    (c/config) req))
   (route/resources "/")
   (route/not-found (v/not-found)))
 

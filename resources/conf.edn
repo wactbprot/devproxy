@@ -23,5 +23,7 @@
         :gas "gas"
         :mode "mode"
         :standard "standard"
-        :maintainer "maintainer"}
+        :maintainer "maintainer"
+        :branch "branch"
+        :fullscale "fullscale"}
  }

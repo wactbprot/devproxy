@@ -40,10 +40,12 @@
 (defn mode       [conf req] (store (k/mode conf)       (u/get-val req)))
 (defn gas        [conf req] (store (k/gas conf)        (u/get-val req)))
 (defn maintainer [conf req] (store (k/maintainer conf) (u/get-val req)))
-
-(defn id         [conf req] (store (k/id conf (u/get-row req)) (u/get-val req)))
+(defn id         [conf req] (store (k/id conf          (u/get-row req)) (u/get-val req)))
+(defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
+(defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
 
 (defn reset
   [conf req]
   (when (u/get-val req)
-    (res/response (mem/del-keys! (mem/pat->keys (str (:prefix conf) "*"))))))
+    (prn (k/del-pat conf (u/get-row req)))
+    (res/response (mem/del-keys! (mem/pat->keys (k/del-pat conf (u/get-row req)))))))

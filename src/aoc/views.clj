@@ -38,32 +38,46 @@
     [:div {:class "box"}
      [:h3 "Standard is not implemented"]]]])
 
-(defn vl-select
-  ([conf e-name init-vec]
-   (vl-select conf e-name init-vec nil))
-  ([conf e-name init-vec row]
+(defn select
+  ([conf ename init-vec]
+   (select conf ename init-vec nil))
+  ([conf ename init-vec row]
    [:div {:class "column"}
     [:div {:class "field"}
     [:div {:class "control"}
      [:div
-      (hf/drop-down {:id (if row (u/elem-id conf e-name row)  e-name)
-                     :class (str "input is-primary " e-name)
+      (hf/drop-down {:id (if row (u/elem-id conf ename row) ename)
+                     :class (if row
+                              (str "input is-primary " ename)
+                              (str "input is-info " ename))
                      :data-row row}
-                    e-name init-vec)]]]]))
+                    ename init-vec)]]]]))
+
+
 
 (defn device-link
   [conf row]
-  [:div {:class "column is-1"}
-   [:div {:class "field"}
-    [:div {:class "control"}
-      [:a {:href "https://google.com"}
-       [:i {:class "fas fa-external-link-alt fa-2x"}]]]]])
+  [:a {:href "https://google.com"}
+   [:i {:class "fas fa-external-link-alt is-small"}]])
 
-(defn vl-button
-  [id text]
-  [:div {:class "column is-1"}
-     [:div {:class "control"}
-      (hf/submit-button {:id id :class "button is-primary"} text)]])
+(defn device
+  [conf row]
+  [:article {:class "message is-primary column is-3"}
+   [:div {:class "message-header"}
+    (device-link conf row)]
+   [:div {:id (u/elem-id conf "device-out" row)
+          :class "message-body"
+          :data-row row}]])
+
+(defn button
+  ([conf ename text]
+   (button conf ename text nil))
+  ([conf ename text row]
+   [:div {:class "column is-1"}
+    [:div {:class "control"}
+     (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
+                        :class (str "button " (if row "is-primary " "is-primary ") ename)
+                        :data-row row} text)]]))
 
 (defn main-select
   [conf]
@@ -76,16 +90,16 @@
    [:div {:class "container content"}
     [:div {:class "box"}
      [:div {:class "columns"}
-      (vl-button "reset" "reset")
-      (vl-select conf "standard"   (u/fill-kw conf standard :standards))
-      (vl-select conf "year"       (u/fill-kw conf year :years))
-      (vl-select conf "maintainer" (u/fill-kw conf maintainer :maintainers))
-      (vl-select conf "gas"        (u/fill-kw conf gas :gases))
-      (vl-select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
+      (button conf "reset" "reset")
+      (select conf "standard"   (u/fill-kw conf standard :standards))
+      (select conf "year"       (u/fill-kw conf year :years))
+      (select conf "maintainer" (u/fill-kw conf maintainer :maintainers))
+      (select conf "gas"        (u/fill-kw conf gas :gases))
+      (select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
 
 (defn index-title
   [page-type std conf]
-  [:section {:class "hero is-info"}
+  [:section {:class "hero is-dark"}
    [:div {:class "hero-body"}
       [:div {:class "container"}
        [:h1 {:class "title"} (:main-title conf)]
@@ -93,15 +107,22 @@
 
 (defn item-se3
   [conf row]
-  (let [standard   (m/get-val! (k/standard conf))
-        year       (m/get-val! (k/year conf))
-        id         (m/get-val! (k/id conf row))]
+  (let [standard (m/get-val! (k/standard conf))
+        year     (m/get-val! (k/year conf))
+        id       (m/get-val! (k/id conf row))
+        br       (m/get-val! (k/branch conf row))
+        fs       (m/get-val! (k/fullscale conf row))
+        id-vec   (db/cal-ids conf standard year)
+        fs-vec   (get-in conf [:se3 :items :fullscale])
+        br-vec   (get-in conf [:se3 :items :branch])]
     (if (and standard year)
       [:div {:class "columns"}
-       (vl-select conf "id" (u/fill-vec conf id (db/cal-ids conf standard year)) row)
-       (vl-select conf "fullscale" (get-in conf [:se3 :items :fullscale]) row)
-       (vl-select conf "branch"    (get-in conf [:se3 :items :branch]) row)
-       (device-link conf row)])))
+       (button conf "reset" "reset" row)
+       (select conf "id"        (u/fill-vec conf id id-vec) row)
+       (select conf "fullscale" (u/fill-vec conf fs fs-vec) row)
+       (select conf "branch"    (u/fill-vec conf br br-vec) row)
+       
+       (device conf row)])))
     
 (defn items-se3
   "BTW:
@@ -112,16 +133,15 @@
   ```
   "
   [conf]
-  (let [standard   (m/get-val! (k/standard conf))
-        year       (m/get-val! (k/year conf))]
+  (let [standard (m/get-val! (k/standard conf))
+        year     (m/get-val! (k/year conf))
+        no       (get-in conf [:se3 :no-of-devs])]
     (if (and standard year)
       [:section {:class "section"}
        [:div {:class "container content"}
         (into
          [:div {:class "box"}]
-         (map (fn [i]
-                (item-se3 conf i))
-              (range (get-in conf [:se3 :no-of-devs]))))]]
+         (map (fn [i] (item-se3 conf i)) (range no)))]]
       (missing conf))))
 
 (defn index

@@ -13,6 +13,7 @@ var post = function($this, path, val, row) {
 	dataType: "json"
     });
 }
+//----------------------------------
 $("#year").change(function() {
     var $this = $(this);
     post($this, "year", $this.val());
@@ -35,13 +36,27 @@ $("#maintainer").change(function() {
     var $this = $(this);
     post($this, "maintainer",$this.val())
 });
-$("#reset").click(function() {
+
+//----------------------------------
+$(".reset").click(function() {
     var $this = $(this);
-    post($this, "reset", true)
+    row = $this.data("row")
+    post($this, "reset", true, row)
     location.reload();
-});    
+});
+
 $(".id").change(function() {
     var $this = $(this),
 	row = $this.data("row");
     post($this, "id", $this.val(), row);
+});
+$(".branch").change(function() {
+    var $this = $(this),
+	row = $this.data("row");
+    post($this, "branch", $this.val(), row);
+});
+$(".fullscale").change(function() {
+    var $this = $(this),
+	row = $this.data("row");
+    post($this, "fullscale", $this.val(), row);
 });
