@@ -1,8 +1,12 @@
 
-var post = function($this, path, val, row) {
+var post = function($this, path, val, row, key) {
     data = {"value": val}
     if (typeof row !== 'undefined') {
 	data["row"] = row;
+    }
+
+    if (typeof key !== 'undefined') {
+	    data["key"] = key;
     }
     $.ajax( {
 	type: "POST",
@@ -32,9 +36,18 @@ $("#mode").change(function() {
     var $this = $(this);
     post($this, "mode",$this.val())
 });
+
 $("#maintainer").change(function() {
     var $this = $(this);
     post($this, "maintainer",$this.val())
+});
+
+//----------------------------------
+$(".device").change(function() {
+    var $this = $(this);
+    row = $this.data("row")
+    post($this, "device/"+ row, $this.val(), row)
+    location.reload();
 });
 
 //----------------------------------
@@ -59,4 +72,10 @@ $(".fullscale").change(function() {
     var $this = $(this),
 	row = $this.data("row");
     post($this, "fullscale", $this.val(), row);
+});
+$(".defaults").change(function() {
+    var $this = $(this),
+	    row = $this.data("row"),
+        key = $this.data("key");
+    post($this, "default/" + row, $this.val(), row, key);
 });

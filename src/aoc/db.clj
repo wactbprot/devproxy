@@ -23,23 +23,35 @@
   "Refreshs the revision `_rev` of the document if
   it exist."
   [doc conf]
-  (if-let [db-doc (id->doc (:_id doc) conf)] 
+  (if-let [db-doc (id->doc (:_id doc) conf)]
     (assoc doc :_rev (:_rev db-doc))
     doc))
 
 (defn devices
   "Returns all devices."
-  [conf]
-  (let [couch-conf (:couch conf)
-        view       (:devices-view couch-conf)]
-    (couch/get-view (:conn couch-conf) (first view) (second view))))
+  ([conf]
+   (devices conf nil))
+  ([conf dev]
+   (let [cc   (:couch conf)
+         conn (:conn cc)
+         view (:devices-view cc)
+         f    (first view)
+         s    (second view)]
+     (if dev
+       (couch/get-view conn f s {:key dev})
+       (couch/get-view conn f s)))))
 
+(defn device-vec [conf] (mapv :key (devices conf)))
+
+(defn device-defaults
+  [conf dev]
+  (get-in (first (devices conf dev)) [:value :DeviceClass :Defaults]))
 
 (defn cal-ids
   "Returns all calibration ids belonging to a standard and a year."
   [conf std year]
-  (let [couch-conf (:couch conf)
-        view       (:calibration-ids-view couch-conf)
-        res        (couch/get-view (:conn couch-conf) (first view) (second view)
+  (let [cc (:couch conf)
+        view       (:calibration-ids-view cc)
+        res        (couch/get-view (:conn cc) (first view) (second view)
                                    {:key (str year "_" std)})]
     (mapv :id res)))

@@ -9,14 +9,14 @@
        :items {:fullscale ["0.1T" "1T"]
                :branch ["dut-a" "dut-b" "dut-c"]}}
  :page-title "AoC"
- :main-title "~A~o~C~"
+ :main-title "A/o/C"
  :select "select"
  :years [ "2020" "2021"]
  :maintainers ["C" "T"]
  :gases ["N2" "He"]
  :standards ["SE3" "SE1" "CE3"]
- :modes ["seq" "para"] 
- :sep "@"
+ :modes ["seq" "para"]
+ :sep "/"
  :prefix "anselm"
  :keys {:id "id"
         :year "year"
@@ -25,5 +25,7 @@
         :standard "standard"
         :maintainer "maintainer"
         :branch "branch"
+        :device "device"
+        :default "default"
         :fullscale "fullscale"}
  }

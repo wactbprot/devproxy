@@ -7,7 +7,7 @@
    [aoc.keys    :as k]
    [aoc.mem     :as m]
    [aoc.utils   :as u]
-   
+
    ))
 
 (defn page-header
@@ -54,7 +54,7 @@
                     ename init-vec)]]]]))
 
 
- 
+
 (defn button
   ([conf ename text]
    (button conf ename text nil))
@@ -69,7 +69,7 @@
   [conf row]
   [:div {:class "column is-1"}
    [:div {:class "control"}
-    [:a {:href "/device"
+    [:a {:href (str "/device/" row)
          :class "button is-link"} "setup"]
     ;;[:i {:class "fas fa-external-link-alt fa-2x"} ]
     ]])
@@ -102,13 +102,43 @@
 
 
 (defn device-select
-  [conf]
-  (let [standard   (m/get-val! (k/standard conf))]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     [:div {:class "columns"}
-      (button conf "reset" "reset")]]]]))
+  [conf row]
+  (let  [device-vec (db/device-vec conf)
+         device     (m/get-val! (k/device conf row))]
+    [:section {:class "section"}
+     [:div {:class "container content"}
+      [:div {:class "box"}
+       [:div {:class "columns"}
+        (select conf "device"  (u/fill-vec conf device device-vec) row)]]]]))
+
+
+(defn device-defaults!
+  "Stores the defaults to mem."
+  [conf row]
+  (let [dev      (m/get-val! (k/device conf row))
+        defaults (db/device-defaults conf dev)]
+    [:section {:class "section"}
+     [:div {:class "container content"}
+      [:div {:class "box"}
+       (into [:div {:class "columns"}]
+             (map
+              (fn [[k v]]
+                (let [k (name k)
+                      m-val (m/get-val! (k/defaults conf row k))]
+                  (when-not m-val
+                    (m/set-val! (k/defaults conf row k) v))
+                  [:div {:class "column"}
+                   [:div {:class "field has-addons"}
+                    [:div {:class "control"}
+                     [:a {:class "button is-info"} k]]
+                    [:div {:class="control"}
+                     [:input {:class "input defaults"
+                              :type "text"
+                              :value (if m-val m-val v)
+                              :data-key k
+                              :data-value (if m-val m-val v)
+                              :data-row row}]]]]))
+                (seq defaults)))]]]))
 
 (defn index-title
   [conf std]
@@ -121,11 +151,12 @@
 
 (defn device-title
   [conf row]
+  (let [id   (m/get-val! (k/id conf row))]
   [:section {:class "hero is-info"}
    [:div {:class "hero-body"}
       [:div {:class "container"}
        [:h1 {:class "title"} (:main-title conf)]
-       [:h2 {:class "subtitle"} (str "device row: " row)]]]])
+       [:h2 {:class "subtitle"} (str "device setup for id: " id )]]]]))
 
 (defn item-se3
   [conf row]
@@ -147,7 +178,7 @@
        (device-link conf row)
        (device-out conf row)
        ])))
-    
+
 (defn items-se3
   "BTW:
   ```clojure
@@ -187,16 +218,14 @@
       (hp/include-js "/js/main.js")])))
 
 (defn device
-  [conf req]
-  (let [row (u/get-row req)
-        s        (m/get-val! (k/standard conf))
-        standard (if s s "~")]
-    (hp/html5
-     (page-header conf)
-     [:body
-      (device-title conf standard)
-      (device-select conf)
-      (hp/include-js "/js/jquery-3.5.1.min.js")
-      (hp/include-js "/js/ws.js")
-      (hp/include-js "/js/main.js")])))
-  
+  [conf req row]
+  (hp/html5
+   (page-header conf)
+   [:body
+    (device-title conf row)
+    (device-select conf row)
+    (when (m/get-val! (k/device conf row))
+      (device-defaults! conf row))
+    (hp/include-js "/js/jquery-3.5.1.min.js")
+    (hp/include-js "/js/ws.js")
+    (hp/include-js "/js/main.js")]))

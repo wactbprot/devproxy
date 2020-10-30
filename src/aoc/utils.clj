@@ -4,6 +4,7 @@
 
 (defn get-val [req] (get-in req [:body :value]))
 (defn get-row [req] (get-in req [:body :row]))
+(defn get-key [req] (get-in req [:body :key]))
 
 (defn elem-id [conf a b] (str a (:sep conf) b))
 

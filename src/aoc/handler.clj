@@ -1,15 +1,15 @@
 (ns aoc.handler
-  (:require 
-            [aoc.mem                  :as mem]
-            [aoc.keys                 :as k]
-            [aoc.utils                :as u]
-            [clojure.data.json        :as j]
-            [clojure.tools.logging    :as log]
-            [clojure.string           :as string]
-            [org.httpkit.server       :refer [with-channel
-                                              on-receive
-                                              on-close]]            
-            [ring.util.response       :as res]))
+  (:require
+            [aoc.mem               :as mem]
+            [aoc.keys              :as k]
+            [aoc.utils             :as u]
+            [org.httpkit.server    :refer [with-channel
+                                           on-receive
+                                           on-close]]
+            [clojure.data.json     :as j]
+            [clojure.tools.logging :as log]
+            [clojure.string        :as string]
+            [ring.util.response    :as res] ))
 
 
 (defonce ws-clients (atom {}))
@@ -28,13 +28,13 @@
     (on-close channel (fn [status]
                         (swap! ws-clients dissoc channel)
                         (log/info channel "closed, status" status)))))
-  
+
 (defn store
   [key val]
   (if (and val key)
     (res/response (mem/set-val! key val))
     (res/response {:error "no key or val"})))
-  
+
 (defn year       [conf req] (store (k/year conf)       (u/get-val req)))
 (defn standard   [conf req] (store (k/standard conf)   (u/get-val req)))
 (defn mode       [conf req] (store (k/mode conf)       (u/get-val req)))
@@ -43,9 +43,13 @@
 (defn id         [conf req] (store (k/id conf          (u/get-row req)) (u/get-val req)))
 (defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
 (defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
+(defn device     [conf req] (store (k/device conf      (u/get-row req)) (u/get-val req)))
 
 (defn reset
   [conf req]
   (when (u/get-val req)
-    (prn (k/del-pat conf (u/get-row req)))
     (res/response (mem/del-keys! (mem/pat->keys (k/del-pat conf (u/get-row req)))))))
+
+(defn default
+  [conf req]
+  (store (k/defaults conf (u/get-row req) (u/get-key req)) (u/get-val req)))

@@ -6,11 +6,15 @@
   ([conf kw]
    (from-conf conf kw nil))
   ([conf kw row]
+   (from-conf conf kw  row nil ))
+  ([conf kw row v]
    (let [s (:sep conf)
          p (:prefix conf)
          k (get-in conf [:keys kw])]
      (if row
-       (str p s row s k)
+       (if v
+         (str p s row s k s v)
+         (str p s row s k))
        (str p s k)))))
 
 (defn del-pat
@@ -32,7 +36,7 @@
 (defn mode
   [conf]
   (from-conf conf :mode))
- 
+
 (defn maintainer
   [conf]
   (from-conf conf :maintainer))
@@ -43,12 +47,21 @@
 
 (defn id
   [conf row]
-  (str (from-conf conf :id  row)))
+  (from-conf conf :id  row))
 
 (defn branch
   [conf row]
-  (str (from-conf conf :branch row)))
+  (from-conf conf :branch row))
 
 (defn fullscale
   [conf row]
-  (str (from-conf conf :fullscale row)))
+   (from-conf conf :fullscale row))
+
+(defn device
+  [conf row]
+   (from-conf conf :device row))
+
+(defn defaults
+  [conf row value]
+  (prn value)
+  (from-conf conf :default row value))
