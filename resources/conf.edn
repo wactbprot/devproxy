@@ -1,5 +1,5 @@
 {
- :couch {:conn "http://a73434:5984/vl_db"
+ :couch {:conn "http://localhost:5984/vl_db"
          :all-tasks-view ["dbmp" "tasks"]
          :devices-view ["share" "DeviceClass"]
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
@@ -11,7 +11,7 @@
  :page-title "AoC"
  :main-title "A/o/C"
  :select "select"
- :years [ "2020" "2021"]
+ :years [ "2020" "2021" "2019"]
  :maintainers ["C" "T"]
  :gases ["N2" "He"]
  :standards ["SE3" "SE1" "CE3"]
@@ -27,5 +27,6 @@
         :branch "branch"
         :device "device"
         :default "default"
+        :task "task"
         :fullscale "fullscale"}
  }

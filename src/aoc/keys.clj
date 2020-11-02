@@ -63,5 +63,8 @@
 
 (defn defaults
   [conf row value]
-  (prn value)
   (from-conf conf :default row value))
+
+(defn tasks
+  [conf row value]
+  (from-conf conf :task row value))

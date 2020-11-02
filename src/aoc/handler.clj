@@ -43,7 +43,12 @@
 (defn id         [conf req] (store (k/id conf          (u/get-row req)) (u/get-val req)))
 (defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
 (defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
-(defn device     [conf req] (store (k/device conf      (u/get-row req)) (u/get-val req)))
+
+(defn device     [conf req]
+  (run! mem/del-key! (mem/pat->keys (k/defaults conf (u/get-row req) "*")))
+  (run! mem/del-key!  (mem/pat->keys (k/tasks conf    (u/get-row req) "*")))
+  (prn "del *")
+  (store (k/device conf (u/get-row req)) (u/get-val req)))
 
 (defn reset
   [conf req]

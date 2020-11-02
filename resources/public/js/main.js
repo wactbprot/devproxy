@@ -75,7 +75,7 @@ $(".fullscale").change(function() {
 });
 $(".defaults").change(function() {
     var $this = $(this),
-	    row = $this.data("row"),
+	row = $this.data("row"),
         key = $this.data("key");
     post($this, "default/" + row, $this.val(), row, key);
 });
