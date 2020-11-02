@@ -6,7 +6,7 @@
 (defn get-row [req] (get-in req [:body :row]))
 (defn get-key [req] (get-in req [:body :key]))
 
-(defn elem-id [conf a b] (str a (:sep conf) b))
+(defn elem-id [conf a b] (str a "_" b))
 
 (defn fill-vec
   [conf item vec]

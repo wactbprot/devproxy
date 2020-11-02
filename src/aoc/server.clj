@@ -21,10 +21,13 @@
   (POST "/mode"              [:as req]     (h/mode         (c/config) req))
   (POST "/gas"               [:as req]     (h/gas          (c/config) req))
   (POST "/maintainer"        [:as req]     (h/maintainer   (c/config) req))
-  (POST "/reset"             [:as req]     (h/reset        (c/config) req))
+
   (POST "/id"                [:as req]     (h/id           (c/config) req))
   (POST "/branch"            [:as req]     (h/branch       (c/config) req))
   (POST "/fullscale"         [:as req]     (h/fullscale    (c/config) req))
+
+  (POST "/reset"             [:as req]     (h/reset        (c/config) req))
+  (POST "/run"               [:as req]     (h/run          (c/config) req))
   (route/resources "/")
   (route/not-found (v/not-found)))
 

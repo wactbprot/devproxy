@@ -156,7 +156,7 @@
     [:div {:class "box"}
      [:div {:class "columns"}
       (select conf "task" (mapv :TaskName tasks) row)
-      (button conf "task-test" "run" row)
+      (button conf "run" "run" row)
       (device-stdout conf row "is-5")
       (index-link conf)]]]])
 

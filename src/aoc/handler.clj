@@ -58,3 +58,7 @@
 (defn default
   [conf req]
   (store (k/defaults conf (u/get-row req) (u/get-key req)) (u/get-val req)))
+
+(defn run
+  [conf req]
+  (prn "run"))

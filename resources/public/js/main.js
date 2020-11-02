@@ -43,6 +43,15 @@ $("#maintainer").change(function() {
 });
 
 //----------------------------------
+$(".run").click(function() {
+  var $this = $(this);
+  row = $this.data("row")
+  post($this, "run", $this.val(), row);
+  $("#device-stdout_"+row).val("...post to server");
+});
+
+
+//----------------------------------
 $(".device").change(function() {
     var $this = $(this);
     row = $this.data("row")
