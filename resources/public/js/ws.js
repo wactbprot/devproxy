@@ -5,5 +5,9 @@ ws.onopen = function (event) {
 };
 
 ws.onmessage = function (event) {
-  console.log(event.data);
+    var data =JSON.parse(event.data);
+    if(data) {
+	var msg =  data.msg;
+	$("#device-stdout_"+ data.row).val(msg);
+    }
 }

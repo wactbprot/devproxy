@@ -1,13 +1,5 @@
 
-var post = function($this, path, val, row, key) {
-    data = {"value": val}
-    if (typeof row !== 'undefined') {
-	data["row"] = row;
-    }
-
-    if (typeof key !== 'undefined') {
-	    data["key"] = key;
-    }
+var post = function($this, path, data) {
     $.ajax( {
 	type: "POST",
 	url: "/" + path,
@@ -20,71 +12,78 @@ var post = function($this, path, val, row, key) {
 //----------------------------------
 $("#year").change(function() {
     var $this = $(this);
-    post($this, "year", $this.val());
+    post($this, "year", {"value": $this.val()} );
     location.reload();
 });
 $("#standard").change(function() {
     var $this = $(this);
-    post($this, "standard",$this.val());
+    post($this, "standard",{"value": $this.val()});
     location.reload();
 });
 $("#gas").change(function() {
     var $this = $(this);
-    post($this, "gas",$this.val())
+    post($this, "gas", {"value": $this.val()})
 });
 $("#mode").change(function() {
     var $this = $(this);
-    post($this, "mode",$this.val())
+    post($this, "mode", {"value": $this.val()})
 });
 
 $("#maintainer").change(function() {
     var $this = $(this);
-    post($this, "maintainer",$this.val())
+    post($this, "maintainer",{"value": $this.val()})
 });
 
 //----------------------------------
 $(".run").click(function() {
-  var $this = $(this);
-  row = $this.data("row")
-  post($this, "run", $this.val(), row);
-  $("#device-stdout_"+row).val("...post to server");
+    var $this = $(this),
+	row = $this.data("row");
+    post($this, "run", {"value": $("#task_" + row).val(),
+			"row": row});
+    $("#device-stdout_" + row).val("...post to server");
 });
-
 
 //----------------------------------
 $(".device").change(function() {
-    var $this = $(this);
-    row = $this.data("row")
-    post($this, "device/"+ row, $this.val(), row)
+    var $this = $(this),
+	row = $this.data("row");
+    post($this, "device/"+ row, {"value": $this.val(),
+				 "row": row})
     location.reload();
 });
 
 //----------------------------------
 $(".reset").click(function() {
-    var $this = $(this);
-    row = $this.data("row")
-    post($this, "reset", true, row)
+    var $this = $(this),
+	row = $this.data("row");
+    post($this, "reset", {"value": true,
+			  "row": row})
     location.reload();
 });
 
 $(".id").change(function() {
     var $this = $(this),
 	row = $this.data("row");
-    post($this, "id", $this.val(), row);
+    post($this, "id", {"value": $this.val(),
+		       "row": row});
 });
 $(".branch").change(function() {
     var $this = $(this),
 	row = $this.data("row");
-    post($this, "branch", $this.val(), row);
+    post($this, "branch", {"value": $this.val(),
+			   "row": row});
 });
 $(".fullscale").change(function() {
     var $this = $(this),
 	row = $this.data("row");
-    post($this, "fullscale", $this.val(), row);
+    post($this, "fullscale", {"value": $this.val(),
+			      "row": row});
 });
 $(".defaults").change(function() {
     var $this = $(this),
 	row = $this.data("row"),
         key = $this.data("key");
-    post($this, "default/" + row, $this.val(), row, key);
+    post($this, "default/" + row, {"value": $this.val(),
+				   "row": row,
+				   "key": key});
 });

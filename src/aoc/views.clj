@@ -28,7 +28,7 @@
   [:section {:class "section"}
    [:div {:class "container content"}
     [:div {:class "box"}
-     [:h3 "select an standard and year"]]]])
+     [:h3 "select standard and year"]]]])
 
 (defn not-implemented
   [conf]
@@ -58,7 +58,7 @@
     [:div {:class "field"}
     [:div {:class "control"}
      (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
-                        :class (str "button " (if row "is-info " "is-info ") ename)
+                        :class (str "button is-info " ename)
                         :data-row row} text)]]]))
 
 (defn device-link

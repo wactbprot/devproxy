@@ -15,6 +15,7 @@
   (GET "/device/:row"        [row :as req] (v/device       (c/config) req row))
   (POST "/device/:row"       [:as req]     (h/device       (c/config) req))
   (POST "/default/:row"      [:as req]     (h/default      (c/config) req))
+
   (GET "/ws"                 [:as req]     (h/ws           (c/config) req))
   (POST "/year"              [:as req]     (h/year         (c/config) req))
   (POST "/standard"          [:as req]     (h/standard     (c/config) req))

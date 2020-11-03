@@ -5,7 +5,9 @@
             [aoc.utils             :as u]
             [org.httpkit.server    :refer [with-channel
                                            on-receive
-                                           on-close]]
+                                           on-close
+                                           send!]]
+            [org.httpkit.client    :as http]
             [clojure.data.json     :as j]
             [clojure.tools.logging :as log]
             [clojure.string        :as string]
@@ -47,7 +49,6 @@
 (defn device     [conf req]
   (run! mem/del-key! (mem/pat->keys (k/defaults conf (u/get-row req) "*")))
   (run! mem/del-key!  (mem/pat->keys (k/tasks conf    (u/get-row req) "*")))
-  (prn "del *")
   (store (k/device conf (u/get-row req)) (u/get-val req)))
 
 (defn reset
@@ -59,6 +60,39 @@
   [conf req]
   (store (k/defaults conf (u/get-row req) (u/get-key req)) (u/get-val req)))
 
+(defn default-map
+  [conf req]
+  (let [sep-pat (re-pattern (:sep conf))
+        ks      (mem/pat->keys (k/defaults conf (u/get-row req) "*"))
+        f       (fn [k] {(last (string/split k sep-pat)) (str (mem/get-val! k))})]
+  (into {} (mapv f ks))))
+
+(defn get-task
+  [conf req]
+  (let [m    (default-map conf req)
+        task (mem/get-val! (k/tasks conf (u/get-row req) (u/get-val req)))]
+    (u/replace-map m task)))
+
+(defn send-to-ws-clients
+  [conf m]
+  (doseq [client (keys @ws-clients)]
+    (send! client (j/json-str m))))
+
+(defn dev-hub
+  [conf data row]
+  (let [conn    (:conn (:dev-hub  conf))
+        {body   :body
+         status :status} (deref (http/post conn data))]
+    (if (> 300 status)
+      (send-to-ws-clients conf {:msg (u/body->msg-data body)       :row row})
+      (send-to-ws-clients conf {:msg (str "error, status " status) :row row}))))
+
 (defn run
   [conf req]
-  (prn "run"))
+  (let [row   (u/get-row req)
+        task  (get-task conf req)
+        data  {:body (j/json-str task)}]
+    (send-to-ws-clients conf {:msg "send to relay" :row row})
+    (future (dev-hub conf data row))
+    (res/response {:ok true})))
+

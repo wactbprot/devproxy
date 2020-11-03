@@ -16,6 +16,11 @@
   [conf item kw]
   (into (if item [item] [(:select conf)]) (kw conf)))
 
+(defn map->json
+  "Transforms a hash-map  to a json string"
+  [m]
+  (json/write-str m))
+
 (defn json->map
   "Transforms a json object to a map."
   [j]
@@ -42,6 +47,7 @@
     :else v))
 
 
+
 (defn clj->val
   "Casts the given (complex) value `x` to a writable
   type. `json` is used for complex data types.
@@ -60,3 +66,33 @@
     clojure.lang.PersistentVector   (json/write-str x)
     clojure.lang.PersistentHashMap  (json/write-str x)
     x))
+
+(defn clj->str-val
+  [x]
+  (str (clj->val x)))
+
+(defn replace-map
+  "Replaces the tokens given as keys in the map `m` in `task`.
+  "
+  [m task]
+  (if (map? m)
+    (json->map
+     (reduce
+      (fn [s [k v]]
+        (let [pat (re-pattern k)
+              r   (clj->str-val v)]
+          (string/replace s pat r)))
+      (map->json task) m))
+    task))
+
+(defn body->msg-data-map
+  "Avoid sending to much information back to frontend"
+  [body]
+  (let [{res :Result
+         exc :ToExchange
+         err :error} (json/read-str body :key-fn keyword)]
+    {:Result res :Exchange exc :Error err}))
+
+(defn body->msg-data
+  [body]
+  (json/json-str (body->msg-data-map body)))
