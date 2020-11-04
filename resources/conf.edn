@@ -13,6 +13,7 @@
  :main-title "A/o/C"
  :select "select"
  :years [ "2020" "2021" "2019"]
+ :n ["1" "2" "3" "4" "5" "6" "7" "8" "9" "10"]
  :maintainers ["C" "T"]
  :gases ["N2" "He"]
  :standards ["SE3" "SE1" "CE3"]
@@ -20,6 +21,7 @@
  :sep "/"
  :prefix "anselm"
  :keys {:id "id"
+        :n "n"
         :year "year"
         :gas "gas"
         :mode "mode"

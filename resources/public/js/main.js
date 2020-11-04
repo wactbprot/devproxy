@@ -20,6 +20,12 @@ $("#standard").change(function() {
     post($this, "standard",{"value": $this.val()});
     location.reload();
 });
+$("#n").change(function() {
+    var $this = $(this);
+    post($this, "n", {"value": $this.val()} );
+    location.reload();
+});
+
 $("#gas").change(function() {
     var $this = $(this);
     post($this, "gas", {"value": $this.val()})

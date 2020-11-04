@@ -38,6 +38,7 @@
     (res/response {:error "no key or val"})))
 
 (defn year       [conf req] (store (k/year conf)       (u/get-val req)))
+(defn n          [conf req] (store (k/n conf)          (u/get-val req)))
 (defn standard   [conf req] (store (k/standard conf)   (u/get-val req)))
 (defn mode       [conf req] (store (k/mode conf)       (u/get-val req)))
 (defn gas        [conf req] (store (k/gas conf)        (u/get-val req)))

@@ -33,6 +33,10 @@
   [conf]
   (from-conf conf :gas))
 
+(defn n
+  [conf]
+  (from-conf conf :n))
+
 (defn mode
   [conf]
   (from-conf conf :mode))

@@ -18,6 +18,7 @@
 
   (GET "/ws"                 [:as req]     (h/ws           (c/config) req))
   (POST "/year"              [:as req]     (h/year         (c/config) req))
+  (POST "/n"                 [:as req]     (h/n            (c/config) req))
   (POST "/standard"          [:as req]     (h/standard     (c/config) req))
   (POST "/mode"              [:as req]     (h/mode         (c/config) req))
   (POST "/gas"               [:as req]     (h/gas          (c/config) req))

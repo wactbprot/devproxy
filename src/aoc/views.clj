@@ -98,6 +98,7 @@
   [conf]
   (let [standard   (m/get-val! (k/standard conf))
         year       (m/get-val! (k/year conf))
+        n          (m/get-val! (k/n conf))
         maintainer (m/get-val! (k/maintainer conf))
         gas        (m/get-val! (k/gas conf))
         mode       (m/get-val! (k/mode conf))]
@@ -107,6 +108,7 @@
      [:div {:class "columns"}
       (select conf "standard"   (u/fill-kw conf standard :standards))
       (select conf "year"       (u/fill-kw conf year :years))
+      (select conf "n"          (u/fill-kw conf n :n))
       (select conf "maintainer" (u/fill-kw conf maintainer :maintainers))
       (select conf "gas"        (u/fill-kw conf gas :gases))
       (select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
@@ -207,14 +209,14 @@
   [conf]
   (let [standard (m/get-val! (k/standard conf))
         year     (m/get-val! (k/year conf))
-        no       (get-in conf [:se3 :no-of-devs])]
-    (if (and standard year)
+        n        (m/get-val! (k/n conf))]
+    (if (and standard year n)
       [:section {:class "section"}
        [:div {:class "container content"}
         (into [:div {:class "box"}]
               (map
                (fn [i] (item-se3 conf i))
-               (range no)))]]
+               (range (int n))))]]
       (missing conf))))
 
 (defn index
