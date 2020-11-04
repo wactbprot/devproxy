@@ -47,8 +47,6 @@
   [conf dev]
   (get-in (first (devices conf dev)) [:value :DeviceClass :Defaults]))
 
-(defn device-defaults-seq [conf dev] (seq (device-defaults conf dev)))
-
 (defn device-tasks
   ([conf]
    (get-in (first (devices conf)) [:value :DeviceClass :Task]))
