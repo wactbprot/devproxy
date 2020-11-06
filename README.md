@@ -1,6 +1,6 @@
-# aoc
+# AoC
 
-FIXME
+
 
 ## Prerequisites
 
@@ -8,12 +8,21 @@ You will need [Leiningen][] 2.0.0 or above installed.
 
 [leiningen]: https://github.com/technomancy/leiningen
 
-## Running
+## run
 
-To start a web server for the application, run:
+`lein repl`
 
-    lein ring server
+```
+user=> (ns aoc.server)
+aoc.server=> (start)
+```
+## target_pressure
 
-## License
-
-Copyright © 2020 FIXME
+```
+curl http://localhost:50005/target_pressure
+{
+  "ToExchange": {
+    "Continue_mesaurement.Bool": false
+  }
+}
+```

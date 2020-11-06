@@ -6,8 +6,7 @@
    [aoc.db      :as db]
    [aoc.keys    :as k]
    [aoc.mem     :as mem]
-   [aoc.utils   :as u]
-   ))
+   [aoc.utils   :as u]))
 
 (defn page-header
   [conf]
