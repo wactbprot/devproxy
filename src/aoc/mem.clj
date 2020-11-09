@@ -52,3 +52,4 @@
   "Get all keys matching  the given pattern `pat`."
   [pat]
   (sort (wcar conn (car/keys pat))))
+

@@ -1,17 +1,21 @@
 (ns aoc.handler
   (:require
-            [aoc.mem               :as mem]
-            [aoc.keys              :as k]
-            [aoc.utils             :as u]
-            [org.httpkit.server    :refer [with-channel
-                                           on-receive
-                                           on-close
-                                           send!]]
-            [org.httpkit.client    :as http]
-            [clojure.data.json     :as j]
-            [clojure.tools.logging :as log]
-            [clojure.string        :as string]
-            [ring.util.response    :as res] ))
+   [aoc.mem-utils         :as memu]
+   [aoc.mem               :as mem]
+   [aoc.keys              :as k]
+   [aoc.utils             :as u]
+   [aoc.db-utils          :as dbu]
+   [aoc.db                :as db]
+   [aoc.conf              :as c] ;; for debug 
+   [org.httpkit.server    :refer [with-channel
+                                  on-receive
+                                  on-close
+                                  send!]]
+   [org.httpkit.client    :as http]
+   [clojure.data.json     :as j]
+   [clojure.tools.logging :as log]
+   [clojure.string        :as string]
+   [ring.util.response    :as res] ))
 
 
 (defonce ws-clients (atom {}))
@@ -46,6 +50,8 @@
 (defn id         [conf req] (store (k/id conf          (u/get-row req)) (u/get-val req)))
 (defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
 (defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
+
+
 
 (defn device     [conf req]
   (run! mem/del-key! (mem/pat->keys (k/defaults conf (u/get-row req) "*")))
@@ -97,3 +103,7 @@
     (future (dev-hub conf data row))
     (res/response {:ok true})))
 
+(defn target-pressure
+  [conf req]
+  (if-let [ids (memu/cal-ids conf)]
+    (mapv (fn [id] (d/next-target-pressure (db/id->doc id conf))) ids))) 

@@ -30,6 +30,8 @@
 
   (POST "/reset"             [:as req]     (h/reset        (c/config) req))
   (POST "/run"               [:as req]     (h/run          (c/config) req))
+  
+  (GET "/target_pressure"    [:as req]     (h/target-pressure (c/config) req))
   (route/resources "/")
   (route/not-found (v/not-found)))
 
