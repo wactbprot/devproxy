@@ -31,7 +31,7 @@ aoc.server=> (start)
 }
 ```
 
-curl http://localhost:8009/target_pressure
+`curl http://localhost:8009/target_pressure`
 
 ```json
 {
@@ -54,7 +54,7 @@ curl http://localhost:8009/target_pressure
    
 ```
 
-curl http://localhost:8009/cal_ids
+`curl http://localhost:8009/cal_ids`
 
 ```json
 {
@@ -84,7 +84,7 @@ curl http://localhost:8009/cal_ids
 }
 ```
 
-curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Branch"}' -X POST http://localhost:8009/save_dut_branch
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Branch"}' -X POST http://localhost:8009/save_dut_branch`
 
 ```json
 
