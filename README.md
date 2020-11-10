@@ -68,3 +68,24 @@ curl http://localhost:8009/cal_ids
 }
 
 ```
+
+## save_dut_branch
+
+	  
+```json
+{
+"Action": "Anselm",
+"Comment": "Save name of dut branch for all devices.",
+"TaskName": "anselm_save_dut",
+"RequestPath": "save_dut_branch",
+"Value": {
+"DocPath": "Calibration.Measurement.AuxValues.Branch"
+}
+}
+```
+
+curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Branch"}' -X POST http://localhost:8009/save_dut_branch
+
+```json
+
+```

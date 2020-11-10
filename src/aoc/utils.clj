@@ -5,6 +5,7 @@
 (defn get-val [req] (get-in req [:body :value]))
 (defn get-row [req] (get-in req [:body :row]))
 (defn get-key [req] (get-in req [:body :key]))
+(defn get-doc-path [req] (get-in req [:body :DocPath]))
 
 (defn elem-id [conf a b] (str a "_" b))
 
@@ -45,8 +46,6 @@
     (string? v)  (str->clj v)
     (boolean? v) v
     :else v))
-
-
 
 (defn clj->val
   "Casts the given (complex) value `x` to a writable

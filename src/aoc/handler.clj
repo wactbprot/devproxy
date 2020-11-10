@@ -125,3 +125,9 @@
      {:ToExchange {:Ids (string/join "@" ids)}
       :ids ids})))
 
+(defn save-dut-branch
+  [conf req]
+  ;; log req
+  (let [doc-path (u/get-doc-path req)]
+    (res/response {:ok doc-path })))
+
