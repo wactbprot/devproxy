@@ -106,4 +106,12 @@
 (defn target-pressure
   [conf req]
   (if-let [ids (memu/cal-ids conf)]
-    (mapv (fn [id] (d/next-target-pressure (db/id->doc id conf))) ids))) 
+    (if-let [p (first
+                (filter some?
+                        (map (fn [id] (dbu/next-target-pressure (db/id->doc id conf))) ids)))] 
+      (res/response
+       {:ToExchange {:Target_pressure.Selected p
+                     :Target_pressure.Unit "Pa"
+                     :Continue_mesaurement.Bool true}})
+      (res/response
+       {:ToExchange {:Continue_mesaurement.Bool  false}}))))
