@@ -31,7 +31,7 @@ aoc.server=> (start)
 }
 ```
 
-curl http://localhost:50005/target_pressure
+curl http://localhost:8009/target_pressure
 
 ```json
 {
@@ -39,4 +39,32 @@ curl http://localhost:50005/target_pressure
     "Continue_mesaurement.Bool": false
   }
 }
+```
+
+
+## cal_ids
+
+```json
+{
+"Action": "Anselm",
+"Comment": "Get calibration ids from Anselm api",
+"TaskName": "anselm_get_cal_ids",
+"RequestPath": "cal_ids"
+}
+   
+```
+
+curl http://localhost:8009/cal_ids
+
+```json
+{
+  "ToExchange": {
+    "Ids": "cal-2020-se3-ik-4007_0001@cal-2020-se3-ik-4025_0002"
+  }, 
+  "ids": [
+    "cal-2020-se3-ik-4007_0001", 
+    "cal-2020-se3-ik-4025_0002"
+  ]
+}
+
 ```

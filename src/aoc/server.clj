@@ -32,6 +32,7 @@
   (POST "/run"               [:as req]     (h/run          (c/config) req))
   
   (GET "/target_pressure"    [:as req]     (h/target-pressure (c/config) req))
+  (GET "/cal_ids"            [:as req]     (h/cal-ids         (c/config) req))
   (route/resources "/")
   (route/not-found (v/not-found)))
 

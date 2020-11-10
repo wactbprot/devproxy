@@ -114,4 +114,14 @@
                      :Target_pressure.Unit "Pa"
                      :Continue_mesaurement.Bool true}})
       (res/response
-       {:ToExchange {:Continue_mesaurement.Bool  false}}))))
+       {:ToExchange {:Continue_mesaurement.Bool  false}}))
+    (res/response
+     {:ToExchange {:Continue_mesaurement.Bool  false}})))
+
+(defn cal-ids
+  [conf req]
+  (let [ids (memu/cal-ids conf)]
+    (res/response
+     {:ToExchange {:Ids (string/join "@" ids)}
+      :ids ids})))
+
