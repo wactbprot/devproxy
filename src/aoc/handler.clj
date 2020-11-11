@@ -134,3 +134,12 @@
        {:ok true :revs (mapv (fn [[id x]] (db/store! conf id [x] p)) v)})
       (res/response  {:ok true :warn "no doc selected"}))))
 
+(defn save-maintainer
+  [conf req]
+  (let [p          (u/get-doc-path req)
+        ids        (memu/cal-ids conf)
+        maintainer (mem/get-val! (k/maintainer conf))]
+    (if (and (string? p) (string? maintainer))
+      (res/response
+       {:ok true :revs (mapv (fn [id] (db/store! conf id [maintainer] p)) ids)})
+      (res/response  {:ok true :warn "no maintainer selected"}))))

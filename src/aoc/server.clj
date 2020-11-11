@@ -34,6 +34,7 @@
   (GET "/target_pressure"    [:as req]     (h/target-pressure (c/config) req))
   (GET "/cal_ids"            [:as req]     (h/cal-ids         (c/config) req))
   (POST "/save_dut_branch"   [:as req]     (h/save-dut-branch (c/config) req))
+  (POST "/save_maintainer"   [:as req]     (h/save-maintainer (c/config) req))
 
   (route/resources "/")
   (route/not-found (v/not-found)))

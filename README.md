@@ -115,3 +115,12 @@ or
 ```
 
 `curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.Maintainer"}' -X POST http://localhost:8009/save_maintainer`
+
+```json
+{"ok":true,"warn":"no maintainer selected"}
+```
+or
+
+```json
+{"ok":true,"revs":["11-abad27e1f4f8cd0a35870310d84f096e"]}
+```
