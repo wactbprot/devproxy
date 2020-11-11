@@ -189,7 +189,7 @@
         br       (mem/get-val! (k/branch conf row))
         fs       (mem/get-val! (k/fullscale conf row))
         id-vec   (db/cal-ids conf standard year)
-        fs-vec   (u/get-fullscale-display-vec conf)
+        fs-vec   (u/display-fullscale-vec conf)
         br-vec   (get-in conf [:items :se3-branch])]
     (if (and standard year)
       [:div {:class "columns"}

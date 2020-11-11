@@ -14,7 +14,7 @@
   (when-let [u (:Unit m)]
     (keyword (string/lower-case u))))
 
-(defn to-si
+(defn in-si-unit
   [m]
   (when-let [u (norm-unit m)]
     (let [f (condp = u
@@ -30,12 +30,12 @@
 (defn type-filter-fn [s] (fn [m] (= (:Type m) s)))
 (defn todo-pressure [d] (get-in d [:Calibration :ToDo :Values :Pressure]))
 
-(defn ensure-number-val
+(defn operable-value
   "Ensures that all `:Value`s of `m` are numbers.
 
   Example:
   ```clojure
-  (ensure-number-val {:Type \"target_pressure\", :Value [\"100\" 200.3 300 \"500\" 700 1000.1  \"1000\"], :Unit \"Pa\"})
+  (operable-value {:Type \"target_pressure\", :Value [\"100\" 200.3 300 \"500\" 700 1000.1  \"1000\"], :Unit \"Pa\"})
   ;; =>
   ;;
   ;; {:Type target_pressure,
@@ -69,9 +69,10 @@
   ;; =>
   ;; false
   "
-
-  [[x n] v]
-  (<= n (count (filter (fn [y] (and (< x (* y 1.01)) (> x (* y 0.99)))) v))))
+  ([[x n] v ]
+   (measured? [x n] v 1.01 0.99))
+  ([[x n] v uf lf]
+  (<= n (count (filter (fn [y] (and (< x (* y uf)) (> x (* y lf)))) v)))))
 
 (defn target-pressure
   [d]
@@ -81,8 +82,8 @@
 
 (defn next-target-pressure
   [d]
-  (let [p-tdo (to-si (ensure-number-val (todo-pressure d)))
-        p-tar (to-si (ensure-number-val (target-pressure d)))
+  (let [p-tdo (in-si-unit (operable-value (todo-pressure d)))
+        p-tar (in-si-unit (operable-value (target-pressure d)))
         v     (:Value p-tar)
         x     (:Value p-tdo)
         n     (:N p-tdo)
@@ -123,12 +124,11 @@
 
 (defn open-or-close
   [mt mb]
-  (if (>
-       (:Value (to-si (ensure-number-val mt)))
-       (:Value (to-si (ensure-number-val mb))))
-    "close" "open"))
-
-(defn get-fullscale-display-vec
+  (let [target (:Value (in-si-unit (operable-value mt)))
+        branch (:Value (in-si-unit (operable-value mb)))]
+    (if (>= target branch) "close" "open")))
+  
+(defn display-fullscale-vec
   [conf]
   (mapv :Display (fullscale-vec conf)))
 
