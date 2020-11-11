@@ -1,7 +1,8 @@
 (ns aoc.db
-  (:require [com.ashafa.clutch :as couch]
-            [aoc.conf          :as c]
-            [clojure.string    :as string]))
+  (:require [com.ashafa.clutch   :as couch]
+            [vl-data-insert.core :as i]
+            [aoc.conf            :as c]
+            [clojure.string      :as string]))
 
 (defn id->doc
   "Gets a document from the long term memory."
@@ -62,3 +63,10 @@
         res        (couch/get-view (:conn cc) (first view) (second view)
                                    {:key (str year "_" std)})]
     (mapv :id res)))
+
+
+(defn store!
+  "Gets the document with the given `id`. Stores the result vector `v`
+  under path `p` and saves the document. returns the revision. `:_rev`"
+  [conf id v p]
+  (:_rev (put-doc (i/store-results (id->doc id conf) v p) conf)))

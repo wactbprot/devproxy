@@ -10,7 +10,7 @@
                  [ring/ring-devel "1.7.1"]
                  [ring/ring-json "0.5.0"]
                  [hiccup "1.0.5"]
-                 [org.clojars.wactbprot/vl-data-insert "0.1.3"]
+                 [org.clojars.wactbprot/vl-data-insert "0.2.0"]
                  [com.taoensso/carmine "3.0.0"]
                  [com.ashafa/clutch "0.4.0"]
                  [org.clojure/data.json "1.0.0"]

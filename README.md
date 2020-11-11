@@ -1,3 +1,4 @@
+
 # AoC
 
 
@@ -87,5 +88,30 @@ aoc.server=> (start)
 `curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Branch"}' -X POST http://localhost:8009/save_dut_branch`
 
 ```json
+{"ok":true,"revs":["9-xxx"]}
+```
+or
+
+```json
+{"ok":true,"warn":"no doc selected"}
+```
+
+
+## save_maintainer
+
+	  
+```json
+{
+"Action": "Anselm",
+"Comment": "Save name of maintainer.",
+"TaskName": "anselm_save_maintainer",
+"RequestPath": "save_maintainer",
+"Value": {
+	"DocPath": "Calibration.Measurement.Maintainer"
+	}
+}
+```
 
 ```
+
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.Maintainer"}' -X POST http://localhost:8009/save_maintainer`

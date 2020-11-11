@@ -4,6 +4,11 @@
             [aoc.conf          :as c] ;; for debug
             [aoc.mem        :as mem]))
 
+(defn cal-id-keys
+  "Returns the vector of active cal id keys. " 
+  [conf]
+  (into [] (mem/pat->keys (k/id conf "*"))))
+
 (defn cal-ids
   "Returns a vector with the active calibration document ids.
 
@@ -15,4 +20,12 @@
   ```
   "
   [conf]
-  (mapv mem/get-val! (mem/pat->keys (k/id conf "*"))))
+  (mapv mem/get-val! (cal-id-keys conf)))
+
+(defn id-and-branch
+  [conf]
+  (let [id-keys (cal-id-keys conf)]
+    (when-not (empty? id-keys)
+      (mapv (fn [k] [(mem/get-val! k)
+                     (mem/get-val! (k/branch conf (k/get-row conf k)))])
+            id-keys)))) 

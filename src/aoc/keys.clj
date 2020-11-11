@@ -2,6 +2,11 @@
   (:require [clojure.string :as string]
             [aoc.mem :as mem]))
 
+(defn get-row
+  [conf k]
+  (when (and (string? k) (not (empty? k)))
+    (nth (string/split k (re-pattern (:sep conf))) 1 nil)))
+
 (defn from-conf
   ([conf kw]
    (from-conf conf kw nil))

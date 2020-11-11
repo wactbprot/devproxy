@@ -82,3 +82,4 @@
         n     (if n n (take (count x) (repeat 1)))
         xn    (map vector x n)]
     (first (first (filter (fn [xn] (not (measured? xn v))) xn)))))
+

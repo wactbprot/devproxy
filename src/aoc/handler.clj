@@ -127,7 +127,10 @@
 
 (defn save-dut-branch
   [conf req]
-  ;; log req
-  (let [doc-path (u/get-doc-path req)]
-    (res/response {:ok doc-path })))
+  (let [p (u/get-doc-path req)
+        v (memu/id-and-branch conf)]
+    (if (and (string? p) (not (empty? v)))
+      (res/response
+       {:ok true :revs (mapv (fn [[id x]] (db/store! conf id [x] p)) v)})
+      (res/response  {:ok true :warn "no doc selected"}))))
 
