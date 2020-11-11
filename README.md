@@ -112,9 +112,8 @@ or
 }
 ```
 
-```
-
 `curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.Maintainer"}' -X POST http://localhost:8009/save_maintainer`
+
 
 ```json
 {"ok":true,"warn":"no maintainer selected"}
@@ -123,4 +122,30 @@ or
 
 ```json
 {"ok":true,"revs":["11-abad27e1f4f8cd0a35870310d84f096e"]}
+```
+
+## save_gas
+
+```json
+{
+"Action": "Anselm",
+"Comment": "Save name of gas.",
+"TaskName": "anselm_save_gas",
+"RequestPath": "save_gas",
+"Value": {
+    "DocPath": "Calibration.Measurement.AuxValues.Gas"
+     }
+}
+```
+
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Gas"}' -X POST http://localhost:8009/save_gas`
+
+
+```json
+{"ok":true,"warn":"no gas selected"}
+```
+or
+
+```json
+{"ok":true,"revs":["12-fa88485ff30bcb544cba85c8d1d61ad9"]}
 ```

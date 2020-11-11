@@ -143,3 +143,13 @@
       (res/response
        {:ok true :revs (mapv (fn [id] (db/store! conf id [maintainer] p)) ids)})
       (res/response  {:ok true :warn "no maintainer selected"}))))
+
+(defn save-gas
+  [conf req]
+  (let [p   (u/get-doc-path req)
+        ids (memu/cal-ids conf)
+        gas (mem/get-val! (k/gas conf))]
+    (if (and (string? p) (string? gas))
+      (res/response
+       {:ok true :revs (mapv (fn [id] (db/store! conf id [gas] p)) ids)})
+      (res/response  {:ok true :warn "no gas selected"}))))
