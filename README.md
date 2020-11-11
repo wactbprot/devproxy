@@ -20,7 +20,7 @@ aoc.server=> (start)
 
 # api
 
-## target_pressure
+## target_pressure [GET]
 
 
 ```json
@@ -43,7 +43,7 @@ aoc.server=> (start)
 ```
 
 
-## cal_ids
+## cal_ids [GET]
 
 ```json
 {
@@ -52,7 +52,7 @@ aoc.server=> (start)
 "TaskName": "anselm_get_cal_ids",
 "RequestPath": "cal_ids"
 }
-   
+
 ```
 
 `curl http://localhost:8009/cal_ids`
@@ -61,18 +61,18 @@ aoc.server=> (start)
 {
   "ToExchange": {
     "Ids": "cal-2020-se3-ik-4007_0001@cal-2020-se3-ik-4025_0002"
-  }, 
+  },
   "ids": [
-    "cal-2020-se3-ik-4007_0001", 
+    "cal-2020-se3-ik-4007_0001",
     "cal-2020-se3-ik-4025_0002"
   ]
 }
 
 ```
 
-## save_dut_branch
+## save_dut_branch [POST]
 
-	  
+
 ```json
 {
 "Action": "Anselm",
@@ -97,9 +97,9 @@ or
 ```
 
 
-## save_maintainer
+## save_maintainer [POST]
 
-	  
+
 ```json
 {
 "Action": "Anselm",
@@ -124,7 +124,7 @@ or
 {"ok":true,"revs":["11-abad27e1f4f8cd0a35870310d84f096e"]}
 ```
 
-## save_gas
+## save_gas [POST]
 
 ```json
 {
@@ -148,4 +148,52 @@ or
 
 ```json
 {"ok":true,"revs":["12-fa88485ff30bcb544cba85c8d1d61ad9"]}
+```
+
+
+## dut_max [POST]
+
+```json
+{
+"Action": "Anselm",
+"Comment": "Get maximum pressure for each dut branch in the current configuration.",
+"TaskName": "anselm_get_dut_max",
+"RequestPath": "dut_max",
+"FromExchange": {
+	"@target_pressure": "Target_pressure.Selected",
+	"@target_unit": "Target_pressure.Unit"
+	},
+"Value": {
+	"DocPath": "Calibration.Measurement.Values.Position",
+	"Target_pressure_value": "@target_pressure",
+	"Target_pressure_unit": "@target_unit"
+	}
+}
+```
+
+### 50005:
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.Valves.Position", "Target_pressure_value": "10", "Target_pressure_unit":"Pa" }' -X POST http://localhost:50005/dut_max`
+
+```json
+"ToExchange": {
+    "Dut_A": {
+      "Type": "dut_max_a",
+      "Unit": "Pa",
+      "Value": 133.322
+    },
+    "Dut_B": {
+      "Type": "dut_max_b",
+      "Unit": "Pa",
+      "Value": 0.0
+    },
+    "Dut_C": {
+      "Type": "dut_max_c",
+      "Unit": "Pa",
+      "Value": 0.0
+    },
+    "Set_Dut_A": "open",
+    "Set_Dut_B": "close",
+    "Set_Dut_C": "close"
+  }
+}
 ```

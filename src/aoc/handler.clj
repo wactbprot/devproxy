@@ -6,7 +6,7 @@
    [aoc.utils             :as u]
    [aoc.db-utils          :as dbu]
    [aoc.db                :as db]
-   [aoc.conf              :as c] ;; for debug 
+   [aoc.conf              :as c] ;; for debug
    [org.httpkit.server    :refer [with-channel
                                   on-receive
                                   on-close
@@ -108,7 +108,7 @@
   (if-let [ids (memu/cal-ids conf)]
     (if-let [p (first
                 (filter some?
-                        (map (fn [id] (dbu/next-target-pressure (db/id->doc id conf))) ids)))] 
+                        (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) ids)))]
       (res/response
        {:ToExchange {:Target_pressure.Selected p
                      :Target_pressure.Unit "Pa"
@@ -131,7 +131,7 @@
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
       (res/response
-       {:ok true :revs (mapv (fn [[id x]] (db/store! conf id [x] p)) v)})
+       {:ok true :revs (mapv (fn [{id :id x :branch}] (db/store! conf id [x] p)) v)})
       (res/response  {:ok true :warn "no doc selected"}))))
 
 (defn save-maintainer
@@ -153,3 +153,20 @@
       (res/response
        {:ok true :revs (mapv (fn [id] (db/store! conf id [gas] p)) ids)})
       (res/response  {:ok true :warn "no gas selected"}))))
+
+(defn dut-max
+  [conf req]
+  (let [p        (u/get-doc-path req)
+        v        (memu/branch-and-fullscale conf)
+        mt       {:Value (u/get-target-pressure req)
+                  :Unit   (u/get-target-unit req)}
+        ma       (assoc (u/max-pressure conf v "dut_a") :Type "dut_max_a")
+        mb       (assoc (u/max-pressure conf v "dut_b") :Type "dut_max_b")
+        mc       (assoc (u/max-pressure conf v "dut_c") :Type "dut_max_c")]
+    (res/response
+     {:ToExchange {:Dut_A ma
+                   :Dut_B mb
+                   :Dut_C mc
+                   :Set_Dut_A (u/open-or-close mt ma)
+                   :Set_Dut_B (u/open-or-close mt mb)
+                   :Set_Dut_C (u/open-or-close mt mc)}})))

@@ -36,6 +36,7 @@
   (POST "/save_dut_branch"   [:as req]     (h/save-dut-branch (c/config) req))
   (POST "/save_maintainer"   [:as req]     (h/save-maintainer (c/config) req))
   (POST "/save_gas"          [:as req]     (h/save-gas        (c/config) req))
+  (POST "/dut_max"           [:as req]     (h/dut-max         (c/config) req))
 
   (route/resources "/")
   (route/not-found (v/not-found)))

@@ -5,7 +5,7 @@
             [aoc.mem        :as mem]))
 
 (defn cal-id-keys
-  "Returns the vector of active cal id keys. " 
+  "Returns the vector of active cal id keys. "
   [conf]
   (into [] (mem/pat->keys (k/id conf "*"))))
 
@@ -26,6 +26,16 @@
   [conf]
   (let [id-keys (cal-id-keys conf)]
     (when-not (empty? id-keys)
-      (mapv (fn [k] [(mem/get-val! k)
-                     (mem/get-val! (k/branch conf (k/get-row conf k)))])
-            id-keys)))) 
+      (mapv (fn [k] {:id     (mem/get-val! k)
+                     :branch (mem/get-val! (k/branch conf (k/get-row conf k)))})
+            id-keys))))
+
+(defn branch-and-fullscale
+  [conf]
+  (let [id-keys (cal-id-keys conf)]
+    (when-not (empty? id-keys)
+      (mapv (fn [k]
+              (let [row (k/get-row conf k)]
+                {:branch    (mem/get-val! (k/branch conf row))
+                 :fullscale (mem/get-val! (k/fullscale conf row))}))
+            id-keys))))

@@ -70,7 +70,7 @@
    [:div {:class "field"}
    [:div {:class "control"}
     [:a {:href (str "/device/" row)
-         :class "is-link "} 
+         :class "is-link "}
      [:i {:class "far fa-arrow-alt-circle-right fa-2x"} ]]]]])
 
 (defn index-link
@@ -140,7 +140,7 @@
               :data-key k
               :data-value v
               :data-row row}]]]])
-       
+
 (defn device-defaults
   [conf row defaults-seq]
   [:section {:class "section"}
@@ -189,8 +189,8 @@
         br       (mem/get-val! (k/branch conf row))
         fs       (mem/get-val! (k/fullscale conf row))
         id-vec   (db/cal-ids conf standard year)
-        fs-vec   (get-in conf [:se3 :items :fullscale])
-        br-vec   (get-in conf [:se3 :items :branch])]
+        fs-vec   (u/get-fullscale-display-vec conf)
+        br-vec   (get-in conf [:items :se3-branch])]
     (if (and standard year)
       [:div {:class "columns"}
        (button        conf "reset"     "reset"                     row)
@@ -248,7 +248,7 @@
   [conf row defaults]
   (run!
    (fn [[dk dv]]
-     (let [p (k/defaults conf row (name dk))]    
+     (let [p (k/defaults conf row (name dk))]
        (when-not (mem/get-val! p) (mem/set-val! p dv))))
    (seq defaults)))
 
@@ -263,7 +263,7 @@
 
 (defn device
   [conf req row]
-  (hp/html5  
+  (hp/html5
    (page-header conf)
    [:body
     (device-title conf row)
