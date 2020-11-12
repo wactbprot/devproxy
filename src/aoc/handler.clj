@@ -4,7 +4,6 @@
    [aoc.mem               :as mem]
    [aoc.keys              :as k]
    [aoc.utils             :as u]
-   [aoc.db-utils          :as dbu]
    [aoc.db                :as db]
    [aoc.conf              :as c] ;; for debug
    [org.httpkit.server    :refer [with-channel
@@ -118,6 +117,27 @@
     (res/response
      {:ToExchange {:Continue_mesaurement.Bool  false}})))
 
+(defn target-pressures
+  [conf req]
+  (let [ids (memu/cal-ids conf)]
+    (if-not (empty? ids)
+      (let [v (mapv (fn [id] (u/todo-si-value-vec (db/id->doc id conf))) ids)
+            c (-> v flatten distinct sort)]
+        (res/response
+         {:ToExchange
+          {:Target_pressure
+           {:Caption "target pressure", 
+            :Select (mapv (fn [p] {:display (str p " Pa") :value (str p)}) c)
+            :Selected (str (first c)) 
+            :Unit "Pa"}}}))
+      (res/response
+       {:ToExchange
+        {:Target_pressure
+         {:Caption "target pressure", 
+          :Select [{:display "1.0E-2 Pa" :value "1-0E-2"}]
+          :Selected "1.0E-2" 
+          :Unit "Pa"}}}))))
+
 (defn cal-ids
   [conf req]
   (let [ids (memu/cal-ids conf)]
@@ -160,9 +180,9 @@
         v        (memu/branch-and-fullscale conf)
         mt       {:Value (u/get-target-pressure req)
                   :Unit   (u/get-target-unit req)}
-        ma       (assoc (u/max-pressure conf v "dut_a") :Type "dut_max_a")
-        mb       (assoc (u/max-pressure conf v "dut_b") :Type "dut_max_b")
-        mc       (assoc (u/max-pressure conf v "dut_c") :Type "dut_max_c")]
+        ma       (assoc (u/max-pressure conf v "dut-a") :Type "dut_max_a")
+        mb       (assoc (u/max-pressure conf v "dut-b") :Type "dut_max_b")
+        mc       (assoc (u/max-pressure conf v "dut-c") :Type "dut_max_c")]
     (res/response
      {:ToExchange {:Dut_A ma
                    :Dut_B mb

@@ -1,6 +1,7 @@
 (ns aoc.utils
   (:require [clojure.string    :as string]
             [clojure.data.json :as json]
+            [aoc.conf          :as c] ;; for debug
             [clojure.edn       :as edn]))
 
 (defn map-value [m f]
@@ -29,6 +30,14 @@
 
 (defn type-filter-fn [s] (fn [m] (= (:Type m) s)))
 (defn todo-pressure [d] (get-in d [:Calibration :ToDo :Values :Pressure]))
+
+(defn todo-si-value-vec
+  [d]
+  (-> d
+      todo-pressure
+      operable-value
+      in-si-unit
+      :Value))
 
 (defn operable-value
   "Ensures that all `:Value`s of `m` are numbers.
@@ -101,7 +110,7 @@
 
 (defn fullscale-vec [conf] (get-in conf [:items :fullscale]))
 
-(defn fullscale-for-branch
+(defn fullscale-of-branch
   [v branch]
   (when (and (vector? v) (string? branch))
     (->> v
@@ -109,20 +118,40 @@
          first ;; get min would be better
          :fullscale)))
 
-(defn max-pressure-map-for-fullscale
+(defn max-pressure-by-fullscale
   [v fs]
   (when (and (vector? v) (string? fs))
     (->> v
-     (filter (fn [m] (= fs (:Display m))))
-     first)))
+         (filter (fn [m] (= fs (:Display m))))
+         first)))
 
 (defn max-pressure
+  "Returns a map containing at least `:Value` and `:Unit` for the given
+  `branch`." 
   [conf v branch]
-  (if-let [fs (fullscale-for-branch v branch)]
-    (max-pressure-map-for-fullscale (fullscale-vec conf) fs)
+  (if-let [fs (fullscale-of-branch v branch)]
+    (max-pressure-by-fullscale (fullscale-vec conf) fs)
     {:Unit "Pa" :Value 0.0}))
 
 (defn open-or-close
+  "Returns the string `open` or `close` depending on the values given
+  with `mt` (target pressure) and `mb` (fullscale of device at branch.
+
+  Example:   
+  ```clojure
+  (open-or-close {:Value 0.099, :Unit \"Pa\"} {:Value 0.099, :Unit \"Pa\"})
+  ;; =>
+  ;; close
+  (open-or-close {:Value 0.09, :Unit \"Pa\"} {:Value 0.099, :Unit \"Pa\"})
+  ;; =>
+  ;; open
+  (open-or-close {:Value 1 :Unit \"mbar\"} {:Value 1 :Unit \"Pa\"})
+  ;; =>
+  ;; close
+  (open-or-close {:Value 1 :Unit \"Pa\"} {:Value 1 :Unit \"mbar\"} )
+  ;; =>
+  ;; open
+  ```"
   [mt mb]
   (let [target (:Value (in-si-unit (operable-value mt)))
         branch (:Value (in-si-unit (operable-value mb)))]
