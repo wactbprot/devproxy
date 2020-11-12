@@ -1,7 +1,7 @@
 (ns aoc.mem-utils
   (:require [clojure.string :as string]
             [aoc.keys       :as k]
-            [aoc.conf          :as c] ;; for debug
+            [aoc.conf       :as c] ;; for debug
             [aoc.mem        :as mem]))
 
 (defn cal-id-keys
@@ -39,3 +39,21 @@
                 {:branch    (mem/get-val! (k/branch conf row))
                  :fullscale (mem/get-val! (k/fullscale conf row))}))
             id-keys))))
+
+(defn store-device-defaults
+  "Store `defaults` to mem when not already there.
+  `defaults` is a map `m`. The keys of `m` become part
+  of the mem path `p`."
+  [conf row defaults]
+  (run! (fn [[dk dv]]
+          (let [p (k/defaults conf row (name dk))]
+            (when-not (mem/get-val! p) (mem/set-val! p dv))))
+        (seq defaults)))
+
+(defn store-device-tasks
+  "Store `tasks` to mem when not already there."
+  [conf row tasks]
+  (run! (fn [m]
+          (let [p (k/tasks conf row (:TaskName m))]
+            (when-not (mem/get-val! p) (mem/set-val! p m))))
+        tasks))

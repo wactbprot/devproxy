@@ -377,3 +377,19 @@ curl http://localhost:8009/target_pressures
 	}
 }
 ```
+
+## offset_sequences [POST]
+
+```json
+{
+"Action": "Anselm",
+"Comment": "Starts the offset sequence for saving offset samples",
+"TaskName": "anselm_offset_sequences",
+"RequestPath": "offset_sequences",
+"Value": {
+	"DocPath": "Calibration.Measurement.AuxValues.Pressure"
+ }
+}
+```
+
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Pressure"}' -X POST http://localhost:8009/offset_sequences`

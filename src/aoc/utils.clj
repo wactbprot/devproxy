@@ -31,14 +31,6 @@
 (defn type-filter-fn [s] (fn [m] (= (:Type m) s)))
 (defn todo-pressure [d] (get-in d [:Calibration :ToDo :Values :Pressure]))
 
-(defn todo-si-value-vec
-  [d]
-  (-> d
-      todo-pressure
-      operable-value
-      in-si-unit
-      :Value))
-
 (defn operable-value
   "Ensures that all `:Value`s of `m` are numbers.
 
@@ -54,6 +46,14 @@
   ```"
   [m]
   (map-value m (fn [x] (if (string? x) (parse-double x) x))))
+
+(defn todo-si-value-vec
+  [d]
+  (-> d
+      todo-pressure
+      operable-value
+      in-si-unit
+      :Value))
 
 
 (defn measured?

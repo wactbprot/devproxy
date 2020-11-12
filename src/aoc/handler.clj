@@ -34,6 +34,11 @@
                         (swap! ws-clients dissoc channel)
                         (log/info channel "closed, status" status)))))
 
+(defn send-to-ws-clients
+  [conf m]
+  (doseq [client (keys @ws-clients)]
+    (send! client (j/json-str m))))
+
 (defn store
   [key val]
   (if (and val key)
@@ -50,12 +55,15 @@
 (defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
 (defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
 
-
-
-(defn device     [conf req]
-  (run! mem/del-key! (mem/pat->keys (k/defaults conf (u/get-row req) "*")))
-  (run! mem/del-key!  (mem/pat->keys (k/tasks conf    (u/get-row req) "*")))
-  (store (k/device conf (u/get-row req)) (u/get-val req)))
+(defn device
+  [conf req]
+  (let [device-name (u/get-val req)
+        row         (u/get-row req)]
+    (run! mem/del-key! (mem/pat->keys (k/defaults conf row "*")))
+    (run! mem/del-key! (mem/pat->keys (k/tasks conf row "*")))
+    (memu/store-device-defaults conf row (db/device-defaults conf device-name))
+    (memu/store-device-tasks    conf row (db/device-tasks conf device-name))
+    (store (k/device conf row) device-name)))
 
 (defn reset
   [conf req]
@@ -78,11 +86,6 @@
   (let [m    (default-map conf req)
         task (mem/get-val! (k/tasks conf (u/get-row req) (u/get-val req)))]
     (u/replace-map m task)))
-
-(defn send-to-ws-clients
-  [conf m]
-  (doseq [client (keys @ws-clients)]
-    (send! client (j/json-str m))))
 
 (defn dev-hub
   [conf data row]
@@ -178,8 +181,7 @@
   [conf req]
   (let [p        (u/get-doc-path req)
         v        (memu/branch-and-fullscale conf)
-        mt       {:Value (u/get-target-pressure req)
-                  :Unit   (u/get-target-unit req)}
+        mt       {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
         ma       (assoc (u/max-pressure conf v "dut-a") :Type "dut_max_a")
         mb       (assoc (u/max-pressure conf v "dut-b") :Type "dut_max_b")
         mc       (assoc (u/max-pressure conf v "dut-c") :Type "dut_max_c")]
@@ -190,3 +192,10 @@
                    :Set_Dut_A (u/open-or-close mt ma)
                    :Set_Dut_B (u/open-or-close mt mb)
                    :Set_Dut_C (u/open-or-close mt mc)}})))
+
+(defn offset_sequences
+  [conf req]
+  (let [p   (u/get-doc-path req)
+        ids (memu/cal-ids conf)]
+    (res/response {:value ids})))
+        

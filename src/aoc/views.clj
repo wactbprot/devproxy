@@ -241,26 +241,6 @@
       (hp/include-js "/js/main.js")])))
 
 
-(defn store-defaults!
-  "Store `defaults` to mem when not already there.
-  `defaults` is a map `m`. The keys of `m` become part
-  of the mem path `p`."
-  [conf row defaults]
-  (run!
-   (fn [[dk dv]]
-     (let [p (k/defaults conf row (name dk))]
-       (when-not (mem/get-val! p) (mem/set-val! p dv))))
-   (seq defaults)))
-
-(defn store-tasks!
-  "Store `tasks` to mem when not already there."
-  [conf row tasks]
-  (run!
-   (fn [m]
-     (let [p (k/tasks conf row (:TaskName m))]
-       (when-not (mem/get-val! p) (mem/set-val! p m))))
-   tasks))
-
 (defn device
   [conf req row]
   (hp/html5
@@ -269,13 +249,12 @@
     (device-title conf row)
     (device-select conf row)
     (when-let [device-name (mem/get-val! (k/device conf row))]
-      (let [ds (db/device-defaults conf device-name)
-            ts (db/device-tasks    conf device-name)]
-        (store-defaults! conf row ds)
-        (store-tasks!    conf row ts)
-        [:div
-         (device-defaults conf row ds)
-         (device-tasks    conf row ts)]))
+      (prn "--------view")
+      (prn device-name)
+      (prn row)
+      [:div
+       (device-defaults conf row (db/device-defaults conf device-name))
+       (device-tasks    conf row (db/device-tasks    conf device-name))])
     (hp/include-js "/js/jquery-3.5.1.min.js")
     (hp/include-js "/js/ws.js")
     (hp/include-js "/js/main.js")]))

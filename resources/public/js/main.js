@@ -1,10 +1,15 @@
 
-var post = function($this, path, data) {
+var post = function($this, path, data, cb) {
+
+    if(cb){
+    }else{
+	cb = function(){console.log("ok")}
+    }
     $.ajax( {
 	type: "POST",
 	url: "/" + path,
 	data: JSON.stringify(data),
-	success: console.log("ok"),
+	success: cb(),
 	contentType: "application/json; charset=utf-8",
 	dataType: "json"
     });
@@ -53,9 +58,13 @@ $(".run").click(function() {
 $(".device").change(function() {
     var $this = $(this),
 	row = $this.data("row");
-    post($this, "device/"+ row, {"value": $this.val(),
-				 "row": row})
-    location.reload();
+    post($this,
+	 "device/"+ row,
+	 {"value": $this.val(),
+	  "row": row},
+	 function(){
+	     location.reload();
+	 });
 });
 
 //----------------------------------
