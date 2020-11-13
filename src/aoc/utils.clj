@@ -108,7 +108,7 @@
 (defn get-target-pressure [req] (get-in req [:body :Target_pressure_value]))
 (defn get-target-unit [req] (get-in req [:body :Target_pressure_unit]))
 
-(defn fullscale-vec [conf] (get-in conf [:items :fullscale]))
+(defn fullscale-vec [conf] (:fullscale conf))
 
 (defn fullscale-of-branch
   [v branch]
@@ -119,9 +119,10 @@
          :fullscale)))
 
 (defn max-pressure-by-fullscale
-  [v fs]
-  (when (and (vector? v) (string? fs))
-    (->> v
+  [conf fs]
+  (when (string? fs)
+    (->> conf
+         fullscale-vec
          (filter (fn [m] (= fs (:Display m))))
          first)))
 
@@ -130,8 +131,10 @@
   `branch`." 
   [conf v branch]
   (if-let [fs (fullscale-of-branch v branch)]
-    (max-pressure-by-fullscale (fullscale-vec conf) fs)
+    (max-pressure-by-fullscale conf fs)
     {:Unit "Pa" :Value 0.0}))
+
+(defn compare-value [m](-> m  operable-value in-si-unit :Value))
 
 (defn open-or-close
   "Returns the string `open` or `close` depending on the values given
@@ -152,15 +155,34 @@
   ;; =>
   ;; open
   ```"
-  [mt mb]
-  (let [target (:Value (in-si-unit (operable-value mt)))
-        branch (:Value (in-si-unit (operable-value mb)))]
-    (if (>= target branch) "close" "open")))
-  
+  [m-target m-branch]
+  (if (> (compare-value m-target) (compare-value m-branch)) "close" "open"))
+
+(defn measure? [m-target m-max] (if (> (compare-value m-target) (compare-value m-max)) false true))
+
 (defn display-fullscale-vec
   [conf]
   (mapv :Display (fullscale-vec conf)))
 
+(defn range-factor [conf s] (get (:range-factor conf) s)) 
+
+(defn range-ok?
+  [conf from to m-target m-fullscale]
+  (if (and from to)
+    (let [fs (compare-value m-fullscale)
+          t  (compare-value m-target)
+          ul (* fs (range-factor conf to)) 
+          ll (* fs (range-factor conf from))]
+      (if (and (> t ll) (<= t ul)) true false))   
+    true))
+
+(defn suitable-task
+  [conf tasks m-target m-fullscale]
+  (first
+   (filter
+    (fn [{from :From to :To}] (range-ok? conf from to m-target m-fullscale) true)
+    tasks)))
+  
 (defn elem-id [conf a b] (str a "_" b))
 
 (defn fill-vec

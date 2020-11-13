@@ -41,19 +41,27 @@
             id-keys))))
 
 (defn store-device-defaults
-  "Store `defaults` to mem when not already there.
-  `defaults` is a map `m`. The keys of `m` become part
-  of the mem path `p`."
+  "Store `defaults` to mem.
+  `defaults` is a map `m`. The keys of `m` become part of the mem path
+  `p`."
   [conf row defaults]
-  (run! (fn [[dk dv]]
-          (let [p (k/defaults conf row (name dk))]
-            (when-not (mem/get-val! p) (mem/set-val! p dv))))
-        (seq defaults)))
+  (run!
+   (fn [[dk dv]] (mem/set-val! (k/defaults conf row (name dk)) dv))
+   (seq defaults)))
 
 (defn store-device-tasks
   "Store `tasks` to mem when not already there."
   [conf row tasks]
-  (run! (fn [m]
-          (let [p (k/tasks conf row (:TaskName m))]
-            (when-not (mem/get-val! p) (mem/set-val! p m))))
-        tasks))
+  (run!
+   (fn [task] (mem/set-val! (k/tasks conf row (:TaskName task)) task))
+   tasks))
+
+(defn tasks-by-pat  [conf row pat] (mapv mem/get-val! (mem/pat->keys (k/tasks conf row pat))))
+
+(defn auto-init-tasks [conf row] (tasks-by-pat conf row "auto_init*"))
+(defn range-ind-tasks [conf row] (tasks-by-pat conf row "range_ind*"))
+(defn ind-tasks [conf row] (tasks-by-pat conf row "ind*"))
+
+(defn auto-offset-tasks [conf row] (tasks-by-pat conf row "auto_offset*"))
+(defn range-offset-tasks [conf row] (tasks-by-pat conf row "range_offset*"))
+(defn offset-tasks [conf row] (tasks-by-pat conf row "offset*"))

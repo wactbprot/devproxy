@@ -393,3 +393,49 @@ curl http://localhost:8009/target_pressures
 ```
 
 `curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.Pressure"}' -X POST http://localhost:8009/offset_sequences`
+
+
+
+## offset [POST]
+
+```json
+{
+"Action": "Anselm",
+"Comment": "Executes the initialisation and measurement of the offset.",
+"TaskName": "anselm_offset",
+"RequestPath": "offset",
+"FromExchange": {
+	"@target_pressure": "Target_pressure.Selected",
+	"@target_unit": "Target_pressure.Unit"
+},
+"Value": {
+	"Target_pressure_value": "@target_pressure",
+	"Target_pressure_unit": "@target_unit"
+}
+},
+```	 
+
+`curl  -H "Content-Type: application/json" -d '{"Target_pressure_value": "10","Target_pressure_unit": "Pa"}' -X POST http://localhost:8009/offset`
+
+
+## ind [POST]
+
+```json
+{
+"Action": "Anselm",
+"Comment": "Executes the initialisation and measurement of the indication.",
+"TaskName": "anselm_ind",
+"RequestPath": "ind",
+"FromExchange": {
+	"@target_pressure": "Target_pressure.Selected",
+	"@target_unit": "Target_pressure.Unit"
+},
+"Value": {
+	"Target_pressure_value": "@target_pressure",
+	"Target_pressure_unit": "@target_unit"
+  }
+}
+```
+
+
+`curl  -H "Content-Type: application/json" -d '{"Target_pressure_value": "10","Target_pressure_unit": "Pa"}' -X POST http://localhost:8009/ind`

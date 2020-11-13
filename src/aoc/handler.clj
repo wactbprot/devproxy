@@ -59,12 +59,10 @@
   [conf req]
   (let [device-name (u/get-val req)
         row         (u/get-row req)]
-    (prn "llllllll")
     (run! mem/del-key! (mem/pat->keys (k/defaults conf row "*")))
     (run! mem/del-key! (mem/pat->keys (k/tasks conf row "*")))
     (memu/store-device-defaults conf row (db/device-defaults conf device-name))
     (memu/store-device-tasks    conf row (db/device-tasks conf device-name))
-    (prn "llll----")
     (store (k/device conf row) device-name)))
 
 (defn reset
@@ -201,3 +199,27 @@
         ids (memu/cal-ids conf)]
     (res/response {:value ids})))
         
+(defn offset
+  [conf req]
+  (let [p   (u/get-doc-path req)
+        mt  {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        ids (memu/cal-ids conf)]
+    (res/response {:value ids})))
+
+(defn ind
+  [conf req]
+  (let [mt      {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        fs-keys (mem/pat->keys (k/fullscale conf "*"))]
+    (mapv (fn [k]
+            (let [row (k/get-row conf k)
+                  fs  (mem/get-val! k)
+                  mm  (u/max-pressure-by-fullscale conf fs)]
+              (when (u/measure? mt mm)
+                (let [tasks  [(u/suitable-task conf (memu/auto-init-tasks conf row) mt mm)
+                              (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm)
+                              (u/suitable-task conf (memu/ind-tasks       conf row) mt mm)]
+                      ]
+                (prn tasks);; send to dev-hub
+                ))))
+            fs-keys)
+    (res/response {:value true})))

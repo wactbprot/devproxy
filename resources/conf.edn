@@ -6,26 +6,34 @@
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
  :redis {:conn {:pool {} :spec {:host "127.0.0.1" :port 6379 :db 1}}}
  :server {:port 8009 :join? false}
- :items {:fullscale [{:Unit "Pa"  :Display "SRG"      :Value  2.0},
-                     {:Unit "Pa"  :Display "0.1mbar"  :Value  10.0},
-                     {:Unit "Pa"  :Display "0.25mbar" :Value  25.0},
-                     {:Unit "Pa"  :Display "1mbar"    :Value  100},
-                     {:Unit "Pa"  :Display "1.1mbar"  :Value  110},
-                     {:Unit "Pa"  :Display "10mbar"   :Value  1000.0},
-                     {:Unit "Pa"  :Display "11mbar"   :Value  1100.0},
-                     {:Unit "Pa"  :Display "100mbar"  :Value  10000.},
-                     {:Unit "Pa"  :Display "1000mbar" :Value  100000.0},
-                     {:Unit "Pa"  :Display "1100mbar" :Value  110000.0},
-                     {:Unit "Pa"  :Display "0.01Torr" :Value  1.33},
-                     {:Unit "Pa"  :Display "0.1Torr"  :Value  13.3},
-                     {:Unit "Pa"  :Display "0.25Torr" :Value  33.3305},
-                     {:Unit "Pa"  :Display "1Torr"    :Value  133.322},
-                     {:Unit "Pa"  :Display "10Torr"   :Value  1333.22},
-                     {:Unit "Pa"  :Display "100Torr"  :Value  13332.2},
-                     {:Unit "Pa"  :Display "200Torr"  :Value  26664.4},
-                     {:Unit "Pa"  :Display "1000Torr" :Value  133322.0},
-                     ]
-         :se3-branch ["dut-a" "dut-b" "dut-c"]}
+ :fullscale [{:Unit "Pa"  :Display "SRG"      :Value  2.0}
+             {:Unit "Pa"  :Display "0.1mbar"  :Value  10.0}
+             {:Unit "Pa"  :Display "0.25mbar" :Value  25.0}
+             {:Unit "Pa"  :Display "1mbar"    :Value  100}
+             {:Unit "Pa"  :Display "1.1mbar"  :Value  110}
+             {:Unit "Pa"  :Display "10mbar"   :Value  1000.0}
+             {:Unit "Pa"  :Display "11mbar"   :Value  1100.0}
+             {:Unit "Pa"  :Display "100mbar"  :Value  10000.}
+             {:Unit "Pa"  :Display "1000mbar" :Value  100000.0}
+             {:Unit "Pa"  :Display "1100mbar" :Value  110000.0}
+             {:Unit "Pa"  :Display "0.01Torr" :Value  1.33}
+             {:Unit "Pa"  :Display "0.1Torr"  :Value  13.3}
+             {:Unit "Pa"  :Display "0.25Torr" :Value  33.3305}
+             {:Unit "Pa"  :Display "1Torr"    :Value  133.322}
+             {:Unit "Pa"  :Display "10Torr"   :Value  1333.22}
+             {:Unit "Pa"  :Display "100Torr"  :Value  13332.2}
+             {:Unit "Pa"  :Display "200Torr"  :Value  26664.4}
+             {:Unit "Pa"  :Display "1000Torr" :Value  133322.0}
+             ]
+ :range-factor {"fullscale" 1
+                "fullscale/10" 0.1
+                "fullscale/100" 0.01
+                "fullscale/1000" 0.001
+                "fullscale/10000" 0.0001
+                "fullscale/100000" 0.00001
+                "fullscale/1000000" 0.000001
+                }
+ :items { :se3-branch ["dut-a" "dut-b" "dut-c"]}
  :page-title "AoC"
  :main-title "A/o/C"
  :select "select"
