@@ -59,10 +59,12 @@
   [conf req]
   (let [device-name (u/get-val req)
         row         (u/get-row req)]
+    (prn "llllllll")
     (run! mem/del-key! (mem/pat->keys (k/defaults conf row "*")))
     (run! mem/del-key! (mem/pat->keys (k/tasks conf row "*")))
     (memu/store-device-defaults conf row (db/device-defaults conf device-name))
     (memu/store-device-tasks    conf row (db/device-tasks conf device-name))
+    (prn "llll----")
     (store (k/device conf row) device-name)))
 
 (defn reset

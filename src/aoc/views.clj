@@ -240,7 +240,6 @@
       (hp/include-js "/js/ws.js")
       (hp/include-js "/js/main.js")])))
 
-
 (defn device
   [conf req row]
   (hp/html5
@@ -249,9 +248,6 @@
     (device-title conf row)
     (device-select conf row)
     (when-let [device-name (mem/get-val! (k/device conf row))]
-      (prn "--------view")
-      (prn device-name)
-      (prn row)
       [:div
        (device-defaults conf row (db/device-defaults conf device-name))
        (device-tasks    conf row (db/device-tasks    conf device-name))])
