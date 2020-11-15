@@ -17,7 +17,7 @@
   [k v]
   (if (and (string? k) (some? v))
     (do
-      (wcar conn (car/set k (che/generate-string v)))
+      (wcar conn (car/set k (che/encode v)))
       {:ok true})
     {:error "no key or value"}))
 
@@ -38,7 +38,6 @@
       {:ok true})
     {:error "no keys to del"}))
 
-
 ;;------------------------------
 ;; get value(s)
 ;;------------------------------
@@ -46,7 +45,7 @@
   "Returns the value for the given key (`k`) and cast it to a clojure
   type."
   [k]
-  (che/parse-string (wcar conn (car/get k))) true)
+  (che/decode (wcar conn (car/get k)) true))
 
 (defn pat->keys
   "Get all keys matching  the given pattern `pat`."

@@ -201,13 +201,6 @@
        (device-link   conf row)])))
 
 (defn items-se3
-  "BTW:
-  ```clojure
-  (into [:div ] (range 9))
-  ;; =>
-  ;; [:div 0 1 2 3 4 5 6 7 8]
-  ```
-  "
   [conf]
   (let [standard (mem/get-val! (k/standard conf))
         year     (mem/get-val! (k/year conf))
@@ -218,7 +211,7 @@
         (into [:div {:class "box"}]
               (map
                (fn [i] (item-se3 conf i))
-               (range (int n))))]]
+               (range (Integer/parseInt n))))]]
       (missing conf))))
 
 (defn index

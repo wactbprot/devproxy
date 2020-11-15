@@ -15,7 +15,7 @@
 
 (defn store
   [key val]
-  (if (and val key)
+  (if (and  (string? key) (some? val))
     (res/response (mem/set-val! key val))
     (res/response {:error "no key or val"})))
 
@@ -25,6 +25,7 @@
 (defn mode       [conf req] (store (k/mode conf)       (u/get-val req)))
 (defn gas        [conf req] (store (k/gas conf)        (u/get-val req)))
 (defn maintainer [conf req] (store (k/maintainer conf) (u/get-val req)))
+
 (defn id         [conf req] (store (k/id conf          (u/get-row req)) (u/get-val req)))
 (defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
 (defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
@@ -98,7 +99,8 @@
   [conf req]
   (let [ids (memu/cal-ids conf)]
     (if-not (empty? ids)
-      (let [v (mapv (fn [id] (u/todo-si-value-vec (db/id->doc id conf))) ids)
+      (let [f (fn [id] (u/todo-si-value-vec (db/id->doc id conf)))
+            v (mapv f ids)
             c (-> v flatten distinct sort)]
         (res/response
          {:ToExchange
@@ -182,18 +184,15 @@
 
 (defn ind
   [conf req]
-  (let [mt      {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
-        fs-keys (mem/pat->keys (k/fullscale conf "*"))]
-    (mapv (fn [k]
-            (let [row (k/get-row conf k)
-                  fs  (mem/get-val! k)
-                  mm  (u/max-pressure-by-fullscale conf fs)]
-              (when (u/measure? mt mm)
-                (let [tasks  [(u/suitable-task conf (memu/auto-init-tasks conf row) mt mm)
-                              (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm)
-                              (u/suitable-task conf (memu/ind-tasks       conf row) mt mm)]
-                      ]
-                (prn tasks);; send to dev-hub
-                ))))
-            fs-keys)
-    (res/response {:value true})))
+  (let [mt        {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        ks   (mem/pat->keys (k/fullscale conf "*"))
+        tasks-vec (mapv (fn [k]
+                          (let [row (k/get-row conf k)
+                                fs  (mem/get-val! k)
+                                mm  (u/max-pressure-by-fullscale conf fs)]
+                            (when (u/measure? mt mm)
+                              [(u/suitable-task conf (memu/auto-init-tasks conf row) mt mm)
+                               (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm)
+                               (u/suitable-task conf (memu/ind-tasks       conf row) mt mm)])))
+                        ks)]
+    (res/response {:value tasks-vec})))

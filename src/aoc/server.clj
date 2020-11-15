@@ -16,7 +16,6 @@
   (GET "/device/:row"        [row :as req] (v/device           (c/config) req row))
   (POST "/device/:row"       [:as req]     (h/device           (c/config) req))
   (POST "/default/:row"      [:as req]     (h/default          (c/config) req))
-                                                               
 
   (POST "/year"              [:as req]     (h/year             (c/config) req))
   (POST "/n"                 [:as req]     (h/n                (c/config) req))
@@ -60,6 +59,4 @@
     (@server :timeout 100)
     (reset! server nil)))
 
-(defn start
-  []
-  (reset! server (run-server app {:port 8009})))
+(defn start [] (reset! server (run-server app {:port 8009})))

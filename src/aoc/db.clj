@@ -21,8 +21,7 @@
       (println (.getMessage e)))))
 
 (defn rev-refresh
-  "Refreshs the revision `_rev` of the document if
-  it exist."
+  "Refreshs the revision `_rev` of the document if it exist."
   [doc conf]
   (if-let [db-doc (id->doc (:_id doc) conf)]
     (assoc doc :_rev (:_rev db-doc))
@@ -57,14 +56,14 @@
 (defn cal-ids
   "Returns all calibration ids belonging to a standard and a year."
   [conf std year]
-  (let [cc (:couch conf)
-        view       (:calibration-ids-view cc)
-        res        (couch/get-view (:conn cc) (first view) (second view)
-                                   {:key (str year "_" std)})]
+  (let [cc   (:couch conf)
+        view (:calibration-ids-view cc)
+        res  (couch/get-view (:conn cc) (first view) (second view)
+                             {:key (str year "_" std)})]
     (mapv :id res)))
 
 (defn store!
   "Gets the document with the given `id`. Stores the result vector `v`
-  under path `p` and saves the document. returns the revision. `:_rev`"
+  under path `p` and saves the document. Returns the revision `:_rev`."
   [conf id v p]
   (:_rev (put-doc (i/store-results (id->doc id conf) v p) conf)))

@@ -5,8 +5,6 @@
   "Reads a `edn` configuration in file `f`." 
   ([]
    (config "resources/conf.edn"))
-   ([f]
-    (-> f
-       slurp
-       edn/read-string)))
+  ([f]
+   (-> f slurp edn/read-string)))
 
