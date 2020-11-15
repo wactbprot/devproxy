@@ -4,6 +4,7 @@
             [clojure.string :as string]
             [clojure.data.json :as json]
             [aoc.conf           :as c]
+            [cheshire.core :as che]
             ))
 
 (def conn (get-in (c/config) [:redis :conn]))
@@ -16,10 +17,9 @@
   [k v]
   (if (and (string? k) (some? v))
     (do
-      (wcar conn (car/set k (u/clj->val v)))
+      (wcar conn (car/set k (che/generate-string v)))
       {:ok true})
     {:error "no key or value"}))
-
 
 ;;------------------------------
 ;; del
@@ -46,7 +46,7 @@
   "Returns the value for the given key (`k`) and cast it to a clojure
   type."
   [k]
-  (u/val->clj (wcar conn (car/get k))))
+  (che/parse-string (wcar conn (car/get k))) true)
 
 (defn pat->keys
   "Get all keys matching  the given pattern `pat`."
