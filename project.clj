@@ -18,4 +18,4 @@
                  [org.clojure/tools.logging "1.1.0"]
                  ]
   :plugins [[lein-ring "0.12.5"]]
-  :ring {:handler aoc.handler/app})
+  :ring {:handler aoc.server/app})

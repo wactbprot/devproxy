@@ -1,6 +1,8 @@
 (ns aoc.utils
   (:require [clojure.string    :as string]
             [clojure.data.json :as json]
+            [cheshire.core     :as che]
+            [aoc.conf          :as c] ;; for debug
             [clojure.edn       :as edn]))
 
 (defn map-value [m f]
@@ -46,6 +48,14 @@
   [m]
   (map-value m (fn [x] (if (string? x) (parse-double x) x))))
 
+(defn todo-si-value-vec
+  [d]
+  (-> d
+      todo-pressure
+      operable-value
+      in-si-unit
+      :Value))
+(defn compare-value [m](-> m operable-value in-si-unit :Value))
 
 (defn measured?
   "Checks if number `x` is in vector `v` `n` times. The value in `v` must fit within 1%.
@@ -82,15 +92,14 @@
 
 (defn next-target-pressure
   [d]
-  (let [p-tdo (in-si-unit (operable-value (todo-pressure d)))
-        p-tar (in-si-unit (operable-value (target-pressure d)))
-        v     (:Value p-tar)
-        x     (:Value p-tdo)
-        n     (:N p-tdo)
+  (let [m-tdo (todo-pressure d)
+        m-tar (target-pressure d)
+        v     (compare-value m-tar)
+        x     (compare-value m-tdo)
+        n     (:N m-tdo)
         n     (if n n (take (count x) (repeat 1)))
         xn    (map vector x n)]
     (first (first (filter (fn [xn] (not (measured? xn v))) xn)))))
-
 
 (defn get-val [req] (get-in req [:body :value]))
 (defn get-row [req] (get-in req [:body :row]))
@@ -99,9 +108,9 @@
 (defn get-target-pressure [req] (get-in req [:body :Target_pressure_value]))
 (defn get-target-unit [req] (get-in req [:body :Target_pressure_unit]))
 
-(defn fullscale-vec [conf] (get-in conf [:items :fullscale]))
+(defn fullscale-vec [conf] (:fullscale conf))
 
-(defn fullscale-for-branch
+(defn fullscale-of-branch
   [v branch]
   (when (and (vector? v) (string? branch))
     (->> v
@@ -109,29 +118,71 @@
          first ;; get min would be better
          :fullscale)))
 
-(defn max-pressure-map-for-fullscale
-  [v fs]
-  (when (and (vector? v) (string? fs))
-    (->> v
-     (filter (fn [m] (= fs (:Display m))))
-     first)))
+(defn max-pressure-by-fullscale
+  [conf fs]
+  (when (string? fs)
+    (->> conf
+         fullscale-vec
+         (filter (fn [m] (= fs (:Display m))))
+         first)))
 
 (defn max-pressure
+  "Returns a map containing at least `:Value` and `:Unit` for the given
+  `branch`." 
   [conf v branch]
-  (if-let [fs (fullscale-for-branch v branch)]
-    (max-pressure-map-for-fullscale (fullscale-vec conf) fs)
+  (if-let [fs (fullscale-of-branch v branch)]
+    (max-pressure-by-fullscale conf fs)
     {:Unit "Pa" :Value 0.0}))
 
+
+
 (defn open-or-close
-  [mt mb]
-  (let [target (:Value (in-si-unit (operable-value mt)))
-        branch (:Value (in-si-unit (operable-value mb)))]
-    (if (>= target branch) "close" "open")))
-  
+  "Returns the string `open` or `close` depending on the values given
+  with `mt` (target pressure) and `mb` (fullscale of device at branch.
+
+  Example:   
+  ```clojure
+  (open-or-close {:Value 0.099, :Unit \"Pa\"} {:Value 0.099, :Unit \"Pa\"})
+  ;; =>
+  ;; close
+  (open-or-close {:Value 0.09, :Unit \"Pa\"} {:Value 0.099, :Unit \"Pa\"})
+  ;; =>
+  ;; open
+  (open-or-close {:Value 1 :Unit \"mbar\"} {:Value 1 :Unit \"Pa\"})
+  ;; =>
+  ;; close
+  (open-or-close {:Value 1 :Unit \"Pa\"} {:Value 1 :Unit \"mbar\"} )
+  ;; =>
+  ;; open
+  ```"
+  [m-target m-branch]
+  (if (> (compare-value m-target) (compare-value m-branch)) "close" "open"))
+
+(defn measure? [m-target m-max] (if (> (compare-value m-target) (compare-value m-max)) false true))
+
 (defn display-fullscale-vec
   [conf]
   (mapv :Display (fullscale-vec conf)))
 
+(defn range-factor [conf s] (get (:range-factor conf) s)) 
+
+(defn range-ok?
+  [conf from to m-target m-fullscale]
+  (if (and from to)
+    (let [fs (compare-value m-fullscale)
+          t  (compare-value m-target)
+          ul (* fs (range-factor conf to)) 
+          ll (* fs (range-factor conf from))]
+      (if (and (> t ll) (<= t ul)) true false))   
+    true))
+
+(defn suitable-task
+  [conf tasks m-target m-fullscale]
+  (first
+   (filter
+    (fn [{from :From to :To}] (range-ok? conf from to m-target m-fullscale) true)
+    tasks)))
+  
 (defn elem-id [conf a b] (str a "_" b))
 
 (defn fill-vec
@@ -142,28 +193,30 @@
   [conf item kw]
   (into (if item [item] [(:select conf)]) (kw conf)))
 
+(defn map->json
+  "Transforms a hash-map  to a json string"
+  [m]
+  (che/generate-string m))
+
+(defn json->map
+  "Transforms a json object to a map."
+  [j]
+  (che/parse-string j true))
+
 (defn replace-map
   "Replaces the tokens given as keys in the map `m` in `task`.
   "
   [m task]
   (if (map? m)
     (json->map
-     (reduce
-      (fn [s [k v]]
-        (let [pat (re-pattern k)
-              r   (clj->str-val v)]
-          (string/replace s pat r)))
-      (map->json task) m))
+     (reduce (fn [s [k v]] (string/replace s (re-pattern k) (str v)))
+             (map->json task) m))
     task))
 
 (defn body->msg-data-map
   "Avoid sending to much information back to frontend"
   [body]
-  (let [{res :Result
-         exc :ToExchange
-         err :error} (json/read-str body :key-fn keyword)]
+  (let [{res :Result exc :ToExchange err :error} (che/parse-string body true)]
     {:Result res :Exchange exc :Error err}))
 
-(defn body->msg-data
-  [body]
-  (json/json-str (body->msg-data-map body)))
+(defn body->msg-data [body] (che/generate-string (body->msg-data-map body)))

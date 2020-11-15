@@ -54,7 +54,6 @@
   ([conf dev]
   (get-in (first (devices conf dev)) [:value :DeviceClass :Task])))
 
-
 (defn cal-ids
   "Returns all calibration ids belonging to a standard and a year."
   [conf std year]
@@ -63,7 +62,6 @@
         res        (couch/get-view (:conn cc) (first view) (second view)
                                    {:key (str year "_" std)})]
     (mapv :id res)))
-
 
 (defn store!
   "Gets the document with the given `id`. Stores the result vector `v`

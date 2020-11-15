@@ -4,16 +4,14 @@
    [aoc.mem               :as mem]
    [aoc.keys              :as k]
    [aoc.utils             :as u]
-   [aoc.db-utils          :as dbu]
    [aoc.db                :as db]
    [aoc.conf              :as c] ;; for debug
    [org.httpkit.client    :as http]
-   [aoc.ws-srv            :as ws-srv]
+   [aoc.ws-server         :as ws-srv]
    [clojure.data.json     :as j]
    [clojure.tools.logging :as log]
    [clojure.string        :as string]
    [ring.util.response    :as res] ))
-
 
 (defn store
   [key val]
@@ -31,12 +29,15 @@
 (defn branch     [conf req] (store (k/branch conf      (u/get-row req)) (u/get-val req)))
 (defn fullscale  [conf req] (store (k/fullscale conf   (u/get-row req)) (u/get-val req)))
 
-
-
-(defn device     [conf req]
-  (run! mem/del-key! (mem/pat->keys (k/defaults conf (u/get-row req) "*")))
-  (run! mem/del-key!  (mem/pat->keys (k/tasks conf    (u/get-row req) "*")))
-  (store (k/device conf (u/get-row req)) (u/get-val req)))
+(defn device
+  [conf req]
+  (let [device-name (u/get-val req)
+        row         (u/get-row req)]
+    (run! mem/del-key! (mem/pat->keys (k/defaults conf row "*")))
+    (run! mem/del-key! (mem/pat->keys (k/tasks conf row "*")))
+    (memu/store-device-defaults conf row (db/device-defaults conf device-name))
+    (memu/store-device-tasks    conf row (db/device-tasks conf device-name))
+    (store (k/device conf row) device-name)))
 
 (defn reset
   [conf req]
@@ -93,6 +94,27 @@
     (res/response
      {:ToExchange {:Continue_mesaurement.Bool  false}})))
 
+(defn target-pressures
+  [conf req]
+  (let [ids (memu/cal-ids conf)]
+    (if-not (empty? ids)
+      (let [v (mapv (fn [id] (u/todo-si-value-vec (db/id->doc id conf))) ids)
+            c (-> v flatten distinct sort)]
+        (res/response
+         {:ToExchange
+          {:Target_pressure
+           {:Caption "target pressure", 
+            :Select (mapv (fn [p] {:display (str p " Pa") :value (str p)}) c)
+            :Selected (str (first c)) 
+            :Unit "Pa"}}}))
+      (res/response
+       {:ToExchange
+        {:Target_pressure
+         {:Caption "target pressure", 
+          :Select [{:display "1.0E-2 Pa" :value "1-0E-2"}]
+          :Selected "1.0E-2" 
+          :Unit "Pa"}}}))))
+
 (defn cal-ids
   [conf req]
   (let [ids (memu/cal-ids conf)]
@@ -131,13 +153,12 @@
 
 (defn dut-max
   [conf req]
-  (let [p        (u/get-doc-path req)
-        v        (memu/branch-and-fullscale conf)
-        mt       {:Value (u/get-target-pressure req)
-                  :Unit   (u/get-target-unit req)}
-        ma       (assoc (u/max-pressure conf v "dut_a") :Type "dut_max_a")
-        mb       (assoc (u/max-pressure conf v "dut_b") :Type "dut_max_b")
-        mc       (assoc (u/max-pressure conf v "dut_c") :Type "dut_max_c")]
+  (let [p  (u/get-doc-path req)
+        v  (memu/branch-and-fullscale conf)
+        mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        ma (assoc (u/max-pressure conf v "dut-a") :Type "dut_max_a")
+        mb (assoc (u/max-pressure conf v "dut-b") :Type "dut_max_b")
+        mc (assoc (u/max-pressure conf v "dut-c") :Type "dut_max_c")]
     (res/response
      {:ToExchange {:Dut_A ma
                    :Dut_B mb
@@ -145,3 +166,34 @@
                    :Set_Dut_A (u/open-or-close mt ma)
                    :Set_Dut_B (u/open-or-close mt mb)
                    :Set_Dut_C (u/open-or-close mt mc)}})))
+
+(defn offset_sequences
+  [conf req]
+  (let [p   (u/get-doc-path req)
+        ids (memu/cal-ids conf)]
+    (res/response {:value ids})))
+        
+(defn offset
+  [conf req]
+  (let [p   (u/get-doc-path req)
+        mt  {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        ids (memu/cal-ids conf)]
+    (res/response {:value ids})))
+
+(defn ind
+  [conf req]
+  (let [mt      {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        fs-keys (mem/pat->keys (k/fullscale conf "*"))]
+    (mapv (fn [k]
+            (let [row (k/get-row conf k)
+                  fs  (mem/get-val! k)
+                  mm  (u/max-pressure-by-fullscale conf fs)]
+              (when (u/measure? mt mm)
+                (let [tasks  [(u/suitable-task conf (memu/auto-init-tasks conf row) mt mm)
+                              (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm)
+                              (u/suitable-task conf (memu/ind-tasks       conf row) mt mm)]
+                      ]
+                (prn tasks);; send to dev-hub
+                ))))
+            fs-keys)
+    (res/response {:value true})))

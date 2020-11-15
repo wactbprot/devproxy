@@ -1,95 +1,93 @@
 
-var post = function($this, path, data) {
+var post = ($this, path, data, callback) => { 
+    if(! callback){callback = () => {console.log("ok")}}
+    
     $.ajax( {
 	type: "POST",
 	url: "/" + path,
 	data: JSON.stringify(data),
-	success: console.log("ok"),
+	success: callback,
 	contentType: "application/json; charset=utf-8",
 	dataType: "json"
     });
 }
 //----------------------------------
-$("#year").change(function() {
-    var $this = $(this);
-    post($this, "year", {"value": $this.val()} );
-    location.reload();
+$("#year").change( e => {
+    var $this = $(e.currentTarget);
+    post($this, "year", {"value": $this.val()}, () => {location.reload();});
 });
-$("#standard").change(function() {
-    var $this = $(this);
-    post($this, "standard",{"value": $this.val()});
-    location.reload();
+$("#standard").change( e => {
+    var $this = $(e.currentTarget);
+    post($this, "standard",{"value": $this.val()}, () => {location.reload();});
 });
-$("#n").change(function() {
-    var $this = $(this);
-    post($this, "n", {"value": $this.val()} );
-    location.reload();
+$("#n").change( e => {
+    var $this = $(e.currentTarget);
+    post($this, "n", {"value": $this.val()}, () => {location.reload();});
 });
 
-$("#gas").change(function() {
-    var $this = $(this);
-    post($this, "gas", {"value": $this.val()})
-});
-$("#mode").change(function() {
-    var $this = $(this);
-    post($this, "mode", {"value": $this.val()})
+$("#gas").change( e => {
+    var $this = $(e.currentTarget);
+    post($this, "gas", {"value": $this.val()});
 });
 
-$("#maintainer").change(function() {
-    var $this = $(this);
-    post($this, "maintainer",{"value": $this.val()})
+$("#mode").change( e => {
+    var $this = $(e.currentTarget);
+    post($this, "mode", {"value": $this.val()});
+});
+
+$("#maintainer").change( e => {
+    var $this = $(e.currentTarget);
+    post($this, "maintainer", {"value": $this.val()});
 });
 
 //----------------------------------
-$(".run").click(function() {
-    var $this = $(this),
-	row = $this.data("row");
-    post($this, "run", {"value": $("#task_" + row).val(),
-			"row": row});
-    $("#device-stdout_" + row).val("...post to server");
-});
-
-//----------------------------------
-$(".device").change(function() {
-    var $this = $(this),
-	row = $this.data("row");
-    post($this, "device/"+ row, {"value": $this.val(),
-				 "row": row})
-    location.reload();
-});
-
-//----------------------------------
-$(".reset").click(function() {
-    var $this = $(this),
-	row = $this.data("row");
-    post($this, "reset", {"value": true,
-			  "row": row})
-    location.reload();
-});
-
-$(".id").change(function() {
-    var $this = $(this),
-	row = $this.data("row");
-    post($this, "id", {"value": $this.val(),
-		       "row": row});
-});
-$(".branch").change(function() {
-    var $this = $(this),
-	row = $this.data("row");
-    post($this, "branch", {"value": $this.val(),
-			   "row": row});
-});
-$(".fullscale").change(function() {
-    var $this = $(this),
-	row = $this.data("row");
-    post($this, "fullscale", {"value": $this.val(),
-			      "row": row});
-});
-$(".defaults").change(function() {
-    var $this = $(this),
+$(".run").click( e => {
+    var $this = $(e.currentTarget),
 	row = $this.data("row"),
-        key = $this.data("key");
-    post($this, "default/" + row, {"value": $this.val(),
-				   "row": row,
-				   "key": key});
+	data = {"value": $("#task_" + row).val(), "row": row};
+    $("#device-stdout_" + row).val("...will post to server");
+    post($this, "run", data);
+    
+});
+
+//----------------------------------
+$(".device").change(e => {
+    var $this = $(e.currentTarget),
+	row =  $this.data("row"),
+	data = {"value": $this.val(), "row": row};
+    post($this, "device/"+ row, data, () => {location.reload(); });
+});
+
+//----------------------------------
+$(".reset").click( e => {
+    var $this = $(e.currentTarget),
+	row = $this.data("row"),
+	data = {"value": true, "row": row};
+    post($this, "reset", data, () => {location.reload()});
+});
+
+$(".id").change( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": $this.val(), "row": $this.data("row")};
+    post($this, "id", data);
+});
+
+$(".branch").change( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": $this.val(),"row": $this.data("row")};
+    post($this, "branch", data);
+});
+
+$(".fullscale").change( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": $this.val(),"row": $this.data("row")};
+    post($this, "fullscale", data);
+});
+
+$(".defaults").change( e => {
+    var $this = $(e.currentTarget),
+	row = $this.data("row"),
+        key = $this.data("key"),
+	data = {"value": $this.val(), "row": row, "key": key};
+    post($this, "default/" + row, data);
 });
