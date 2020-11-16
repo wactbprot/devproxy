@@ -82,8 +82,10 @@
        :result result
        :exch   exch
        :id     id
-       :rev (when (and id result doc-path) (db/save conf id result doc-path))}
+       :rev (when (and id result doc-path) (db/save conf id result doc-path))
+       :error err}
       {:error  true
+       :reason "http error"
        :status status
        :row    row}))))
 
@@ -198,33 +200,49 @@
         ids (memu/cal-ids conf)]
     (res/response {:value ids})))
 
+
+
+
 (defn launch-task
-  [conf tasks row]
-  (doall (map (fn [task]
-                (if task
-                  (dev-hub conf {:body (che/encode task)} row (:DocPath task) (mem/get-val! (k/id conf row)))
-                  {:ok true :warn "no task"}))
-              tasks)))
+  [conf task row]
+  (if task
+    (let [id     (mem/get-val! (k/id conf row))
+          p      (:DocPath task)
+          data   {:body (che/encode task)}
+          result (dev-hub conf data row p id)]
+      (ws-srv/send-to-ws-clients conf result)
+      result)
+    {:ok true :warn "no task"}))
 
 (defn launch-tasks
+  [conf tasks row]
+  (dorun (map (fn [task] (launch-task conf task row)) tasks)))
+
+(defn launch-tasks-vec
   [conf v]
   (let [mode (mem/get-val! (k/mode conf))
-        f    (fn [{row :row tasks :tasks}] (launch-task conf tasks row))]
-    (when (= mode "sequential") (doall (map f v)))
-    (when (= mode "parallel")   (doall (pmap f v)))))
+        f    (fn [{row :row tasks :tasks}] (launch-tasks conf tasks row))]
+    (when (= mode "sequential") (dorun (map f v)))
+    (when (= mode "parallel")   (dorun (pmap f v)))))
+
+(defn get-task-vec
+  [conf k mt kind]
+  (let [row (k/get-row conf k)
+        fs  (mem/get-val! k)
+        mm  (u/max-pressure-by-fullscale conf fs)]
+    (when (u/measure? mt mm)
+      (let [tasks (condp = kind
+                    :ind  [(update-task conf row (u/suitable-task conf (memu/auto-init-tasks conf row) mt mm))
+                           (update-task conf row (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm))
+                           (update-task conf row (u/suitable-task conf (memu/ind-tasks       conf row) mt mm))]
+                    )]
+        {:tasks tasks :row row}))))
 
 (defn ind
   [conf req]
   (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
         ks (mem/pat->keys (k/fullscale conf "*"))
-        v  (mapv (fn [k]
-                   (let [row (k/get-row conf k)
-                         fs  (mem/get-val! k)
-                         mm  (u/max-pressure-by-fullscale conf fs)]
-                     (when (u/measure? mt mm)
-                       {:tasks [ (update-task conf row (u/suitable-task conf (memu/auto-init-tasks conf row) mt mm))
-                                 (update-task conf row (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm))
-                                 (update-task conf row (u/suitable-task conf (memu/ind-tasks       conf row) mt mm))]
-                        :row row})))
-                 ks)]
-    (res/response {:ok true :val (launch-tasks conf v)})))
+        v  (mapv (fn [k] (get-task-vec conf k mt :ind)) ks)
+        r  (launch-tasks-vec conf v)]
+    (prn r)
+    (res/response {:ok true :val (che/encode r)})))
