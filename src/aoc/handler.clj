@@ -8,7 +8,7 @@
    [aoc.conf              :as c] ;; for debug
    [org.httpkit.client    :as http]
    [aoc.ws-server         :as ws-srv]
-   [clojure.data.json     :as j]
+   [cheshire.core         :as che]
    [clojure.tools.logging :as log]
    [clojure.string        :as string]
    [ring.util.response    :as res] ))
@@ -50,35 +50,51 @@
   (store (k/defaults conf (u/get-row req) (u/get-key req)) (u/get-val req)))
 
 (defn default-map
-  [conf req]
+  [conf row]
   (let [sep-pat (re-pattern (:sep conf))
-        ks      (mem/pat->keys (k/defaults conf (u/get-row req) "*"))
+        ks      (mem/pat->keys (k/defaults conf row "*"))
         f       (fn [k] {(last (string/split k sep-pat)) (str (mem/get-val! k))})]
   (into {} (mapv f ks))))
 
+(defn update-task
+  [conf row task]
+  (when task
+    (u/replace-map (default-map conf row) task)))
+
 (defn get-task
   [conf req]
-  (let [m    (default-map conf req)
-        task (mem/get-val! (k/tasks conf (u/get-row req) (u/get-val req)))]
-    (u/replace-map m task)))
+  (let [row       (u/get-row req)
+        task-name (u/get-val req)]
+    (update-task conf row (mem/get-val! (k/tasks conf row task-name)) )))
 
 (defn dev-hub
-  [conf data row]
-  (let [conn    (:conn (:dev-hub  conf))
-        {body   :body
-         status :status} (deref (http/post conn data))]
-    (if (> 300 status)
-      (ws-srv/send-to-ws-clients conf {:msg (u/body->msg-data body)       :row row})
-      (ws-srv/send-to-ws-clients conf {:msg (str "error, status " status) :row row}))))
+  ([conf data row]
+   (dev-hub conf data row nil nil))
+  ([conf data row doc-path id]
+   (let [{body    :body
+         status  :status} (deref (http/post (:conn (:dev-hub  conf)) data))
+         {result :Result
+          exch   :ToExchange
+          err    :error} (che/decode body true)]
+    (if (> 400 status)
+      {:ok     true
+       :row    row
+       :result result
+       :exch   exch
+       :id     id
+       :rev (when (and id result doc-path) (db/save conf id result doc-path))}
+      {:error  true
+       :status status
+       :row    row}))))
 
 (defn run
   [conf req]
   (let [row   (u/get-row req)
         task  (get-task conf req)
-        data  {:body (j/json-str task)}]
-    (ws-srv/send-to-ws-clients conf {:msg "send to relay" :row row})
-    (future (dev-hub conf data row))
-    (res/response {:ok true})))
+        data  {:body (che/encode task)}
+        res (dev-hub conf data row)]
+    (ws-srv/send-to-ws-clients conf res)
+    (res/response res)))
 
 (defn target-pressure
   [conf req]
@@ -130,7 +146,7 @@
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
       (res/response
-       {:ok true :revs (mapv (fn [{id :id x :branch}] (db/store! conf id [x] p)) v)})
+       {:ok true :revs (mapv (fn [{id :id x :branch}] (db/save conf id [x] p)) v)})
       (res/response  {:ok true :warn "no doc selected"}))))
 
 (defn save-maintainer
@@ -140,7 +156,7 @@
         maintainer (mem/get-val! (k/maintainer conf))]
     (if (and (string? p) (string? maintainer))
       (res/response
-       {:ok true :revs (mapv (fn [id] (db/store! conf id [maintainer] p)) ids)})
+       {:ok true :revs (mapv (fn [id] (db/save conf id [maintainer] p)) ids)})
       (res/response  {:ok true :warn "no maintainer selected"}))))
 
 (defn save-gas
@@ -150,7 +166,7 @@
         gas (mem/get-val! (k/gas conf))]
     (if (and (string? p) (string? gas))
       (res/response
-       {:ok true :revs (mapv (fn [id] (db/store! conf id [gas] p)) ids)})
+       {:ok true :revs (mapv (fn [id] (db/save conf id [gas] p)) ids)})
       (res/response  {:ok true :warn "no gas selected"}))))
 
 (defn dut-max
@@ -182,17 +198,33 @@
         ids (memu/cal-ids conf)]
     (res/response {:value ids})))
 
+(defn launch-task
+  [conf tasks row]
+  (doall (map (fn [task]
+                (if task
+                  (dev-hub conf {:body (che/encode task)} row (:DocPath task) (mem/get-val! (k/id conf row)))
+                  {:ok true :warn "no task"}))
+              tasks)))
+
+(defn launch-tasks
+  [conf v]
+  (let [mode (mem/get-val! (k/mode conf))
+        f    (fn [{row :row tasks :tasks}] (launch-task conf tasks row))]
+    (when (= mode "sequential") (doall (map f v)))
+    (when (= mode "parallel")   (doall (pmap f v)))))
+
 (defn ind
   [conf req]
-  (let [mt        {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
-        ks   (mem/pat->keys (k/fullscale conf "*"))
-        tasks-vec (mapv (fn [k]
-                          (let [row (k/get-row conf k)
-                                fs  (mem/get-val! k)
-                                mm  (u/max-pressure-by-fullscale conf fs)]
-                            (when (u/measure? mt mm)
-                              [(u/suitable-task conf (memu/auto-init-tasks conf row) mt mm)
-                               (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm)
-                               (u/suitable-task conf (memu/ind-tasks       conf row) mt mm)])))
-                        ks)]
-    (res/response {:value tasks-vec})))
+  (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        ks (mem/pat->keys (k/fullscale conf "*"))
+        v  (mapv (fn [k]
+                   (let [row (k/get-row conf k)
+                         fs  (mem/get-val! k)
+                         mm  (u/max-pressure-by-fullscale conf fs)]
+                     (when (u/measure? mt mm)
+                       {:tasks [ (update-task conf row (u/suitable-task conf (memu/auto-init-tasks conf row) mt mm))
+                                 (update-task conf row (u/suitable-task conf (memu/range-ind-tasks conf row) mt mm))
+                                 (update-task conf row (u/suitable-task conf (memu/ind-tasks       conf row) mt mm))]
+                        :row row})))
+                 ks)]
+    (res/response {:ok true :val (launch-tasks conf v)})))

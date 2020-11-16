@@ -1,6 +1,6 @@
 {
  :dev-hub {:conn "http://localhost:55555"}
- :couch {:conn "http://localhost:5984/vl_db"
+ :couch {:conn "http://a73434:5984/vl_db"
          :all-tasks-view ["dbmp" "tasks"]
          :devices-view ["share" "DeviceClass"]
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
@@ -23,16 +23,14 @@
              {:Unit "Pa"  :Display "10Torr"   :Value  1333.22}
              {:Unit "Pa"  :Display "100Torr"  :Value  13332.2}
              {:Unit "Pa"  :Display "200Torr"  :Value  26664.4}
-             {:Unit "Pa"  :Display "1000Torr" :Value  133322.0}
-             ]
+             {:Unit "Pa"  :Display "1000Torr" :Value  133322.0}]
  :range-factor {"fullscale" 1
                 "fullscale/10" 0.1
                 "fullscale/100" 0.01
                 "fullscale/1000" 0.001
                 "fullscale/10000" 0.0001
                 "fullscale/100000" 0.00001
-                "fullscale/1000000" 0.000001
-                }
+                "fullscale/1000000" 0.000001}
  :items { :se3-branch ["dut-a" "dut-b" "dut-c"]}
  :page-title "AoC"
  :main-title "A/o/C"
@@ -42,7 +40,7 @@
  :maintainers ["C" "T"]
  :gases ["N2" "He"]
  :standards ["SE3" "SE1" "CE3"]
- :modes ["seq" "para"]
+ :modes ["sequential" "parallel"]
  :sep "/"
  :prefix "anselm"
  :keys {:id "id"
@@ -56,5 +54,4 @@
         :device "device"
         :default "default"
         :task "task"
-        :fullscale "fullscale"}
- }
+        :fullscale "fullscale"}}

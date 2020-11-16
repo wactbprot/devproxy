@@ -62,7 +62,7 @@
                              {:key (str year "_" std)})]
     (mapv :id res)))
 
-(defn store!
+(defn save
   "Gets the document with the given `id`. Stores the result vector `v`
   under path `p` and saves the document. Returns the revision `:_rev`."
   [conf id v p]

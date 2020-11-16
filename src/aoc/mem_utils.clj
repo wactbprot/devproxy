@@ -74,6 +74,12 @@
    (fn [task] (mem/set-val! (k/tasks conf row (:TaskName task)) task))
    tasks))
 
+(defn get-task
+  [conf req]
+  (let [m    (default-map conf req)
+        task (mem/get-val! (k/tasks conf (u/get-row req) (u/get-val req)))]
+    (u/replace-map m task)))
+
 (defn tasks-by-pat [conf row pat] (mapv mem/get-val! (mem/pat->keys (k/tasks conf row pat))))
 
 (defn auto-init-tasks    [conf row] (tasks-by-pat conf row "auto_init*"))

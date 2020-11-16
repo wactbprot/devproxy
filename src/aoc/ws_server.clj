@@ -1,6 +1,6 @@
 (ns aoc.ws-server
   (:require
-   [clojure.data.json     :as j]
+   [cheshire.core         :as che]
    [clojure.tools.logging :as log]
    [aoc.conf              :as c] ;; for debug
    [org.httpkit.server    :refer [with-channel
@@ -28,4 +28,4 @@
 (defn send-to-ws-clients
   [conf m]
   (doseq [client (keys @ws-clients)]
-    (send! client (j/json-str m))))
+    (send! client (che/encode m))))
