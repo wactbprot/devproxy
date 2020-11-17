@@ -119,12 +119,18 @@
          :fullscale)))
 
 (defn max-pressure-by-fullscale
+  "Returns a `map` with at least `:Type` and `Unit` belonging to the given fullscale (`string`).
+
+  Example:
+  ```clojure
+  (max-pressure-by-fullscale (c/config) \"1mbar\")
+  ;; =>
+  ;; {:Unit Pa :Display 1mbar :Value 100}
+  ```
+  "
   [conf fs]
   (when (string? fs)
-    (->> conf
-         fullscale-vec
-         (filter (fn [m] (= fs (:Display m))))
-         first)))
+    (->> conf fullscale-vec (filter (fn [m] (= fs (:Display m))))  first)))
 
 (defn max-pressure
   "Returns a map containing at least `:Value` and `:Unit` for the given
@@ -134,7 +140,7 @@
     (max-pressure-by-fullscale conf fs)
     {:Unit "Pa" :Value 0.0}))
 
-
+(defn measure? [m-tar m-max] (if (> (compare-value m-max) (compare-value m-tar)) true false))
 
 (defn open-or-close
   "Returns the string `open` or `close` depending on the values given
@@ -155,15 +161,10 @@
   ;; =>
   ;; open
   ```"
-  [m-target m-branch]
-  (if (> (compare-value m-target) (compare-value m-branch)) "close" "open"))
+  [m-tar m-bra]
+  (if (measure? m-tar m-bra) "open" "close" ))
 
-(defn measure? [m-target m-max] (if (> (compare-value m-target) (compare-value m-max)) false true))
-
-(defn display-fullscale-vec
-  [conf]
-  (mapv :Display (fullscale-vec conf)))
-
+(defn display-fullscale-vec [conf] (mapv :Display (fullscale-vec conf)))
 (defn range-factor [conf s] (get (:range-factor conf) s)) 
 
 (defn range-ok?
@@ -177,11 +178,9 @@
     true))
 
 (defn suitable-task
-  [conf tasks m-target m-fullscale]
+  [conf tasks m-tar m-full]
   (first
-   (filter
-    (fn [{from :From to :To}] (range-ok? conf from to m-target m-fullscale) true)
-    tasks)))
+   (filter (fn [{from :From to :To}] (range-ok? conf from to m-tar m-full) true) tasks)))
   
 (defn elem-id [conf a b] (str a "_" b))
 

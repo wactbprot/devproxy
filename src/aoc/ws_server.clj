@@ -12,8 +12,8 @@
 
 (defn msg-received
   [msg]
-  (let [data (j/read-json msg)]
-    (log/info "mesg received" data)))
+  (let [data (che/decode msg)]
+    (log/info "msg received" data)))
 
 (defn ws
   [conf req]

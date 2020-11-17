@@ -1,9 +1,9 @@
 (ns aoc.mem-utils
   (:require [clojure.string :as string]
             [aoc.keys       :as k]
+            [aoc.utils      :as u] ;; for debug
             [aoc.conf       :as c] ;; for debug
             [aoc.mem        :as mem]))
-
 
 ;;----------------------------------------------------------
 ;; id, ids
@@ -35,10 +35,20 @@
    :branch (mem/get-val! (k/branch conf (k/get-row conf k)))})
 
 (defn id-and-branch
+  "Returns a `map` containing `id` and `branch`
+
+  Example:
+  ```clojure
+  (id-and-branch (c/config))
+  ;; =>
+  
+  ;; [{:id cal-2020-se3-pn-4025_0012 :branch dut-a}]
+  ```
+  "
   [conf]
   (let [id-keys (cal-id-keys conf)]
     (when-not (empty? id-keys)
-      (mapv (fn [id] (get-id-and-branch conf id) id-keys)))))
+      (mapv (fn [id] (get-id-and-branch conf id)) id-keys))))
 
 ;;----------------------------------------------------------
 ;; branch and fullscale
@@ -50,11 +60,20 @@
      :fullscale (mem/get-val! (k/fullscale conf row))}))
 
 (defn branch-and-fullscale
+  "Returns a `map` containing `branch` and `fullscale` (a `string`).
+
+  Example:
+  ```clojure
+  (branch-and-fullscale  (c/config))
+  ;; =>
+  ;; [{:branch dut-a :fullscale 1.1mbar}]
+
+  ```
+  "
   [conf]
   (let [id-keys (cal-id-keys conf)]
     (when-not (empty? id-keys)
-      (mapv (fn [id] (get-branch-and-fullscale conf id) id-keys)))))
-
+      (mapv (fn [id] (get-branch-and-fullscale conf id)) id-keys))))
 
 ;;----------------------------------------------------------
 ;; device
@@ -67,24 +86,71 @@
    (fn [[dk dv]] (mem/set-val! (k/defaults conf row (name dk)) dv))
    (seq defaults)))
 
-(defn store-device-tasks
-  "Store `tasks` to mem when not already there."
+(defn default-map
+  "Returns a `map` with the defauls key value pairs.
+
+  ```clojure
+  (default-map (c/config) 0)
+  ;; =>
+  ;; {@channel 101 @device gpib0,8 @host e75416}
+  ```
+  "
+  [conf row]
+  (let [pat (re-pattern (:sep conf))
+        ks  (mem/pat->keys (k/defaults conf row "*"))
+        f   (fn [k] {(last (string/split k pat)) (str (mem/get-val! k))})]
+  (into {} (map f ks))))
+
+;;----------------------------------------------------------
+;; tasks
+;;----------------------------------------------------------
+(defn store-device-tasks 
+ "Store `tasks` to mem when not already there."
   [conf row tasks]
   (run!
    (fn [task] (mem/set-val! (k/tasks conf row (:TaskName task)) task))
    tasks))
 
-(defn get-task
-  [conf req]
-  (let [m    (default-map conf req)
-        task (mem/get-val! (k/tasks conf (u/get-row req) (u/get-val req)))]
-    (u/replace-map m task)))
+(defn update-task
+  "Updates the task with the active defaults."
+  [conf row task]
+  (when task
+    (u/replace-map (default-map conf row) task)))
 
-(defn tasks-by-pat [conf row pat] (mapv mem/get-val! (mem/pat->keys (k/tasks conf row pat))))
+(defn get-task
+  "Returns the task active for the given `row` with the given `task-name`.
+
+  Example:
+  ```clojure
+  (get-task (c/config) 0 \"ind\")
+  ;; =>
+  ;; [{:TaskName ind ... }]
+  ```
+  "
+  [conf row task-name]
+  (update-task conf row (mem/get-val! (k/tasks conf row task-name))))
+
+(defn tasks-by-pat
+  "Returns the `tasks` (`vector` of `map`s) belonging to
+  the given `pat`ern.
+  
+  Example:
+  ```clojure
+  (tasks-by-pat (c/config) 0 \"ind*\")
+  ;; =>
+  ;; [{:TaskName ind ... }]
+  ```
+  "
+  [conf row pat]
+  (let [ks (sort (mem/pat->keys (k/tasks conf row pat)))]
+    (mapv (fn [k] (update-task conf row (mem/get-val! k))) ks)))
 
 (defn auto-init-tasks    [conf row] (tasks-by-pat conf row "auto_init*"))
 (defn range-ind-tasks    [conf row] (tasks-by-pat conf row "range_ind*"))
 (defn ind-tasks          [conf row] (tasks-by-pat conf row "ind*"))
-(defn auto-offset-tasks  [conf row] (tasks-by-pat conf row "auto_offset*"))
 (defn range-offset-tasks [conf row] (tasks-by-pat conf row "range_offset*"))
 (defn offset-tasks       [conf row] (tasks-by-pat conf row "offset*"))
+(defn auto-offset-tasks  [conf row] (tasks-by-pat conf row "auto_offset*"))
+(defn sequences-tasks    [conf row] (interleave (auto-init-tasks    conf row)
+                                                (range-offset-tasks conf row)
+                                                (auto-offset-tasks  conf row)))
