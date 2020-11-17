@@ -1,0 +1,4 @@
+theme: jekyll-theme-minimal
+logo: ./cmp_logo_s.png
+title: AoC
+description: Device Proxy and Interface.

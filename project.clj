@@ -23,4 +23,5 @@
   :codox {:themes [:clojang]
           :metadata {:doc/format :markdown}
           :source-uri "https://github.com/wactbprot/aoc/blob/master/{filepath}#L{line}"}
+  :main ^:skip-aot aoc.server
   :ring {:handler aoc.server/app})
