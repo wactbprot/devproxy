@@ -60,13 +60,14 @@
                 (filter some?
                         (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) ids)))]
       (res/response
-       {:ToExchange {:Target_pressure.Selected p
+       {:ToExchange {:revs (mapv (fn [id] (prn id) (db/save conf id [(u/target-pressure-map conf p)] (u/get-doc-path req))) ids)
+                     :Target_pressure.Selected p
                      :Target_pressure.Unit "Pa"
                      :Continue_mesaurement.Bool true}})
       (res/response
-       {:ToExchange {:Continue_mesaurement.Bool  false}}))
+       {:ToExchange {:Continue_mesaurement.Bool false}}))
     (res/response
-     {:ToExchange {:Continue_mesaurement.Bool  false}})))
+     {:ToExchange {:Continue_mesaurement.Bool false}})))
 
 (defn target-pressures
   [conf req]
@@ -158,7 +159,6 @@
 
 (defn launch-tasks
   [conf tasks row]
-  (prn row)
   (doall (map (fn [task] (launch-task conf task row)) tasks)))
 
 (defn launch-tasks-vec

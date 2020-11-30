@@ -31,7 +31,7 @@
   (POST "/reset"             [:as req]     (h/reset            (c/config) req))
   (POST "/run"               [:as req]     (h/run              (c/config) req))
   
-  (GET "/target_pressure"    [:as req]     (h/target-pressure  (c/config) req))
+  (POST "/target_pressure"   [:as req]     (h/target-pressure  (c/config) req))
   (GET "/target_pressures"   [:as req]     (h/target-pressures (c/config) req))
   (GET "/cal_ids"            [:as req]     (h/cal-ids          (c/config) req))
   (POST "/save_dut_branch"   [:as req]     (h/save-dut-branch  (c/config) req))

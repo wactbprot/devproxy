@@ -101,6 +101,10 @@
         xn    (map vector x n)]
     (first (first (filter (fn [xn] (not (measured? xn v))) xn)))))
 
+(defn target-pressure-map
+  [conf p]
+  {:Type "target_pressure" :Value p :Unit "Pa"})
+
 (defn get-val [req] (get-in req [:body :value]))
 (defn get-row [req] (get-in req [:body :row]))
 (defn get-key [req] (get-in req [:body :key]))

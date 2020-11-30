@@ -12,7 +12,7 @@
 }
 ```
 
-`curl http://localhost:8009/target_pressure`
+`curl -X POST -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.Values.Pressure"}' http://localhost:8009/target_pressure`
 
 ```json
 {
