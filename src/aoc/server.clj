@@ -11,6 +11,7 @@
             [ring.middleware.json     :as middleware]))
 
 (defonce server (atom nil))
+
 (defroutes app-routes
   (GET "/"                   [:as req]     (v/index            (c/config) req))
   (GET "/device/:row"        [row :as req] (v/device           (c/config) req row))
@@ -53,8 +54,7 @@
       (middleware/wrap-json-body {:keywords? true})
       middleware/wrap-json-response))
 
-(defn stop
-  []
+(defn stop []
   (when-not (nil? @server)
     (@server :timeout 100)
     (reset! server nil)))

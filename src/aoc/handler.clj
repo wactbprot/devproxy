@@ -53,6 +53,10 @@
     (ws-srv/send-to-ws-clients conf res)
     (res/response res)))
 
+
+;;----------------------------------------------------------
+;; target pressure 
+;;----------------------------------------------------------
 (defn target-pressure
   [conf req]
   (if-let [ids (memu/cal-ids conf)]
@@ -60,7 +64,7 @@
                 (filter some?
                         (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) ids)))]
       (res/response
-       {:ToExchange {:revs (mapv (fn [id] (prn id) (db/save conf id [(u/target-pressure-map conf p)] (u/get-doc-path req))) ids)
+       {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf p)] (u/get-doc-path req))) ids)
                      :Target_pressure.Selected p
                      :Target_pressure.Unit "Pa"
                      :Continue_mesaurement.Bool true}})
@@ -69,6 +73,10 @@
     (res/response
      {:ToExchange {:Continue_mesaurement.Bool false}})))
 
+
+;;----------------------------------------------------------
+;; target pressures
+;;----------------------------------------------------------
 (defn target-pressures
   [conf req]
   (let [ids (memu/cal-ids conf)]
@@ -91,6 +99,9 @@
           :Selected "1.0E-2" 
           :Unit "Pa"}}}))))
 
+;;----------------------------------------------------------
+;; calibration ids
+;;----------------------------------------------------------
 (defn cal-ids
   [conf req]
   (let [ids (memu/cal-ids conf)]
@@ -98,6 +109,10 @@
      {:ToExchange {:Ids (string/join "@" ids)}
       :ids ids})))
 
+
+;;----------------------------------------------------------
+;; device under test branch
+;;----------------------------------------------------------
 (defn save-dut-branch
   [conf req]
   (let [p (u/get-doc-path req)
@@ -107,6 +122,9 @@
        {:ok true :revs (mapv (fn [{id :id x :branch}] (db/save conf id [x] p)) v)})
       (res/response  {:ok true :warn "no doc selected"}))))
 
+;;----------------------------------------------------------
+;; maintainer 
+;;----------------------------------------------------------
 (defn save-maintainer
   [conf req]
   (let [p          (u/get-doc-path req)
@@ -117,6 +135,9 @@
        {:ok true :revs (mapv (fn [id] (db/save conf id [maintainer] p)) ids)})
       (res/response  {:ok true :warn "no maintainer selected"}))))
 
+;;----------------------------------------------------------
+;; gas
+;;----------------------------------------------------------
 (defn save-gas
   [conf req]
   (let [p   (u/get-doc-path req)
@@ -127,6 +148,9 @@
        {:ok true :revs (mapv (fn [id] (db/save conf id [gas] p)) ids)})
       (res/response  {:ok true :warn "no gas selected"}))))
 
+;;----------------------------------------------------------
+;; device under test maximum
+;;----------------------------------------------------------
 (defn dut-max
   [conf req]
   (let [p  (u/get-doc-path req)
@@ -185,6 +209,9 @@
                               (u/suitable-task conf (memu/offset-tasks       conf row) mt mm)]))]
     {:tasks tasks :row row}))
 
+;;----------------------------------------------------------
+;; exec indication mean value
+;;----------------------------------------------------------
 (defn ind
   [conf req]
   (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
@@ -193,6 +220,10 @@
         r  (launch-tasks-vec conf v)]
     (res/response {:ok true})))
 
+
+;;----------------------------------------------------------
+;; exec offset samples
+;;----------------------------------------------------------
 (defn offset_sequences
   [conf req]
   (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
@@ -201,6 +232,10 @@
         r  (launch-tasks-vec conf v)]
     (res/response {:ok true})))
         
+
+;;----------------------------------------------------------
+;; exec offset mean value 
+;;----------------------------------------------------------
 (defn offset
   [conf req]
   (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}

@@ -151,6 +151,11 @@
 (defn range-offset-tasks [conf row] (tasks-by-pat conf row "range_offset*"))
 (defn offset-tasks       [conf row] (tasks-by-pat conf row "offset*"))
 (defn auto-offset-tasks  [conf row] (tasks-by-pat conf row "auto_offset*"))
-(defn sequences-tasks    [conf row] (interleave (auto-init-tasks    conf row)
-                                                (range-offset-tasks conf row)
-                                                (auto-offset-tasks  conf row)))
+
+(defn sequences-tasks
+  [conf row]
+  (let [i (auto-init-tasks    conf row)
+        r (range-offset-tasks conf row)
+        o (auto-offset-tasks  conf row)]
+  (if (empty? r) (interleave i o) (interleave i r o))))
+
