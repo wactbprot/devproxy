@@ -144,7 +144,13 @@
     (max-pressure-by-fullscale conf fs)
     {:Unit "Pa" :Value 0.0}))
 
-(defn measure? [m-tar m-max] (if (> (compare-value m-max) (compare-value m-tar)) true false))
+(defn measure?
+  "Compares the `tar`get `x` with the `max`imum `x`. Returns `true` if
+  the (maximum + 1%) is greater or equal the target."
+  [m-tar m-max]
+  (let [x-tar (compare-value m-tar)
+        x-max (* 1.01 (compare-value m-max))]
+    (if (>= x-max x-tar) true false)))
 
 (defn open-or-close
   "Returns the string `open` or `close` depending on the values given
