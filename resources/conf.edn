@@ -42,7 +42,7 @@
  :standards ["SE3" "SE1" "CE3"]
  :modes ["sequential" "parallel"]
  :sep "/"
- :prefix "anselm"
+ :prefix "devproxy"
  :keys {:id "id"
         :n "n"
         :year "year"
