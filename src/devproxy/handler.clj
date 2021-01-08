@@ -77,19 +77,46 @@
 ;;----------------------------------------------------------
 ;; target pressures
 ;;----------------------------------------------------------
+(defn remove-rows
+  "Returns a vector containing the `ids` to remove from mem because next presssure is above FS.
+
+  Example:
+  ```clojure
+  (remove-rows (c/config) {:Value 1E-6 :Unit Pa})
+  ;; =>
+  ;; []
+  (remove-rows (c/config) {:Value 1E6 :Unit Pa}) 
+  ;; =>
+  ;; [0 1]
+  ```"
+  [conf m]
+  (let [ks (memu/cal-id-keys conf)
+        v  (mapv (fn [x] (assoc (memu/get-id-and-fullscale conf x)
+                                :row (k/get-row conf x)))
+                 ks)
+        v (filterv (fn [x] (u/measure? (u/max-pressure-by-fullscale conf (:fullscale x)) m))
+                   v)]
+    (mapv :row v)))
+
 (defn target-pressures
+  "A post request to `target-pressures` removes the devices with `fs < next-p`
+  from the `mem`."
   [conf req]
   (let [ids (memu/cal-ids conf)]
     (if-not (empty? ids)
-      (let [f (fn [id] (u/todo-si-value-vec (db/id->doc id conf)))
-            v (mapv f ids)
-            c (-> v flatten distinct sort)]
+      (let [f       (fn [id] (u/todo-si-value-vec (db/id->doc id conf)))
+            v       (mapv f ids)
+            c       (-> v flatten distinct sort)
+            next-p  (first c)
+            ]
+        (map (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row))))
+             (remove-rows conf {:Value next-p :Unit "Pa"}))
         (res/response
          {:ToExchange
           {:Target_pressure
            {:Caption "target pressure", 
             :Select (mapv (fn [p] {:display (str p " Pa") :value (str p)}) c)
-            :Selected (str (first c)) 
+            :Selected (str next-p) 
             :Unit "Pa"}}}))
       (res/response
        {:ToExchange

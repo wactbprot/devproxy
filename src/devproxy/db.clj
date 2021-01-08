@@ -1,14 +1,14 @@
 (ns devproxy.db
   (:require [com.ashafa.clutch   :as couch]
             [vl-data-insert.core :as i]
-            [devproxy.conf            :as c]
+            [devproxy.conf       :as c]
             [clojure.string      :as string]))
 
 (defn id->doc
   "Gets a document from the long term memory."
   [id conf]
   (try
-    (couch/get-document (:conn (:couch conf)) id)
+    (couch/get-document (c/couch-conn conf) id)
     (catch Exception e
       (println (.getMessage e)))))
 
@@ -16,7 +16,7 @@
   "Saves a document to the long term memory."
   [doc conf]
   (try
-    (couch/put-document (:conn (:couch conf)) doc)
+    (couch/put-document (c/couch-conn conf) doc)
     (catch Exception e
       (println (.getMessage e)))))
 
@@ -32,8 +32,8 @@
   ([conf]
    (devices conf nil))
   ([conf dev]
-   (let [cc   (:couch conf)
-         conn (:conn cc)
+   (let [conn (c/couch-conn conf)
+         cc   (:couch conf)
          view (:devices-view cc)
          f    (first view)
          s    (second view)]
@@ -51,14 +51,14 @@
   ([conf]
    (get-in (first (devices conf)) [:value :DeviceClass :Task]))
   ([conf dev]
-  (get-in (first (devices conf dev)) [:value :DeviceClass :Task])))
+   (get-in (first (devices conf dev)) [:value :DeviceClass :Task])))
 
 (defn cal-ids
   "Returns all calibration ids belonging to a standard and a year."
   [conf std year]
   (let [cc   (:couch conf)
         view (:calibration-ids-view cc)
-        res  (couch/get-view (:conn cc) (first view) (second view)
+        res  (couch/get-view (c/couch-conn conf) (first view) (second view)
                              {:key (str year "_" std)})]
     (mapv :id res)))
 

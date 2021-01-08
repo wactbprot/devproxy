@@ -1,4 +1,4 @@
-(defproject devproxy "0.3.0"
+(defproject devproxy "0.3.1"
   :description "device proxy"
   :url "https://github.com/wactbprot/devproxy"
   :min-lein-version "2.0.0"
@@ -22,6 +22,8 @@
   :codox {:metadata {:doc/format :markdown}
           :source-uri "https://github.com/wactbprot/devproxy/blob/master/{filepath}#L{line}"}
   :ring {:handler devproxy.server/app}
+  :resource-paths ["resources"]
+
   :repl-options {:init-ns devproxy.server}
   :main devproxy.server
   :aot [devproxy.server]

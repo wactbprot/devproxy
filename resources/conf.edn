@@ -1,6 +1,9 @@
 {
  :dev-hub {:conn "http://localhost:55555"}
- :couch {:conn "http://localhost:5984/vl_db_work"
+ :couch {:prot "http"
+         :srv "localhost"
+         :port 5984
+         :db "vl_db_work"
          :all-tasks-view ["dbmp" "tasks"]
          :devices-view ["share" "DeviceClass"]
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}

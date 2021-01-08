@@ -27,6 +27,14 @@
   (mapv mem/get-val! (cal-id-keys conf)))
 
 ;;----------------------------------------------------------
+;; id and fullscale
+;;----------------------------------------------------------
+(defn get-id-and-fullscale
+  [conf k]
+  {:id        (mem/get-val! k)
+   :fullscale (mem/get-val! (k/fullscale conf (k/get-row conf k)))})
+
+;;----------------------------------------------------------
 ;; id and branch
 ;;----------------------------------------------------------
 (defn get-id-and-branch
@@ -158,4 +166,5 @@
         r (range-offset-tasks conf row)
         o (auto-offset-tasks  conf row)]
   (if (empty? r) (interleave i o) (interleave i r o))))
+
 
