@@ -55,10 +55,7 @@
       (middleware/wrap-json-body {:keywords? true})
       middleware/wrap-json-response))
 
-(defn stop []
-  (when-not (nil? @server)
-    (@server :timeout 100)
-    (reset! server nil)))
+(defn stop [] (when @server (@server :timeout 100) (reset! server nil)))
 
 (defn start [] (reset! server (run-server app {:port 8009})))
 

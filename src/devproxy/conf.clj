@@ -1,10 +1,11 @@
 (ns devproxy.conf
-  (:require [clojure.edn :as edn]))
+  (:require [clojure.edn     :as edn]
+            [clojure.java.io :as io]))
 
 (defn config
   "Reads a `edn` configuration in file `f`." 
   ([]
-   (config "resources/conf.edn"))
+   (config (io/resource "conf.edn")))
   ([f]
    (-> f slurp edn/read-string)))
 
