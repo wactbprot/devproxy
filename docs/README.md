@@ -9,8 +9,8 @@ You will need [Leiningen][] 2.0.0 or above installed.
 Run the shell commands:
 
 ```shell
-git clone https://github.com/wactbprot/aoc
-cd aoc
+git clone https://github.com/wactbprot/devproxy
+cd devproxy
 lein repl
 
 ## =>
@@ -24,7 +24,7 @@ lein repl
 ##     Exit: Control+D or (exit) or (quit)
 ##  Results: Stored in vars *1, *2, *3, an exception in *e
 
-aoc.server=>
+devproxy.server=>
 ```
 At the [nrepl prompt](https://nrepl.org/nrepl/index.html) type:
 

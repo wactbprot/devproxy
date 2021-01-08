@@ -1,4 +1,4 @@
-(ns aoc.conf
+(ns devproxy.conf
   (:require [clojure.edn :as edn]))
 
 (defn config

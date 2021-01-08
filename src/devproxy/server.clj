@@ -1,14 +1,15 @@
-(ns aoc.server
+(ns devproxy.server
   (:require [compojure.route          :as route]
             [clojure.tools.logging    :as log]
-            [aoc.views                :as v]
-            [aoc.conf                 :as c]
-            [aoc.ws-server            :as ws-srv]
-            [aoc.handler              :as h]
+            [devproxy.views                :as v]
+            [devproxy.conf                 :as c]
+            [devproxy.ws-server            :as ws-srv]
+            [devproxy.handler              :as h]
             [compojure.core           :refer :all]
             [compojure.handler        :as handler]
             [org.httpkit.server       :refer [run-server]]
-            [ring.middleware.json     :as middleware]))
+            [ring.middleware.json     :as middleware])
+  (:gen-class))
 
 (defonce server (atom nil))
 
@@ -60,3 +61,17 @@
     (reset! server nil)))
 
 (defn start [] (reset! server (run-server app {:port 8009})))
+
+
+(defn ascii-logo
+  []
+  (println "     d)                                                          ")
+  (println "     d)                                                          ")
+  (println " d)DDDD e)EEEEE v)    VV p)PPPP   r)RRR   o)OOO  x)   XX y)   YY ")
+  (println "d)   DD e)EEEE   v)  VV  p)   PP r)   RR o)   OO   x)X   y)   YY ")
+  (println "d)   DD e)        v)VV   p)   PP r)      o)   OO   x)X   y)   YY ")
+  (println " d)DDDD  e)EEEE    v)    p)PPPP  r)       o)OOO  x)   XX  y)YYYY ")
+  (println "                         p)                                   y) ")
+  (println "                         p)                              y)YYYY  "))
+
+(defn -main [& args] (ascii-logo) (start))

@@ -1,8 +1,8 @@
-(ns aoc.utils
+(ns devproxy.utils
   (:require [clojure.string    :as string]
             [clojure.data.json :as json]
             [cheshire.core     :as che]
-            [aoc.conf          :as c] ;; for debug
+            [devproxy.conf          :as c] ;; for debug
             [clojure.edn       :as edn]))
 
 (defn map-value [m f]
@@ -229,3 +229,5 @@
     {:Result res :Exchange exc :Error err}))
 
 (defn body->msg-data [body] (che/generate-string (body->msg-data-map body)))
+
+  

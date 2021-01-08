@@ -1,7 +1,7 @@
-(ns aoc.db
+(ns devproxy.db
   (:require [com.ashafa.clutch   :as couch]
             [vl-data-insert.core :as i]
-            [aoc.conf            :as c]
+            [devproxy.conf            :as c]
             [clojure.string      :as string]))
 
 (defn id->doc

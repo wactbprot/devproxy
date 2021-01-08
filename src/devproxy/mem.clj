@@ -1,9 +1,9 @@
-(ns aoc.mem
+(ns devproxy.mem
   (:require [taoensso.carmine :as car :refer (wcar)]
-            [aoc.utils :as u]
+            [devproxy.utils :as u]
             [clojure.string :as string]
             [clojure.data.json :as json]
-            [aoc.conf           :as c]
+            [devproxy.conf           :as c]
             [cheshire.core :as che]
             ))
 

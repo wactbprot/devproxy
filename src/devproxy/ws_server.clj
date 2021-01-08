@@ -1,8 +1,8 @@
-(ns aoc.ws-server
+(ns devproxy.ws-server
   (:require
    [cheshire.core         :as che]
    [clojure.tools.logging :as log]
-   [aoc.conf              :as c] ;; for debug
+   [devproxy.conf              :as c] ;; for debug
    [org.httpkit.server    :refer [with-channel
                                   on-receive
                                   on-close

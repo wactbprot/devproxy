@@ -1,6 +1,6 @@
-(defproject aoc "0.3.0"
+(defproject devproxy "0.3.0"
   :description "device proxy"
-  :url "https://github.com/wactbprot/aoc"
+  :url "https://github.com/wactbprot/devproxy"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [compojure "1.6.1"]
@@ -16,12 +16,17 @@
                  [com.ashafa/clutch "0.4.0"]
                  [org.clojure/data.json "1.0.0"]
                  [org.clojure/tools.logging "1.1.0"]
-                 [clojang/codox-theme "0.2.0-SNAPSHOT"]
                  ]
   :plugins [[lein-ring "0.12.5"]
             [lein-codox  "0.10.7"]]
-  :codox {:themes [:clojang]
-          :metadata {:doc/format :markdown}
-          :source-uri "https://github.com/wactbprot/aoc/blob/master/{filepath}#L{line}"}
-  :main ^:skip-aot aoc.server
-  :ring {:handler aoc.server/app})
+  :codox {:metadata {:doc/format :markdown}
+          :source-uri "https://github.com/wactbprot/devproxy/blob/master/{filepath}#L{line}"}
+  :ring {:handler devproxy.server/app}
+  :repl-options {:init-ns devproxy.server}
+  :main devproxy.server
+  :aot [devproxy.server]
+  :target-path "target/%s"
+  :profiles {:uberjar {:aot :all}})
+
+
+

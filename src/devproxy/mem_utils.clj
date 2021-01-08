@@ -1,9 +1,9 @@
-(ns aoc.mem-utils
+(ns devproxy.mem-utils
   (:require [clojure.string :as string]
-            [aoc.keys       :as k]
-            [aoc.utils      :as u] ;; for debug
-            [aoc.conf       :as c] ;; for debug
-            [aoc.mem        :as mem]))
+            [devproxy.keys       :as k]
+            [devproxy.utils      :as u] ;; for debug
+            [devproxy.conf       :as c] ;; for debug
+            [devproxy.mem        :as mem]))
 
 ;;----------------------------------------------------------
 ;; id, ids

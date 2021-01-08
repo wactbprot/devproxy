@@ -1,13 +1,13 @@
-(ns aoc.handler
+(ns devproxy.handler
   (:require
-   [aoc.mem-utils         :as memu]
-   [aoc.mem               :as mem]
-   [aoc.keys              :as k]
-   [aoc.utils             :as u]
-   [aoc.db                :as db]
-   [aoc.dev-hub           :as dev-hub]
-   [aoc.conf              :as c] ;; for debug
-   [aoc.ws-server         :as ws-srv]
+   [devproxy.mem-utils         :as memu]
+   [devproxy.mem               :as mem]
+   [devproxy.keys              :as k]
+   [devproxy.utils             :as u]
+   [devproxy.db                :as db]
+   [devproxy.dev-hub           :as dev-hub]
+   [devproxy.conf              :as c] ;; for debug
+   [devproxy.ws-server         :as ws-srv]
    [cheshire.core         :as che]
    [clojure.tools.logging :as log]
    [clojure.string        :as string]

@@ -1,12 +1,12 @@
-(ns aoc.views
+(ns devproxy.views
   (:require
-   [aoc.conf    :as c]
+   [devproxy.conf    :as c]
    [hiccup.form :as hf]
    [hiccup.page :as hp]
-   [aoc.db      :as db]
-   [aoc.keys    :as k]
-   [aoc.mem     :as mem]
-   [aoc.utils   :as u]))
+   [devproxy.db      :as db]
+   [devproxy.keys    :as k]
+   [devproxy.mem     :as mem]
+   [devproxy.utils   :as u]))
 
 (defn page-header
   [conf]

@@ -1,6 +1,6 @@
-(ns aoc.keys
+(ns devproxy.keys
   (:require [clojure.string :as string]
-            [aoc.mem :as mem]))
+            [devproxy.mem :as mem]))
 
 (defn get-row
   [conf k]

@@ -1,7 +1,7 @@
-(ns aoc.dev-hub
+(ns devproxy.dev-hub
   (:require
-   [aoc.db                :as db]
-   [aoc.conf              :as c] ;; for debug
+   [devproxy.db                :as db]
+   [devproxy.conf              :as c] ;; for debug
    [org.httpkit.client    :as http]
    [cheshire.core         :as che]))
 
