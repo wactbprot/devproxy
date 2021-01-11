@@ -1,7 +1,7 @@
 (ns devproxy.dev-hub
   (:require
-   [devproxy.db                :as db]
-   [devproxy.conf              :as c] ;; for debug
+   [devproxy.db           :as db]
+   [devproxy.conf         :as c] ;; for debug
    [org.httpkit.client    :as http]
    [cheshire.core         :as che]))
 
@@ -9,11 +9,13 @@
   "Sends the given `data` (the `task`) to the device hub. If a document
   `id` and a document `doc-paht` is given, the `result`s are saved
   via `(db/save conf id result doc-path)`"
-  ([conf data row]
-   (measure conf data row nil nil))
-  ([conf data row doc-path id]
-   (let [{body   :body
-          status  :status} (deref (http/post (:conn (:dev-hub  conf)) data))
+  ([conf task row]
+   (measure conf task row nil nil))
+  ([conf task row doc-path id]
+   (let [data {:body (che/encode task)
+               :headers {"Content-Type" "application/json"}}
+         {body   :body
+          status :status} (deref (http/post (:conn (:dev-hub  conf)) data))
          {result :Result
           exch   :ToExchange
           err    :error} (che/decode body true)]

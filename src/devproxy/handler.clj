@@ -49,7 +49,7 @@
   (let [row       (u/get-row req)
         task-name (u/get-val req)
         task      (memu/get-task conf row task-name)
-        res       (dev-hub/measure conf {:body (che/encode task)} row)]
+        res       (dev-hub/measure conf task row)]
     (ws-srv/send-to-ws-clients conf res)
     (res/response res)))
 
@@ -202,8 +202,7 @@
   (if task
     (let [id     (mem/get-val! (k/id conf row))
           p      (:DocPath task)
-          data   {:body (che/encode task)}
-          result (dev-hub/measure conf data row p id)]
+          result (dev-hub/measure conf task row p id)]
       (ws-srv/send-to-ws-clients conf result)
       result)
     {:ok true :warn "no task"}))
