@@ -180,19 +180,26 @@
 ;;----------------------------------------------------------
 (defn dut-max
   [conf req]
-  (let [p  (u/get-doc-path req)
-        v  (memu/branch-and-fullscale conf)
-        mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
-        ma (assoc (u/max-pressure conf v "dut-a") :Type "dut_max_a")
-        mb (assoc (u/max-pressure conf v "dut-b") :Type "dut_max_b")
-        mc (assoc (u/max-pressure conf v "dut-c") :Type "dut_max_c")]
+  (let [p   (u/get-doc-path req)
+        v   (memu/branch-and-fullscale conf)
+        ids (memu/cal-ids conf)
+        mt  {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+        ma  (assoc (u/max-pressure conf v "dut-a") :Type "dut_max_a")
+        mb  (assoc (u/max-pressure conf v "dut-b") :Type "dut_max_b")
+        mc  (assoc (u/max-pressure conf v "dut-c") :Type "dut_max_c")
+        oca (u/open-or-close mt ma)
+        ocb (u/open-or-close mt mb)
+        occ (u/open-or-close mt mc)]
     (res/response
-     {:ToExchange {:Dut_A ma
+     {:ToExchange {:revs (mapv (fn [id] (db/save conf id [{:Type "dut_a" :Value oca}
+                                                          {:Type "dut_b" :Value ocb}
+                                                          {:Type "dut_c" :Value occ}] p)) ids)
+                   :Dut_A ma
                    :Dut_B mb
                    :Dut_C mc
-                   :Set_Dut_A (u/open-or-close mt ma)
-                   :Set_Dut_B (u/open-or-close mt mb)
-                   :Set_Dut_C (u/open-or-close mt mc)}})))
+                   :Set_Dut_A oca
+                   :Set_Dut_B ocb
+                   :Set_Dut_C occ}})))
 
 ;;----------------------------------------------------------
 ;; start offset_sequences, offset, ind save results

@@ -172,6 +172,7 @@
   [m-tar m-bra]
   (if (measure? m-tar m-bra) "open" "close" ))
 
+
 (defn display-fullscale-vec [conf] (mapv :Display (fullscale-vec conf)))
 (defn range-factor [conf s] (get (:range-factor conf) s)) 
 

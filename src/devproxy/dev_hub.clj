@@ -12,10 +12,12 @@
   ([conf task row]
    (measure conf task row nil nil))
   ([conf task row doc-path id]
-   (let [data {:body (che/encode task)
-               :headers {"Content-Type" "application/json"}}
+   (let [req  {:body (che/encode task)
+               :headers {"Content-Type" "application/json"}
+               :keepalive 300000
+               :timeout 300000}
          {body   :body
-          status :status} (deref (http/post (:conn (:dev-hub  conf)) data))
+          status :status} (deref (http/post (get-in conf [:dev-hub :conn]) req))
          {result :Result
           exch   :ToExchange
           err    :error} (che/decode body true)]
