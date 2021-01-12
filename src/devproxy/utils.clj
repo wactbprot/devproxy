@@ -55,6 +55,7 @@
       operable-value
       in-si-unit
       :Value))
+
 (defn compare-value [m](-> m operable-value in-si-unit :Value))
 
 (defn measured?
@@ -177,19 +178,33 @@
 (defn range-factor [conf s] (get (:range-factor conf) s)) 
 
 (defn range-ok?
-  [conf from to m-target m-fullscale]
+  "Checks for task `range-ok?`. The task ranges are given in the form:
+  `fullscale/100`. This has to be converted by means of the fullscale
+  value `m-f` (form is `{:Value x :Unit y}). The resolved task range
+  (e.g. `(* fs (range-factor conf from))`) is compared to the target
+  pressure `t` by `(from >= t >= to)`.
+
+  Example:
+  ```clojure
+  (range-ok? (c/config)  \"fullscale/100000\"  \"fullscale/10\" {:Value 14. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
+  ;; => 
+  ;; false
+  (range-ok? (c/config)  \"fullscale/100000\"  \"fullscale/10\" {:Value 13. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
+  ;; => 
+  ;; true
+  ```"
+  [conf from to m-t m-f]
   (if (and from to)
-    (let [fs (compare-value m-fullscale)
-          t  (compare-value m-target)
-          ul (* fs (range-factor conf to)) 
-          ll (* fs (range-factor conf from))]
-      (if (and (> t ll) (<= t ul)) true false))   
+    (let [fs (compare-value m-f)]
+      (<= (* fs (range-factor conf from))
+          (compare-value m-t)
+          (* fs (range-factor conf to))))
     true))
 
 (defn suitable-task
-  [conf tasks m-tar m-full]
+  [conf tasks m-t m-f]
   (first
-   (filter (fn [{from :From to :To}] (range-ok? conf from to m-tar m-full) true) tasks)))
+   (filter (fn [{from :From to :To}] (range-ok? conf from to m-t m-f)) tasks)))
   
 (defn elem-id [conf a b] (str a "_" b))
 
