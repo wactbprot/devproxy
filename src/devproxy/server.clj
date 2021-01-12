@@ -1,10 +1,11 @@
 (ns devproxy.server
   (:require [compojure.route          :as route]
             [clojure.tools.logging    :as log]
-            [devproxy.views                :as v]
-            [devproxy.conf                 :as c]
-            [devproxy.ws-server            :as ws-srv]
-            [devproxy.handler              :as h]
+            [clojure.tools.cli        :refer [parse-opts]]
+            [devproxy.views           :as v]
+            [devproxy.conf            :as c]
+            [devproxy.ws-server       :as ws-srv]
+            [devproxy.handler         :as h]
             [compojure.core           :refer :all]
             [compojure.handler        :as handler]
             [org.httpkit.server       :refer [run-server]]
@@ -62,6 +63,7 @@
 
 (defn ascii-logo
   []
+  (println "\n")
   (println "     d)                                                          ")
   (println "     d)                                                          ")
   (println " d)DDDD e)EEEEE v)    VV p)PPPP   r)RRR   o)OOO  x)   XX y)   YY ")
@@ -69,6 +71,25 @@
   (println "d)   DD e)        v)VV   p)   PP r)      o)   OO   x)X   y)   YY ")
   (println " d)DDDD  e)EEEE    v)    p)PPPP  r)       o)OOO  x)   XX  y)YYYY ")
   (println "                         p)                                   y) ")
-  (println "                         p)                              y)YYYY  "))
+  (println "                         p)                              y)YYYY  ")
+  (println "\n"))
 
-(defn -main [& args] (ascii-logo) (start))
+(def cli-options
+  ;; An option with a required argument
+  [["-p" "--port PORT" "Port number of devproxy."
+    :default (get-in (c/config) [:server :port])
+    :parse-fn (fn [p] (Integer/parseInt p))
+    :validate [(fn [p](< 0 p 0x10000)) "Must be a number between 0 and 65536"]]
+   ;; A non-idempotent option (:default is applied first)
+   ["-r" "--rhost REDISHOST" "Redis host name."
+    :parse-fn str
+    :default (get-in (c/config) [:redis :conn :spec :host])]
+   ["-c" "--chost COUCHHOST" "Couch host name."
+    :parse-fn str
+    :default (get-in (c/config) [:redis :conn :spec :host])]
+   ["-h" "--help"]])
+
+(defn -main [& args]
+  (ascii-logo)
+  (c/opt-config (parse-opts args cli-options))
+  (start))

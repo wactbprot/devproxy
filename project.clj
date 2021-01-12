@@ -1,8 +1,9 @@
-(defproject devproxy "0.3.2"
+(defproject devproxy "0.4.0"
   :description "device proxy"
   :url "https://github.com/wactbprot/devproxy"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/tools.cli "1.0.194"]
                  [compojure "1.6.1"]
                  [http-kit "2.5.0"]
                  [ring/ring-defaults "0.3.2"]
@@ -23,12 +24,8 @@
           :source-uri "https://github.com/wactbprot/devproxy/blob/master/{filepath}#L{line}"}
   :ring {:handler devproxy.server/app}
   :resource-paths ["resources"]
-
   :repl-options {:init-ns devproxy.server}
   :main devproxy.server
   :aot [devproxy.server]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
-
-
-
