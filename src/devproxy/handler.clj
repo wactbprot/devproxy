@@ -221,7 +221,9 @@
 (defn launch-tasks-vec
   [conf v]
   (let [mode (mem/get-val! (k/mode conf))
-        f    (fn [{row :row tasks :tasks}] (launch-tasks conf tasks row))]
+        f    (fn [{row :row tasks :tasks}]
+               (Thread/sleep (* (Integer/parseInt row) (:par-delay conf)))
+               (launch-tasks conf tasks row))]
     (when (= mode "sequential") (doall (map f v)))
     (when (= mode "parallel")   (doall (pmap f v)))))
 

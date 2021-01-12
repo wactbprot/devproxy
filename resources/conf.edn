@@ -10,8 +10,14 @@
          :all-tasks-view ["dbmp" "tasks"]
          :devices-view ["share" "DeviceClass"]
          :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
- :redis {:conn {:pool {} :spec {:host "127.0.0.1" :port 6379 :db 1}}}
+ :redis {:conn {:pool {}
+                :spec {:host "127.0.0.1"
+                       :port 6379
+                       :db 1}}}
  :server {:port 8009 :join? false}
+ ;; parallel request that go to the same device
+ ;; need some relaxation time:
+ :par-delay 500
  :fullscale [{:Unit "Pa"  :Display "SRG"      :Value  2.0}
              {:Unit "Pa"  :Display "0.1mbar"  :Value  10.0}
              {:Unit "Pa"  :Display "0.25mbar" :Value  25.0}
