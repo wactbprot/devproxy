@@ -6,16 +6,13 @@
    [cheshire.core         :as che]))
 
 (defn measure
-  "Sends the given `data` (the `task`) to the device hub. If a document
-  `id` and a document `doc-paht` is given, the `result`s are saved
-  via `(db/save conf id result doc-path)`"
+  "Sends the `task` to the device hub. If a document `id` and a document
+  `doc-path` is given, the `result`s are saved via
+  `(db/save conf id result doc-path)`"
   ([conf task row]
    (measure conf task row nil nil))
   ([conf task row doc-path id]
-   (let [req  {:body (che/encode task)
-               :headers {"Content-Type" "application/json"}
-               :keepalive 300000
-               :timeout 300000}
+   (let [req  (assoc (get-in conf [:dev-hub :request]) :body (che/encode task))
          {body   :body
           status :status} (deref (http/post (get-in conf [:dev-hub :conn]) req))
          {result :Result

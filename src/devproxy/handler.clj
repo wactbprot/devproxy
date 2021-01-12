@@ -193,7 +193,8 @@
     (res/response
      {:ToExchange {:revs (mapv (fn [id] (db/save conf id [{:Type "dut_a" :Value oca}
                                                           {:Type "dut_b" :Value ocb}
-                                                          {:Type "dut_c" :Value occ}] p)) ids)
+                                                          {:Type "dut_c" :Value occ}] p))
+                               ids)
                    :Dut_A ma
                    :Dut_B mb
                    :Dut_C mc
