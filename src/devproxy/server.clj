@@ -13,41 +13,40 @@
   (:gen-class))
 
 (defonce server (atom nil))
-(def conf (c/config))
 
 (defroutes app-routes
-  (GET "/"                   [:as req]     (v/index            conf req))
-  (GET "/device/:row"        [row :as req] (v/device           conf req row))
-  (POST "/device/:row"       [:as req]     (h/device           conf req))
-  (POST "/default/:row"      [:as req]     (h/default          conf req))
+  (GET "/"                   [:as req]     (v/index            (c/config) req))
+  (GET "/device/:row"        [row :as req] (v/device           (c/config) req row))
+  (POST "/device/:row"       [:as req]     (h/device           (c/config) req))
+  (POST "/default/:row"      [:as req]     (h/default          (c/config) req))
 
-  (POST "/year"              [:as req]     (h/year             conf req))
-  (POST "/n"                 [:as req]     (h/n                conf req))
-  (POST "/standard"          [:as req]     (h/standard         conf req))
-  (POST "/mode"              [:as req]     (h/mode             conf req))
-  (POST "/gas"               [:as req]     (h/gas              conf req))
-  (POST "/maintainer"        [:as req]     (h/maintainer       conf req))
+  (POST "/year"              [:as req]     (h/year             (c/config) req))
+  (POST "/n"                 [:as req]     (h/n                (c/config) req))
+  (POST "/standard"          [:as req]     (h/standard         (c/config) req))
+  (POST "/mode"              [:as req]     (h/mode             (c/config) req))
+  (POST "/gas"               [:as req]     (h/gas              (c/config) req))
+  (POST "/maintainer"        [:as req]     (h/maintainer       (c/config) req))
                                                                
-  (POST "/id"                [:as req]     (h/id               conf req))
-  (POST "/branch"            [:as req]     (h/branch           conf req))
-  (POST "/fullscale"         [:as req]     (h/fullscale        conf req))
+  (POST "/id"                [:as req]     (h/id               (c/config) req))
+  (POST "/branch"            [:as req]     (h/branch           (c/config) req))
+  (POST "/fullscale"         [:as req]     (h/fullscale        (c/config) req))
                                                                
-  (POST "/reset"             [:as req]     (h/reset            conf req))
-  (POST "/run"               [:as req]     (h/run              conf req))
+  (POST "/reset"             [:as req]     (h/reset            (c/config) req))
+  (POST "/run"               [:as req]     (h/run              (c/config) req))
   
-  (POST "/target_pressure"   [:as req]     (h/target-pressure  conf req))
-  (GET "/target_pressures"   [:as req]     (h/target-pressures conf req))
-  (GET "/cal_ids"            [:as req]     (h/cal-ids          conf req))
-  (POST "/save_dut_branch"   [:as req]     (h/save-dut-branch  conf req))
-  (POST "/save_maintainer"   [:as req]     (h/save-maintainer  conf req))
-  (POST "/save_gas"          [:as req]     (h/save-gas         conf req))
-  (POST "/dut_max"           [:as req]     (h/dut-max          conf req))
+  (POST "/target_pressure"   [:as req]     (h/target-pressure  (c/config) req))
+  (GET "/target_pressures"   [:as req]     (h/target-pressures (c/config) req))
+  (GET "/cal_ids"            [:as req]     (h/cal-ids          (c/config) req))
+  (POST "/save_dut_branch"   [:as req]     (h/save-dut-branch  (c/config) req))
+  (POST "/save_maintainer"   [:as req]     (h/save-maintainer  (c/config) req))
+  (POST "/save_gas"          [:as req]     (h/save-gas         (c/config) req))
+  (POST "/dut_max"           [:as req]     (h/dut-max          (c/config) req))
   
-  (POST "/offset_sequences"  [:as req]     (h/offset_sequences conf req))
-  (POST "/offset"            [:as req]     (h/offset           conf req))
-  (POST "/ind"               [:as req]     (h/ind              conf req))
+  (POST "/offset_sequences"  [:as req]     (h/offset_sequences (c/config) req))
+  (POST "/offset"            [:as req]     (h/offset           (c/config) req))
+  (POST "/ind"               [:as req]     (h/ind              (c/config) req))
   
-  (GET "/ws"                 [:as req]     (ws-srv/ws          conf req))  
+  (GET "/ws"                 [:as req]     (ws-srv/ws          (c/config) req))  
 
   (route/resources "/")
   (route/not-found (v/not-found)))
@@ -78,15 +77,19 @@
 (def cli-options
   ;; An option with a required argument
   [["-p" "--port PORT" "Port number of devproxy."
-    :default (get-in conf [:server :port])
+    :default (get-in (c/config) [:server :port])
     :parse-fn (fn [p] (Integer/parseInt p))
     :validate [(fn [p](< 0 p 0x10000)) "Must be a number between 0 and 65536"]]
    ;; A non-idempotent option (:default is applied first)
    ["-r" "--rhost REDISHOST" "Redis host name."
     :parse-fn str
-    :default (get-in conf [:redis :conn :spec :host])]
+    :default (get-in (c/config) [:redis :conn :spec :host])]
+   ["-c" "--chost COUCHHOST" "Couch host name."
+    :parse-fn str
+    :default (get-in (c/config) [:redis :conn :spec :host])]
    ["-h" "--help"]])
 
 (defn -main [& args]
   (ascii-logo)
+  (c/opt-config (parse-opts args cli-options))
   (start))
