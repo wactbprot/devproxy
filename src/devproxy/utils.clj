@@ -186,11 +186,14 @@
 
   Example:
   ```clojure
-  (range-ok? (c/config)  \"fullscale/100000\"  \"fullscale/10\" {:Value 14. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
-  ;; => 
+  (def from  \"fullscale/100000\")
+  (def to \"fullscale/10\")
+  
+  (range-ok? (c/config) from to  {:Value 14. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
+  ;; =>
   ;; false
-  (range-ok? (c/config)  \"fullscale/100000\"  \"fullscale/10\" {:Value 13. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
-  ;; => 
+  (range-ok? (c/config) from to {:Value 13. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
+  ;; =>
   ;; true
   ```"
   [conf from to m-t m-f]

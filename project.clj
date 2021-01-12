@@ -1,4 +1,4 @@
-(defproject devproxy "0.3.2"
+(defproject devproxy "0.4.0"
   :description "device proxy"
   :url "https://github.com/wactbprot/devproxy"
   :min-lein-version "2.0.0"
