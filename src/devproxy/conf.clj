@@ -16,15 +16,25 @@
   (let [c (:couch c)
         usr (System/getenv "CAL_USR")
         pwd (System/getenv "CAL_PWD")]
-    (str (:prot c)"://" (if (and usr pwd) (str usr":"pwd"@")  "") (:srv c)":"(:port c) "/" (:db c))))
+    (str (:prot c)"://"
+         (if (and usr pwd) (str usr":"pwd"@") "")
+         (:host c)":"(:port c) "/" (:db c))))
 
-(defn opt-config
-  [opt]
-  (let [m  (config)
-        rv [:redis :conn :spec :host]
-        cv [:couch :srv]
-        pv [:server :port]
-        r  (get-in opt [:options :rhost] (get-in m rv))
-        c  (get-in opt [:options :chost] (get-in m cv))
-        p  (get-in opt [:options :port]  (get-in m pv))]
-    (-> m (assoc-in rv r) (assoc-in cv c) (assoc-in pv p)))))))
+(defn devhub-conn
+  [c]
+  (let [c (:dev-hub c)]
+    (str (:prot c)"://" (:host c)":"(:port c) "/")))
+
+
+(defn env-update
+  [conf]
+  (let [kr-h [:redis :conn :spec :host]
+        kc-h [:couch :host]
+        kd-h [:dev-hub :host]
+        kd-p [:dev-hub :port]]
+    (-> conf
+        (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in conf kr-h)))
+        (assoc-in kd-h (or  (System/getenv "DEVHUB_HOST") (get-in conf kd-h)))
+        (assoc-in kd-p (or  (System/getenv "DEVHUB_PORT") (get-in conf kd-p)))
+        (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in conf kr-h)))
+        (assoc-in kc-h (or  (System/getenv "COUCH_HOST")  (get-in conf kc-h))))))

@@ -33,10 +33,22 @@ At the [nrepl prompt](https://nrepl.org/nrepl/index.html) type:
 ```clojure
 (start)
 ```
-java -jar 
-
 
 This starts a server [localhost (default port: 8009)](http://localhost:8009).
+
+The folder `devproxy/target/uberjar/` contains a standalone version of
+**devproxy** (build with `lein uberjar`). Run with:
+
+```shell
+java -jar devproxy/target/uberjar/devproxy-x.y.z-standalone.jar
+```
+
+The following environment variables are implemented:
+
+* `REDIS_HOST [localhost]`
+* `DEVHUB_HOST [localhost]`
+* `REDIS_HOST [localhost]`
+* `COUCH_HOST [localhost]`
 
 # Documentation
 
