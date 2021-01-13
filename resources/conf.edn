@@ -1,10 +1,12 @@
 {
- :dev-hub {:conn "http://localhost:55555"
+ :dev-hub {:prot "http"
+           :host "localhost"
+           :port 55555
            :request {:headers {"Content-Type" "application/json"}
                      :keepalive 300000
                      :timeout 300000  }}
  :couch {:prot "http"
-         :srv "localhost"
+         :host "localhost"
          :port 5984
          :db "vl_db_work"
          :all-tasks-view ["dbmp" "tasks"]

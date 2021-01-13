@@ -1,8 +1,8 @@
-(defproject devproxy "0.4.0"
+(defproject devproxy "0.5.0"
   :description "device proxy"
   :url "https://github.com/wactbprot/devproxy"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.10.0"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/tools.cli "1.0.194"]
                  [compojure "1.6.1"]
                  [http-kit "2.5.0"]

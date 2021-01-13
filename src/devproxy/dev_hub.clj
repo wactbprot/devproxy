@@ -14,7 +14,7 @@
   ([conf task row doc-path id]
    (let [req  (assoc (get-in conf [:dev-hub :request]) :body (che/encode task))
          {body   :body
-          status :status} (deref (http/post (get-in conf [:dev-hub :conn]) req))
+          status :status} (deref (http/post (c/devhub-conn conf) req))
          {result :Result
           exch   :ToExchange
           err    :error} (che/decode body true)]
