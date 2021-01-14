@@ -8,10 +8,10 @@
    [devproxy.dev-hub           :as dev-hub]
    [devproxy.conf              :as c] ;; for debug
    [devproxy.ws-server         :as ws-srv]
-   [cheshire.core         :as che]
-   [clojure.tools.logging :as log]
-   [clojure.string        :as string]
-   [ring.util.response    :as res] ))
+   [cheshire.core              :as che]
+   [com.brunobonacci.mulog     :as µ]
+   [clojure.string             :as string]
+   [ring.util.response         :as res] ))
 
 
 (defn year       [conf req] (res/response (mem/set-val! (k/year conf)       (u/get-val req))))

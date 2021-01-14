@@ -1,6 +1,6 @@
 (ns devproxy.server
   (:require [compojure.route          :as route]
-            [clojure.tools.logging    :as log]
+            [com.brunobonacci.mulog   :as µ]
             [devproxy.views           :as v]
             [clojure.pprint           :as pp]
             [devproxy.conf            :as c]
@@ -15,6 +15,8 @@
 (defonce server (atom nil))
 
 (def conf (c/env-update (c/config)))
+
+(def logger (atom nil))
 
 (defroutes app-routes
   (GET "/"                   [:as req]     (v/index            conf req))
@@ -58,9 +60,23 @@
       (middleware/wrap-json-body {:keywords? true})
       middleware/wrap-json-response))
 
-(defn stop [] (when @server (@server :timeout 100) (reset! server nil)))
+(defn init-log!
+  [{conf :mulog }]
+  (µ/set-global-context!
+   {:app-name "devproxy"})
+  (µ/start-publisher! conf))
 
-(defn start [] (reset! server (run-server app {:port 8009})))
+(defn stop []
+  (when @server (@server :timeout 100)
+        (@logger)
+        (reset! logger nil)
+        (reset! server nil)))
+
+(defn start []
+  (reset! logger (init-log! conf))
+  (pp/pprint conf)
+  (µ/log ::start :message "start devproxy server")
+  (reset! server (run-server app {:port 8009})))
 
 
 (defn ascii-logo
@@ -77,7 +93,7 @@
   (println "\n"))
 
 (defn -main [& args]
-  (println "\n config:\n")
   (pp/pprint conf)
   (ascii-logo)
+  (µ/log ::start :message "call -main")
   (start))

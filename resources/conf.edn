@@ -1,7 +1,21 @@
 {
+ :mulog {:type :multi
+         :publishers[
+                     ;; send events to the stdout
+                     ;; {:type :console
+                     ;;  :pretty? true}
+                     ;; send events to a file
+                     ;; {:type :simple-file
+                     ;;  :filename "/tmp/mulog/events.log"}
+                     ;; send events to ELS
+                     {:type :elasticsearch
+                      :url  "http://localhost:9200/"
+                      :els-version  :v7.x
+                      :data-stream  "devproxy-stream"
+                      :name-mangling false}]}
  :dev-hub {:prot "http"
            :host "localhost"
-           :port 55555
+           :port 9009
            :request {:headers {"Content-Type" "application/json"}
                      :keepalive 300000
                      :timeout 300000  }}

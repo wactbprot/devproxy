@@ -25,16 +25,15 @@
   (let [c (:dev-hub c)]
     (str (:prot c)"://" (:host c)":"(:port c) "/")))
 
-
 (defn env-update
-  [conf]
+  [c]
   (let [kr-h [:redis :conn :spec :host]
         kc-h [:couch :host]
         kd-h [:dev-hub :host]
         kd-p [:dev-hub :port]]
-    (-> conf
-        (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in conf kr-h)))
-        (assoc-in kd-h (or  (System/getenv "DEVHUB_HOST") (get-in conf kd-h)))
-        (assoc-in kd-p (or  (System/getenv "DEVHUB_PORT") (get-in conf kd-p)))
-        (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in conf kr-h)))
-        (assoc-in kc-h (or  (System/getenv "COUCH_HOST")  (get-in conf kc-h))))))
+    (-> c
+        (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in c kr-h)))
+        (assoc-in kd-h (or  (System/getenv "DEVHUB_HOST") (get-in c kd-h)))
+        (assoc-in kd-p (or  (System/getenv "DEVHUB_PORT") (get-in c kd-p)))
+        (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in c kr-h)))
+        (assoc-in kc-h (or  (System/getenv "COUCH_HOST")  (get-in c kc-h))))))
