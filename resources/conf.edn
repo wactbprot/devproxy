@@ -11,7 +11,7 @@
                      {:type :elasticsearch
                       :url  "http://localhost:9200/"
                       :els-version  :v7.x
-                      :data-stream  "devproxy-stream"
+                      :data-stream  "devhub-stream"
                       :name-mangling false}]}
  :dev-hub {:prot "http"
            :host "localhost"
