@@ -1,9 +1,9 @@
 (ns devproxy.ws-server
   (:require
-   [cheshire.core         :as che]
-   [clojure.tools.logging :as log]
-   [devproxy.conf              :as c] ;; for debug
-   [org.httpkit.server    :refer [with-channel
+   [cheshire.core           :as che]
+   [com.brunobonacci.mulog  :as mu]
+   [devproxy.conf           :as c]  ;; for debug
+   [org.httpkit.server      :refer [with-channel
                                   on-receive
                                   on-close
                                   send!]]))
@@ -13,17 +13,17 @@
 (defn msg-received
   [msg]
   (let [data (che/decode msg)]
-    (log/info "msg received" data)))
+    (mu/log :.msg-received :message "msg/data received")))
 
 (defn ws
   [conf req]
   (with-channel req channel
-    (log/info channel "connected")
+    (mu/log ::ws :message "connected")
     (swap! ws-clients assoc channel true)
     (on-receive channel #'msg-received)
     (on-close channel (fn [status]
                         (swap! ws-clients dissoc channel)
-                        (log/info channel "closed, status" status)))))
+                        (mu/log ::ws :message "closed, status" :status status)))))
 
 (defn send-to-ws-clients
   [conf m]

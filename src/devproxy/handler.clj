@@ -9,7 +9,7 @@
    [devproxy.conf              :as c] ;; for debug
    [devproxy.ws-server         :as ws-srv]
    [cheshire.core              :as che]
-   [com.brunobonacci.mulog     :as µ]
+   [com.brunobonacci.mulog     :as mu]
    [clojure.string             :as string]
    [ring.util.response         :as res] ))
 
@@ -50,6 +50,7 @@
         task-name (u/get-val req)
         task      (memu/get-task conf row task-name)
         res       (dev-hub/measure conf task row)]
+    (mu/log ::target-pressure :TaskName (:TaskName task))
     (ws-srv/send-to-ws-clients conf res)
     (res/response res)))
 
@@ -64,13 +65,16 @@
                 (filter some?
                         (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) ids)))]
       (res/response
+       (mu/log ::target-pressure :pressure p :unit "Pa")
        {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf p)] (u/get-doc-path req))) ids)
                      :Target_pressure.Selected p
                      :Target_pressure.Unit "Pa"
                      :Continue_mesaurement.Bool true}})
       (res/response
+       (mu/log ::target-pressure :message "no next pressure")
        {:ToExchange {:Continue_mesaurement.Bool false}}))
     (res/response
+     (mu/log ::target-pressure :message "no remaining doc ids")
      {:ToExchange {:Continue_mesaurement.Bool false}})))
 
 
@@ -107,8 +111,8 @@
       (let [f       (fn [id] (u/todo-si-value-vec (db/id->doc id conf)))
             v       (mapv f ids)
             c       (-> v flatten distinct sort)
-            next-p  (first c)
-            ]
+            next-p  (first c)]
+        (mu/log ::target-pressures :message "next pressure" :pressure next-p :unit "Pa")
         (map (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row))))
              (remove-rows conf {:Value next-p :Unit "Pa"}))
         (res/response
@@ -131,6 +135,7 @@
 ;;----------------------------------------------------------
 (defn cal-ids
   [conf req]
+  (mu/log ::cal-ids)
   (let [ids (memu/cal-ids conf)]
     (res/response
      {:ToExchange {:Ids (string/join "@" ids)}
@@ -142,6 +147,7 @@
 ;;----------------------------------------------------------
 (defn save-dut-branch
   [conf req]
+  (mu/log ::save-dut-branch)
   (let [p (u/get-doc-path req)
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
@@ -154,6 +160,7 @@
 ;;----------------------------------------------------------
 (defn save-maintainer
   [conf req]
+  (mu/log ::save-maintainer)
   (let [p          (u/get-doc-path req)
         ids        (memu/cal-ids conf)
         maintainer (mem/get-val! (k/maintainer conf))]
@@ -167,6 +174,7 @@
 ;;----------------------------------------------------------
 (defn save-gas
   [conf req]
+  (mu/log ::save-gas)
   (let [p   (u/get-doc-path req)
         ids (memu/cal-ids conf)
         gas (mem/get-val! (k/gas conf))]
@@ -180,6 +188,7 @@
 ;;----------------------------------------------------------
 (defn dut-max
   [conf req]
+  (mu/log ::dut-max)
   (let [p   (u/get-doc-path req)
         v   (memu/branch-and-fullscale conf)
         ids (memu/cal-ids conf)
@@ -203,10 +212,11 @@
                    :Set_Dut_C occ}})))
 
 ;;----------------------------------------------------------
-;; start offset_sequences, offset, ind save results
+;; start offset-sequences, offset, ind save results
 ;;----------------------------------------------------------
 (defn launch-task
   [conf task row]
+  (mu/log ::launch-task)
   (if task
     (let [id     (mem/get-val! (k/id conf row))
           p      (:DocPath task)
@@ -217,10 +227,12 @@
 
 (defn launch-tasks
   [conf tasks row]
+  (mu/log ::launch-tasks)
   (doall (map (fn [task] (launch-task conf task row)) tasks)))
 
 (defn launch-tasks-vec
   [conf v]
+  (mu/log ::launch-tasks-vec)
   (let [mode (mem/get-val! (k/mode conf))
         f    (fn [{row :row tasks :tasks}]
                (Thread/sleep (* (Integer/parseInt row) (:par-delay conf)))
@@ -230,6 +242,7 @@
 
 (defn get-task-vec
   [conf k mt kind]
+  (mu/log ::get-task-vec)
   (let [row   (k/get-row conf k)
         fs    (mem/get-val! k)
         mm    (u/max-pressure-by-fullscale conf fs)
@@ -250,22 +263,24 @@
 ;;----------------------------------------------------------
 (defn ind
   [conf req]
-  (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+  (let [p (u/get-target-pressure req) u (u/get-target-unit req) mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :ind)) ks)
         r  (launch-tasks-vec conf v)]
+    (mu/log ::ind :pressure p :unit u)
     (res/response {:ok true})))
 
 
 ;;----------------------------------------------------------
 ;; exec offset samples
 ;;----------------------------------------------------------
-(defn offset_sequences
+(defn offset-sequences
   [conf req]
-  (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+  (let [p (u/get-target-pressure req) u (u/get-target-unit req) mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :sequences)) ks)
         r  (launch-tasks-vec conf v)]
+    (mu/log ::offset-sequences :pressure p :unit u)
     (res/response {:ok true})))
         
 
@@ -274,8 +289,9 @@
 ;;----------------------------------------------------------
 (defn offset
   [conf req]
-  (let [mt {:Value (u/get-target-pressure req) :Unit (u/get-target-unit req)}
+  (let [p (u/get-target-pressure req) u (u/get-target-unit req) mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :offset)) ks)
         r  (launch-tasks-vec conf v)]
+    (mu/log ::offset :pressure p :unit u)
     (res/response {:ok true})))

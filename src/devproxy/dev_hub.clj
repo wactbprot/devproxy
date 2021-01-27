@@ -13,8 +13,8 @@
    (measure conf task row nil nil))
   ([conf task row doc-path id]
    (let [req  (assoc (get-in conf [:dev-hub :request]) :body (che/encode task))
-         {body   :body
-          status :status} (deref (http/post (c/devhub-conn conf) req))
+         res  (deref (http/post (c/devhub-conn conf) req))
+         {body   :body status :status} res 
          {result :Result
           exch   :ToExchange
           err    :error} (che/decode body true)]

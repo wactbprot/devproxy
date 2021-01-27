@@ -1,6 +1,6 @@
 (ns devproxy.server
   (:require [compojure.route          :as route]
-            [com.brunobonacci.mulog   :as µ]
+            [com.brunobonacci.mulog   :as mu]
             [devproxy.views           :as v]
             [clojure.pprint           :as pp]
             [devproxy.conf            :as c]
@@ -46,7 +46,7 @@
   (POST "/save_gas"          [:as req]     (h/save-gas         conf req))
   (POST "/dut_max"           [:as req]     (h/dut-max          conf req))
   
-  (POST "/offset_sequences"  [:as req]     (h/offset_sequences conf req))
+  (POST "/offset_sequences"  [:as req]     (h/offset-sequences conf req))
   (POST "/offset"            [:as req]     (h/offset           conf req))
   (POST "/ind"               [:as req]     (h/ind              conf req))
   
@@ -62,9 +62,8 @@
 
 (defn init-log!
   [{conf :mulog }]
-  (µ/set-global-context!
-   {:app-name "devproxy"})
-  (µ/start-publisher! conf))
+  (mu/set-global-context! {:app-name "devproxy"})
+  (mu/start-publisher! conf))
 
 (defn stop []
   (when @server (@server :timeout 100)
@@ -75,7 +74,7 @@
 (defn start []
   (reset! logger (init-log! conf))
   (pp/pprint conf)
-  (µ/log ::start :message "start devproxy server")
+  (mu/log ::start :message "start devproxy server")
   (reset! server (run-server app {:port 8009})))
 
 
@@ -95,5 +94,5 @@
 (defn -main [& args]
   (pp/pprint conf)
   (ascii-logo)
-  (µ/log ::start :message "call -main")
+  (mu/log ::start :message "call -main")
   (start))
