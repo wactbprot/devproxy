@@ -58,32 +58,9 @@
 ;;----------------------------------------------------------
 ;; target pressure 
 ;;----------------------------------------------------------
-(defn target-pressure
-  [conf req]
-  (if-let [ids (memu/cal-ids conf)]
-    (if-let [p (first
-                (filter some?
-                        (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) ids)))]
-      (res/response
-       (mu/log ::target-pressure :pressure p :unit "Pa")
-       {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf p)] (u/get-doc-path req))) ids)
-                     :Target_pressure.Selected p
-                     :Target_pressure.Unit "Pa"
-                     :Continue_mesaurement.Bool true}})
-      (res/response
-       (mu/log ::target-pressure :message "no next pressure")
-       {:ToExchange {:Continue_mesaurement.Bool false}}))
-    (res/response
-     (mu/log ::target-pressure :message "no remaining doc ids")
-     {:ToExchange {:Continue_mesaurement.Bool false}})))
-
-
-;;----------------------------------------------------------
-;; target pressures
-;;----------------------------------------------------------
 (defn remove-rows
-  "Returns a vector containing the `ids` to remove from mem because next presssure is above FS.
-
+  "Returns a vector containing the `rows` to remove from mem because next presssure is above FS.
+  
   Example:
   ```clojure
   (remove-rows (c/config) {:Value 1E-6 :Unit Pa})
@@ -102,6 +79,23 @@
                    v)]
     (mapv :row v)))
 
+;;----------------------------------------------------------
+;; target pressures
+;;----------------------------------------------------------
+(defn target-pressure
+  [conf req]
+    (if-let [next-p (first (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) (memu/cal-ids conf))))]
+      (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
+        (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
+        (map (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows)
+        (res/response {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf next-p)] (u/get-doc-path req))) (memu/cal-ids conf))
+                                    :Target_pressure {:Selected next-p :Unit "Pa"}
+                                    :Continue_mesaurement {:Bool true}}}))
+      (res/response {:ToExchange {:Continue_mesaurement {:Bool false}}})))
+
+;;----------------------------------------------------------
+;; target pressures
+;;----------------------------------------------------------
 (defn target-pressures
   "A post request to `target-pressures` removes the devices with `fs < next-p`
   from the `mem`."
@@ -112,23 +106,18 @@
             v       (mapv f ids)
             c       (-> v flatten distinct sort)
             next-p  (first c)]
-        (mu/log ::target-pressures :message "next pressure" :pressure next-p :unit "Pa")
-        (map (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row))))
-             (remove-rows conf {:Value next-p :Unit "Pa"}))
-        (res/response
-         {:ToExchange
-          {:Target_pressure
-           {:Caption "target pressure", 
-            :Select (mapv (fn [p] {:display (str p " Pa") :value (str p)}) c)
-            :Selected (str next-p) 
-            :Unit "Pa"}}}))
-      (res/response
-       {:ToExchange
-        {:Target_pressure
-         {:Caption "target pressure", 
-          :Select [{:display "1.0E-2 Pa" :value "1-0E-2"}]
-          :Selected "1.0E-2" 
-          :Unit "Pa"}}}))))
+        (res/response {:ToExchange
+                       {:Target_pressure
+                        {:Caption "target pressure", 
+                         :Select (mapv (fn [p] {:display (str p " Pa") :value (str p)}) c)
+                         :Selected (str next-p) 
+                         :Unit "Pa"}}}))
+      (res/response {:ToExchange
+                     {:Target_pressure
+                      {:Caption "target pressure", 
+                       :Select [{:display "1.0E-2 Pa" :value "1-0E-2"}]
+                       :Selected "1.0E-2" 
+                       :Unit "Pa"}}}))))
 
 ;;----------------------------------------------------------
 ;; calibration ids
@@ -137,9 +126,7 @@
   [conf req]
   (mu/log ::cal-ids)
   (let [ids (memu/cal-ids conf)]
-    (res/response
-     {:ToExchange {:Ids (string/join "@" ids)}
-      :ids ids})))
+    (res/response {:ToExchange {:Ids (string/join "@" ids)} :ids ids})))
 
 
 ;;----------------------------------------------------------
@@ -151,9 +138,8 @@
   (let [p (u/get-doc-path req)
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
-      (res/response
-       {:ok true :revs (mapv (fn [{id :id x :branch}] (db/save conf id [x] p)) v)})
-      (res/response  {:ok true :warn "no doc selected"}))))
+      (res/response {:ok true :revs (mapv (fn [{id :id x :branch}] (db/save conf id [x] p)) v)})
+      (res/response {:ok true :warn "no doc selected"}))))
 
 ;;----------------------------------------------------------
 ;; maintainer 
@@ -165,9 +151,8 @@
         ids        (memu/cal-ids conf)
         maintainer (mem/get-val! (k/maintainer conf))]
     (if (and (string? p) (string? maintainer))
-      (res/response
-       {:ok true :revs (mapv (fn [id] (db/save conf id [maintainer] p)) ids)})
-      (res/response  {:ok true :warn "no maintainer selected"}))))
+      (res/response {:ok true :revs (mapv (fn [id] (db/save conf id [maintainer] p)) ids)})
+      (res/response {:ok true :warn "no maintainer selected"}))))
 
 ;;----------------------------------------------------------
 ;; gas
@@ -179,9 +164,8 @@
         ids (memu/cal-ids conf)
         gas (mem/get-val! (k/gas conf))]
     (if (and (string? p) (string? gas))
-      (res/response
-       {:ok true :revs (mapv (fn [id] (db/save conf id [gas] p)) ids)})
-      (res/response  {:ok true :warn "no gas selected"}))))
+      (res/response {:ok true :revs (mapv (fn [id] (db/save conf id [gas] p)) ids)})
+      (res/response {:ok true :warn "no gas selected"}))))
 
 ;;----------------------------------------------------------
 ;; device under test maximum

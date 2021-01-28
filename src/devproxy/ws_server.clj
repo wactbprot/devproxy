@@ -1,3 +1,4 @@
+
 (ns devproxy.ws-server
   (:require
    [cheshire.core           :as che]
@@ -13,7 +14,7 @@
 (defn msg-received
   [msg]
   (let [data (che/decode msg)]
-    (mu/log :.msg-received :message "msg/data received")))
+    (mu/log ::msg-received :message "msg/data received")))
 
 (defn ws
   [conf req]
