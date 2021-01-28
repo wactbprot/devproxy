@@ -89,10 +89,10 @@
   if no next pressure can be determined."
   [conf req]
     (if-let [next-p (first (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) (memu/cal-ids conf))))]
-      (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})
-             res     (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows)]
+      (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
+        (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
         (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
-        (when-not (empty? res)
+        (when-not (empty? rm-rows)
           (mu/log ::target-pressure :message (str "rm row" rm-rows)))
         (res/response {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf next-p)] (u/get-doc-path req))) (memu/cal-ids conf))
                                     :Target_pressure {:Selected next-p :Unit "Pa"}
