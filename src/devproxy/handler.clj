@@ -83,11 +83,17 @@
 ;; target pressures
 ;;----------------------------------------------------------
 (defn target-pressure
+  "Returns the next `Target_pressure` in `Pa`. Checks if this pressure is
+  exceeds a fullscale of a initialized device and removes
+  the corresponding `row` if so. Sets `:Continue_mesaurement` to `false`
+  if no next pressure can be determined."
   [conf req]
     (if-let [next-p (first (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) (memu/cal-ids conf))))]
-      (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
+      (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})
+             res     (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows)]
         (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
-        (map (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows)
+        (when-not (empty? res)
+          (mu/log ::target-pressure :message (str "rm row" rm-rows)))
         (res/response {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf next-p)] (u/get-doc-path req))) (memu/cal-ids conf))
                                     :Target_pressure {:Selected next-p :Unit "Pa"}
                                     :Continue_mesaurement {:Bool true}}}))
