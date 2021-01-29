@@ -13,7 +13,6 @@
    [clojure.string             :as string]
    [ring.util.response         :as res] ))
 
-
 (defn year       [conf req] (res/response (mem/set-val! (k/year conf)       (u/get-val req))))
 (defn n          [conf req] (res/response (mem/set-val! (k/n conf)          (u/get-val req))))
 (defn standard   [conf req] (res/response (mem/set-val! (k/standard conf)   (u/get-val req))))
@@ -88,16 +87,18 @@
   the corresponding `row` if so. Sets `:Continue_mesaurement` to `false`
   if no next pressure can be determined."
   [conf req]
-    (if-let [next-p (first (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf))) (memu/cal-ids conf))))]
-      (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
-        (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
-        (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
-        (when-not (empty? rm-rows)
-          (mu/log ::target-pressure :message (str "rm row" rm-rows)))
-        (res/response {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf next-p)] (u/get-doc-path req))) (memu/cal-ids conf))
-                                    :Target_pressure {:Selected next-p :Unit "Pa"}
-                                    :Continue_mesaurement {:Bool true}}}))
-      (res/response {:ToExchange {:Continue_mesaurement {:Bool false}}})))
+  (if-let [next-p (first (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf)))
+                                            (memu/cal-ids conf))))]
+    (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
+      (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
+      (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
+      (when-not (empty? rm-rows)
+        (mu/log ::target-pressure :message (str "rm row" rm-rows)))
+      (res/response {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf next-p)] (u/get-doc-path req)))
+                                              (memu/cal-ids conf))
+                                  :Target_pressure {:Selected next-p :Unit "Pa"}
+                                  :Continue_mesaurement {:Bool true}}}))
+    (res/response {:ToExchange {:Continue_mesaurement {:Bool false}}})))
 
 ;;----------------------------------------------------------
 ;; target pressures
@@ -133,7 +134,6 @@
   (mu/log ::cal-ids)
   (let [ids (memu/cal-ids conf)]
     (res/response {:ToExchange {:Ids (string/join "@" ids)} :ids ids})))
-
 
 ;;----------------------------------------------------------
 ;; device under test branch
@@ -227,8 +227,9 @@
         f    (fn [{row :row tasks :tasks}]
                (Thread/sleep (* (Integer/parseInt row) (:par-delay conf)))
                (launch-tasks conf tasks row))]
-    (when (= mode "sequential") (doall (map f v)))
-    (when (= mode "parallel")   (doall (pmap f v)))))
+    (if (= mode "parallel")
+      (doall (pmap f v))
+      (doall (map f v)))))
 
 (defn get-task-vec
   [conf k mt kind]
@@ -260,7 +261,6 @@
     (mu/log ::ind :pressure p :unit u)
     (res/response {:ok true})))
 
-
 ;;----------------------------------------------------------
 ;; exec offset samples
 ;;----------------------------------------------------------
@@ -273,7 +273,6 @@
     (mu/log ::offset-sequences :pressure p :unit u)
     (res/response {:ok true})))
         
-
 ;;----------------------------------------------------------
 ;; exec offset mean value 
 ;;----------------------------------------------------------
