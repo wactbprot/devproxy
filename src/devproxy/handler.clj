@@ -87,7 +87,7 @@
   the corresponding `row` if so. Sets `:Continue_mesaurement` to `false`
   if no next pressure can be determined."
   [conf req]
-  (if-let [next-p (first (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf)))
+  (if-let [next-p (apply min (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf)))
                                             (memu/cal-ids conf))))]
     (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
       (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
