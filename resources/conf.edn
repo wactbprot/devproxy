@@ -34,6 +34,9 @@
  ;; parallel request that go to the same device
  ;; need some relaxation time:
  :par-delay 500
+ ;; sequential tasks (e.g. init--> range --> ind)
+ ;; need some relaxation time too:
+ :seq-delay 100
  :fullscale [{:Unit "Pa"  :Display "SRG"      :Value  2.0}
              {:Unit "Pa"  :Display "0.1mbar"  :Value  10.0}
              {:Unit "Pa"  :Display "0.25mbar" :Value  25.0}
