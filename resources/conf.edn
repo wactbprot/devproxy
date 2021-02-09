@@ -70,7 +70,7 @@
  :years [ "2020" "2021" "2019"]
  :n ["1" "2" "3" "4" "5" "6" "7" "8" "9" "10"]
  :maintainers ["Christian Buchmann" "Thomas Bock"]
- :gases ["N2" "He"]
+ :gases ["N2" "Ar" "He" "Kr" "Ne" "Xe"]
  :standards ["SE3" "SE1" "CE3"]
  :modes ["sequential" "parallel"]
  :sep "/"
