@@ -82,23 +82,27 @@
 ;; target pressures
 ;;----------------------------------------------------------
 (defn target-pressure
-  "Returns the next `Target_pressure` in `Pa`. Checks if this pressure is
-  exceeds a fullscale of a initialized device and removes
-  the corresponding `row` if so. Sets `:Continue_mesaurement` to `false`
-  if no next pressure can be determined."
+  "Returns the next `Target_pressure` in `Pa`. Checks if this pressure
+  is exceeds a fullscale of a initialized device and removes the
+  corresponding `row` if so. Saves the `target-pressure-map` to the
+  remaining documents. Sets `:Continue_mesaurement` to `false` if no
+  next pressure can be determined."
   [conf req]
-  (if-let [next-p (apply min (filter some? (map (fn [id] (u/next-target-pressure (db/id->doc id conf)))
-                                            (memu/cal-ids conf))))]
-    (let  [rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
-      (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
-      (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
-      (when-not (empty? rm-rows)
-        (mu/log ::target-pressure :message (str "rm row" rm-rows)))
-      (res/response {:ToExchange {:revs (mapv (fn [id] (db/save conf id [(u/target-pressure-map conf next-p)] (u/get-doc-path req)))
-                                              (memu/cal-ids conf))
-                                  :Target_pressure {:Selected next-p :Unit "Pa"}
-                                  :Continue_mesaurement {:Bool true}}}))
-    (res/response {:ToExchange {:Continue_mesaurement {:Bool false}}})))
+  (let [next-ps (filter some? (map (fn [id]
+                                     (u/next-target-pressure (db/id->doc id conf)))
+                                   (memu/cal-ids conf)))]
+    (if-not (empty? next-ps)
+      (let  [next-p  (apply min next-ps)
+             next-m  (u/target-pressure-map conf next-p)
+             rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
+        (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
+        (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
+        (res/response {:ToExchange {:revs (mapv (fn [id]
+                                                  (db/save conf id [next-m] (u/get-doc-path req)))
+                                                (memu/cal-ids conf))
+                                    :Target_pressure {:Selected next-p :Unit "Pa"}
+                                    :Continue_mesaurement {:Bool true}}}))
+      (res/response {:ToExchange {:Continue_mesaurement {:Bool false}}}))))
 
 ;;----------------------------------------------------------
 ;; target pressures
@@ -212,6 +216,7 @@
           p      (:DocPath task)
           result (dev-hub/measure conf task row p id)]
       (ws-srv/send-to-ws-clients conf result)
+      (Thread/sleep (:seq-delay conf))
       result)
     {:ok true :warn "no task"}))
 
