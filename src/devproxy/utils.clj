@@ -1,6 +1,5 @@
 (ns devproxy.utils
   (:require [clojure.string    :as string]
-            [clojure.data.json :as json]
             [cheshire.core     :as che]
             [devproxy.conf          :as c] ;; for debug
             [clojure.edn       :as edn]))

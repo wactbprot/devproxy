@@ -1,0 +1,64 @@
+{
+ :mulog {:type :multi
+         :publishers[
+                     ;; send events to the stdout
+                     ;; {:type :console
+                     ;;  :pretty? true}
+                     ;; send events to a file
+                     ;; {:type :simple-file
+                     ;;  :filename "/tmp/mulog/events.log"}
+                     ;; send events to ELS
+                     {:type :elasticsearch
+                      :url  "http://localhost:9200/"
+                      :els-version  :v7.x
+                      :data-stream  "vl-log-stream"
+                      :name-mangling false}]}
+ :dev-hub {:prot "http"
+           :host "localhost"
+           :port 9009
+           :request {:headers {"Content-Type" "application/json"}
+                     :keepalive 300000
+                     :timeout 300000  }}
+ :couch {:prot "http"
+         :host "localhost"
+         :port 5984
+         :db "vl_db_work"
+         :all-tasks-view ["dbmp" "tasks"]
+         :devices-view ["share" "DeviceClass"]
+         :calibration-ids-view ["share" "Year_Standard-Type_Certificate_Issue"]}
+ :redis {:conn {:pool {}
+                :spec {:host "127.0.0.1"
+                       :port 6379
+                       :db 1}}}
+ :server {:port 8009 :join? false}
+ ;; parallel request that go to the same device
+ ;; need some relaxation time:
+ :par-delay 500
+ ;; sequential tasks (e.g. init--> range --> ind)
+ ;; need some relaxation time too:
+ :seq-delay 100
+ :items {:ce3-opkx ["opK1" "opK2" "opK3" "opK4" "opK5"]
+         :ce3-port ["P1" "P2" "P3" "P4"]}
+ :page-title "devproxy"
+ :main-title "devproxy"
+ :select "select"
+ :years [ "2020" "2021" "2019"]
+ :n ["1" "2" "3" ]
+ :maintainers ["Christian Buchmann" "Thomas Bock"]
+ :gases ["N2" "Ar" "He" "Kr" "Ne" "Xe"]
+ :standards ["CE3"]
+ :modes ["sequential" "parallel"]
+ :sep "/"
+ :prefix "devproxy"
+ :keys {:id "id"
+        :n "n"
+        :year "year"
+        :gas "gas"
+        :mode "mode"
+        :standard "standard"
+        :maintainer "maintainer"
+        :branch "branch"
+        :device "device"
+        :default "default"
+        :task "task"
+        :fullscale "fullscale"}}

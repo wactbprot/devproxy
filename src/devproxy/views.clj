@@ -214,6 +214,38 @@
                (range (Integer/parseInt n))))]]
       (missing conf))))
 
+
+(defn item-ce3
+  [conf row]
+  (let [standard (mem/get-val! (k/standard conf))
+        year     (mem/get-val! (k/year conf))
+        id       (mem/get-val! (k/id conf row))
+        port     (mem/get-val! (k/port conf row))
+        opx      (mem/get-val! (k/opx conf row))
+        id-vec   (db/cal-ids conf standard year)
+        fs-vec   (u/display-fullscale-vec conf)
+        br-vec   (get-in conf [:items :se3-branch])]
+    (if (and standard year)
+      [:div {:class "columns"}
+       (button        conf "reset"     "reset"                     row)
+       (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
+       (device-stdout conf row "is-3")
+       (device-link   conf row)])))
+
+(defn items-ce3
+  [conf]
+  (let [standard (mem/get-val! (k/standard conf))
+        year     (mem/get-val! (k/year conf))
+        n        (mem/get-val! (k/n conf))]
+    (if (and standard year n)
+      [:section {:class "section"}
+       [:div {:class "container content"}
+        (into [:div {:class "box"}]
+              (map
+               (fn [i] (item-se3 conf i))
+               (range (Integer/parseInt n))))]]
+      (missing conf))))
+
 (defn index
   [conf req]
   (let [s (mem/get-val! (k/standard conf))
@@ -226,7 +258,7 @@
       (condp = (keyword s)
         :SE3 (items-se3       conf)
         :SE1 (not-implemented conf)
-        :CE3 (not-implemented conf)
+        :CE3 (items-ce3 conf)
         (missing conf))
       (reset-button conf)
       (hp/include-js "/js/jquery-3.5.1.min.js")

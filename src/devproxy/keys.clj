@@ -34,6 +34,8 @@
 (defn standard   [conf] (from-conf conf :standard))
 (defn id         [conf row] (from-conf conf :id  row))
 (defn branch     [conf row] (from-conf conf :branch row))
+(defn port       [conf row] (from-conf conf :port row))
+(defn opx        [conf row] (from-conf conf :opx row))
 (defn fullscale  [conf row] (from-conf conf :fullscale row))
 (defn device     [conf row] (from-conf conf :device row))
 (defn defaults   [conf row value] (from-conf conf :default row value))
