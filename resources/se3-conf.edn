@@ -64,7 +64,7 @@
                 "fullscale/100000" 0.00001
                 "fullscale/1000000" 0.000001}
  :items {:se3-branch ["dut-a" "dut-b" "dut-c"]
-         :ce3-opkx ["opK1" "opK2" "opK3" "opK4" "opK5"]
+         :ce3-opx ["opK1" "opK2" "opK3" "opK4" "opK5"]
          :ce3-port ["P1" "P2" "P3" "P4"]}
  :page-title "devproxy"
  :main-title "devproxy"

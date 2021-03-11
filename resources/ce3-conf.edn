@@ -37,8 +37,7 @@
  ;; sequential tasks (e.g. init--> range --> ind)
  ;; need some relaxation time too:
  :seq-delay 100
- :items {:ce3-opkx ["opK1" "opK2" "opK3" "opK4" "opK5"]
-         :ce3-port ["P1" "P2" "P3" "P4"]}
+ :items {
  :page-title "devproxy"
  :main-title "devproxy"
  :select "select"
@@ -46,7 +45,7 @@
  :n ["1" "2" "3" ]
  :maintainers ["Christian Buchmann" "Thomas Bock"]
  :gases ["N2" "Ar" "He" "Kr" "Ne" "Xe"]
- :standards ["CE3"]
+ :standards ["SE3" "SE1" "CE3"]
  :modes ["sequential" "parallel"]
  :sep "/"
  :prefix "devproxy"
