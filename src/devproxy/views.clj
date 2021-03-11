@@ -11,6 +11,9 @@
 (defn page-header
   [conf]
   [:head
+   [meta {:http-equiv "Cache-Control" :content="no-cache, no-store, must-revalidate"}]
+   [meta {:http-equiv "Pragma" :content "no-cache"}]
+   [meta {:http-equiv "Expires" :content "0"}]
    [:title (:page-title conf)]
    (hp/include-css "/css/bulma.css")
    (hp/include-css "/css/all.css")])
@@ -230,6 +233,7 @@
         id-vec   (db/cal-ids conf standard year)
         opx-vec  (get-in conf [:items :ce3-opx])
         port-vec (get-in conf [:items :ce3-port])
+        
         ]
     (if (and standard year)
       [:div {:class "columns"}
