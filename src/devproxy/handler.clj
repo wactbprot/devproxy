@@ -23,6 +23,8 @@
 (defn id         [conf req] (res/response (mem/set-val! (k/id conf          (u/get-row req)) (u/get-val req))))
 (defn branch     [conf req] (res/response (mem/set-val! (k/branch conf      (u/get-row req)) (u/get-val req))))
 (defn fullscale  [conf req] (res/response (mem/set-val! (k/fullscale conf   (u/get-row req)) (u/get-val req))))
+(defn port       [conf req] (res/response (mem/set-val! (k/port conf        (u/get-row req)) (u/get-val req))))
+(defn opx        [conf req] (res/response (mem/set-val! (k/opx conf         (u/get-row req)) (u/get-val req))))
 
 (defn device
   [conf req]
@@ -140,7 +142,7 @@
     (res/response {:ToExchange {:Ids (string/join "@" ids)} :ids ids})))
 
 ;;----------------------------------------------------------
-;; device under test branch
+;; device under test branch  (se3)
 ;;----------------------------------------------------------
 (defn save-dut-branch
   [conf req]
@@ -176,6 +178,30 @@
     (if (and (string? p) (string? gas))
       (res/response {:ok true :revs (mapv (fn [id] (db/save conf id [gas] p)) ids)})
       (res/response {:ok true :warn "no gas selected"}))))
+
+;;----------------------------------------------------------
+;; opx (ce3)
+;;----------------------------------------------------------
+(defn save-opx
+  [conf req]
+  (mu/log ::save-opx)
+  (let [p (u/get-doc-path req)
+        v (memu/id-and-opx conf)]
+    (if (and (string? p) (not (empty? v)))
+      (res/response {:ok true :revs (mapv (fn [{id :id x :opx}] (db/save conf id [x] p)) v)})
+      (res/response {:ok true :warn "no doc selected"}))))
+
+;;----------------------------------------------------------
+;; port (ce3)
+;;----------------------------------------------------------
+(defn save-port
+  [conf req]
+  (mu/log ::save-port)
+  (let [p (u/get-doc-path req)
+        v (memu/id-and-port conf)]
+    (if (and (string? p) (not (empty? v)))
+      (res/response {:ok true :revs (mapv (fn [{id :id x :port}] (db/save conf id [x] p)) v)})
+      (res/response {:ok true :warn "no doc selected"}))))
 
 ;;----------------------------------------------------------
 ;; device under test maximum

@@ -84,6 +84,18 @@ $(".fullscale").change( e => {
     post( "fullscale", data);
 });
 
+$(".port").change( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": $this.val(),"row": $this.data("row")};
+    post( "port", data);
+});
+
+$(".opx").change( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": $this.val(),"row": $this.data("row")};
+    post( "opx", data);
+});
+
 $(".defaults").change( e => {
     var $this = $(e.currentTarget),
 	row = $this.data("row"),

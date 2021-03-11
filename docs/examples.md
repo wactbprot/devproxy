@@ -419,3 +419,58 @@ curl http://localhost:8009/target_pressures
 
 
 `curl  -H "Content-Type: application/json" -d '{"Target_pressure_value": "10","Target_pressure_unit": "Pa"}' -X POST http://localhost:8009/ind`
+
+
+
+## save_port [POST]
+
+```json
+{
+"Action": "DevProxy",
+"Comment": "Save port name.",
+"TaskName": "devproxy_save_port",
+"RequestPath": "save_port",
+"Value": {
+    "DocPath": "Calibration.Measurement.AuxValues.CalPort"
+     }
+}
+```
+
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.CalPort"}' -X POST http://localhost:8009/save_port`
+
+
+```json
+{"ok":true,"warn":"no port selected"}
+```
+or
+
+```json
+{"ok":true,"revs":["12-fa88485ff30bcb544cba85c8d1d61ad9"]}
+```
+
+
+## save_opx [POST]
+
+```json
+{
+"Action": "DevProxy",
+"Comment": "Save name of kind of operation.",
+"TaskName": "devproxy_save_opx",
+"RequestPath": "save_opx",
+"Value": {
+    "DocPath": "Calibration.Measurement.AuxValues.OperationKind"
+     }
+}
+```
+
+`curl  -H "Content-Type: application/json" -d '{"DocPath": "Calibration.Measurement.AuxValues.OperationKind"}' -X POST http://localhost:8009/save_opx`
+
+
+```json
+{"ok":true,"warn":"no operation kind selected"}
+```
+or
+
+```json
+{"ok":true,"revs":["12-fa88485ff30bcb544cba85c8d1d61ad9"]}
+```

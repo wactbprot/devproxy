@@ -85,6 +85,8 @@
         :standard "standard"
         :maintainer "maintainer"
         :branch "branch"
+        :port "port"
+        :opx "opx"
         :device "device"
         :default "default"
         :task "task"

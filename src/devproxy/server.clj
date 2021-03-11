@@ -33,6 +33,8 @@
                                                                
   (POST "/id"                [:as req]     (h/id               conf req))
   (POST "/branch"            [:as req]     (h/branch           conf req))
+  (POST "/opx"               [:as req]     (h/opx              conf req))
+  (POST "/port"              [:as req]     (h/port             conf req))
   (POST "/fullscale"         [:as req]     (h/fullscale        conf req))
                                                                
   (POST "/reset"             [:as req]     (h/reset            conf req))
@@ -44,6 +46,9 @@
   (POST "/save_dut_branch"   [:as req]     (h/save-dut-branch  conf req))
   (POST "/save_maintainer"   [:as req]     (h/save-maintainer  conf req))
   (POST "/save_gas"          [:as req]     (h/save-gas         conf req))
+  (POST "/save_port"         [:as req]     (h/save-port        conf req))
+  (POST "/save_opx"          [:as req]     (h/save-opx         conf req))
+  
   (POST "/dut_max"           [:as req]     (h/dut-max          conf req))
   
   (POST "/offset_sequences"  [:as req]     (h/offset-sequences conf req))

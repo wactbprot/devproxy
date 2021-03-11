@@ -59,6 +59,36 @@
       (mapv (fn [id] (get-id-and-branch conf id)) id-keys))))
 
 ;;----------------------------------------------------------
+;; id and opx
+;;----------------------------------------------------------
+(defn get-id-and-opx
+  [conf k]
+  {:id  (mem/get-val! k)
+   :opx (mem/get-val! (k/opx conf (k/get-row conf k)))})
+
+(defn id-and-opx
+  "Returns a `map` containing `id` and `opx`."
+  [conf]
+  (let [id-keys (cal-id-keys conf)]
+    (when-not (empty? id-keys)
+      (mapv (fn [id] (get-id-and-opx conf id)) id-keys))))
+
+;;----------------------------------------------------------
+;; id and port
+;;----------------------------------------------------------
+(defn get-id-and-port
+  [conf k]
+  {:id  (mem/get-val! k)
+   :port (mem/get-val! (k/opx conf (k/get-row conf k)))})
+
+(defn id-and-port
+  "Returns a `map` containing `id` and `port`."
+  [conf]
+  (let [id-keys (cal-id-keys conf)]
+    (when-not (empty? id-keys)
+      (mapv (fn [id] (get-id-and-port conf id)) id-keys))))
+
+;;----------------------------------------------------------
 ;; branch and fullscale
 ;;----------------------------------------------------------
 (defn get-branch-and-fullscale
@@ -76,8 +106,7 @@
   ;; =>
   ;; [{:branch dut-a :fullscale 1.1mbar}]
 
-  ```
-  "
+  ```"
   [conf]
   (let [id-keys (cal-id-keys conf)]
     (when-not (empty? id-keys)
