@@ -259,6 +259,38 @@
       (missing conf))))
 
 ;;----------------------------------------------------------
+;; frs 
+;;----------------------------------------------------------
+(defn item-frs
+  [conf row]
+  (let [standard (mem/get-val! (k/standard conf))
+        year     (mem/get-val! (k/year conf))
+        id       (mem/get-val! (k/id conf row))
+        port     (mem/get-val! (k/port conf row))
+        opx      (mem/get-val! (k/opx conf row))
+        id-vec   (db/cal-ids conf standard year)]
+    (if (and standard year)
+      [:div {:class "columns"}
+       (button        conf "reset"  "reset" row)
+       (select        conf "id"     (u/fill-vec conf id   id-vec) row "is-3")
+       (device-stdout conf row "is-3")
+       (device-link   conf row)])))
+
+(defn items-frs
+  [conf]
+  (let [standard (mem/get-val! (k/standard conf))
+        year     (mem/get-val! (k/year conf))
+        n        (mem/get-val! (k/n conf))]
+    (if (and standard year n)
+      [:section {:class "section"}
+       [:div {:class "container content"}
+        (into [:div {:class "box"}]
+              (map
+               (fn [i] (item-frs conf i))
+               (range (Integer/parseInt n))))]]
+      (missing conf))))
+
+;;----------------------------------------------------------
 ;; index page
 ;;----------------------------------------------------------
 (defn index
@@ -271,9 +303,10 @@
       (index-title conf s)
       (main-select conf)
       (condp = (keyword s)
-        :SE3 (items-se3       conf)
-        :SE1 (not-implemented conf)
-        :CE3 (items-ce3       conf)
+        :FRS5 (items-frs       conf)
+        :SE3  (items-se3       conf)
+        :SE1  (not-implemented conf)
+        :CE3  (items-ce3       conf)
         (missing conf))
       (reset-button conf)
       (hp/include-js "/js/jquery-3.5.1.min.js")

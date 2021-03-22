@@ -63,7 +63,8 @@
                 "fullscale/10000" 0.0001
                 "fullscale/100000" 0.00001
                 "fullscale/1000000" 0.000001}
- :items {:se3-branch ["dut-a" "dut-b" "dut-c"]
+ :items {:frs nil
+         :se3-branch ["dut-a" "dut-b" "dut-c"]
          :ce3-opx ["opK1" "opK2" "opK3" "opK4" "opK5"]
          :ce3-port ["P1" "P2" "P3" "P4"]}
  :page-title "devproxy"
@@ -73,7 +74,7 @@
  :n ["1" "2" "3" "4" "5" "6" "7" "8" "9" "10"]
  :maintainers ["Christian Buchmann" "Thomas Bock"]
  :gases ["N2" "Ar" "He" "Kr" "Ne" "Xe"]
- :standards ["SE3" "SE1" "CE3"]
+ :standards ["SE3" "FRS5" "SE1" "CE3"]
  :modes ["sequential" "parallel"]
  :sep "/"
  :prefix "devproxy"
