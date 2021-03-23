@@ -206,20 +206,6 @@
        (device-stdout conf row "is-3")
        (device-link   conf row)])))
 
-(defn items-se3
-  [conf]
-  (let [standard (mem/get-val! (k/standard conf))
-        year     (mem/get-val! (k/year conf))
-        n        (mem/get-val! (k/n conf))]
-    (if (and standard year n)
-      [:section {:class "section"}
-       [:div {:class "container content"}
-        (into [:div {:class "box"}]
-              (map
-               (fn [i] (item-se3 conf i))
-               (range (Integer/parseInt n))))]]
-      (missing conf))))
-
 ;;----------------------------------------------------------
 ;; ce3 
 ;;----------------------------------------------------------
@@ -228,35 +214,23 @@
   (let [standard (mem/get-val! (k/standard conf))
         year     (mem/get-val! (k/year conf))
         id       (mem/get-val! (k/id conf row))
+        fs       (mem/get-val! (k/fullscale conf row))
+        fs-vec   (u/display-fullscale-vec conf)
         port     (mem/get-val! (k/port conf row))
         opx      (mem/get-val! (k/opx conf row))
         id-vec   (db/cal-ids conf standard year)
         opx-vec  (get-in conf [:items :ce3-opx])
         port-vec (get-in conf [:items :ce3-port])
-        
         ]
     (if (and standard year)
       [:div {:class "columns"}
-       (button        conf "reset"  "reset" row)
-       (select        conf "id"     (u/fill-vec conf id   id-vec) row "is-3")
-       (select        conf "port"   (u/fill-vec conf port port-vec)   row)
-       (select        conf "opx"    (u/fill-vec conf opx  opx-vec)    row)
+       (button        conf "reset"     "reset" row)
+       (select        conf "id"        (u/fill-vec conf id   id-vec)   row "is-3")
+       (select        conf "port"      (u/fill-vec conf port port-vec) row)
+       (select        conf "fullscale" (u/fill-vec conf fs fs-vec)     row)
+       (select        conf "opx"       (u/fill-vec conf opx  opx-vec)  row)
        (device-stdout conf row "is-3")
        (device-link   conf row)])))
-
-(defn items-ce3
-  [conf]
-  (let [standard (mem/get-val! (k/standard conf))
-        year     (mem/get-val! (k/year conf))
-        n        (mem/get-val! (k/n conf))]
-    (if (and standard year n)
-      [:section {:class "section"}
-       [:div {:class "container content"}
-        (into [:div {:class "box"}]
-              (map
-               (fn [i] (item-ce3 conf i))
-               (range (Integer/parseInt n))))]]
-      (missing conf))))
 
 ;;----------------------------------------------------------
 ;; frs 
@@ -265,19 +239,23 @@
   [conf row]
   (let [standard (mem/get-val! (k/standard conf))
         year     (mem/get-val! (k/year conf))
+        fs       (mem/get-val! (k/fullscale conf row))
+        fs-vec   (u/display-fullscale-vec conf)
         id       (mem/get-val! (k/id conf row))
-        port     (mem/get-val! (k/port conf row))
-        opx      (mem/get-val! (k/opx conf row))
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
       [:div {:class "columns"}
-       (button        conf "reset"  "reset" row)
-       (select        conf "id"     (u/fill-vec conf id   id-vec) row "is-3")
+       (button        conf "reset"     "reset" row)
+       (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
+       (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
        (device-stdout conf row "is-3")
        (device-link   conf row)])))
 
-(defn items-frs
-  [conf]
+;;----------------------------------------------------------
+;; items
+;;----------------------------------------------------------
+(defn items
+  [conf f] 
   (let [standard (mem/get-val! (k/standard conf))
         year     (mem/get-val! (k/year conf))
         n        (mem/get-val! (k/n conf))]
@@ -285,9 +263,7 @@
       [:section {:class "section"}
        [:div {:class "container content"}
         (into [:div {:class "box"}]
-              (map
-               (fn [i] (item-frs conf i))
-               (range (Integer/parseInt n))))]]
+              (map f (range (Integer/parseInt n))))]]
       (missing conf))))
 
 ;;----------------------------------------------------------
@@ -303,10 +279,10 @@
       (index-title conf s)
       (main-select conf)
       (condp = (keyword s)
-        :FRS5 (items-frs       conf)
-        :SE3  (items-se3       conf)
-        :SE1  (not-implemented conf)
-        :CE3  (items-ce3       conf)
+        :FRS5 (items  conf (fn [i] (item-frs conf i)))
+        :SE3  (items  conf (fn [i] (item-se3 conf i)))
+        :CE3  (items  conf (fn [i] (item-ce3 conf i)))
+
         (missing conf))
       (reset-button conf)
       (hp/include-js "/js/jquery-3.5.1.min.js")

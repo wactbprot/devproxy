@@ -37,7 +37,8 @@
  ;; sequential tasks (e.g. init--> range --> ind)
  ;; need some relaxation time too:
  :seq-delay 100
- :fullscale [{:Unit "Pa"  :Display "SRG"      :Value  2.0}
+ :fullscale [{:Unit "Pa"  :Display "IG"       :Value  0.1}
+             {:Unit "Pa"  :Display "SRG"      :Value  2.0}
              {:Unit "Pa"  :Display "0.1mbar"  :Value  10.0}
              {:Unit "Pa"  :Display "0.25mbar" :Value  25.0}
              {:Unit "Pa"  :Display "1mbar"    :Value  100}
@@ -67,8 +68,8 @@
          :se3-branch ["dut-a" "dut-b" "dut-c"]
          :ce3-opx ["opK1" "opK2" "opK3" "opK4" "opK5"]
          :ce3-port ["P1" "P2" "P3" "P4"]}
- :page-title "devproxy"
- :main-title "devproxy"
+ :page-title "DevProxy"
+ :main-title "DevProxy"
  :select "select"
  :years [ "2020" "2021" "2019"]
  :n ["1" "2" "3" "4" "5" "6" "7" "8" "9" "10"]

@@ -309,7 +309,9 @@
 ;;----------------------------------------------------------
 (defn offset
   [conf req]
-  (let [p (u/get-target-pressure req) u (u/get-target-unit req) mt {:Value p :Unit u}
+
+  (let [p (u/get-target-pressure req) u (u/get-target-unit req)
+        mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :offset)) ks)
         r  (launch-tasks-vec conf v)]
