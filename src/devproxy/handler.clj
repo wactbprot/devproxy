@@ -26,8 +26,7 @@
 (defn port       [conf req] (res/response (mem/set-val! (k/port conf        (u/get-row req)) (u/get-val req))))
 (defn opx        [conf req] (res/response (mem/set-val! (k/opx conf         (u/get-row req)) (u/get-val req))))
 
-(defn device
-  [conf req]
+(defn device [conf req]
   (let [device-name (u/get-val req)
         row         (u/get-row req)]
     (run! mem/del-key! (mem/pat->keys (k/defaults conf row "*")))
@@ -36,17 +35,14 @@
     (memu/store-device-tasks    conf row (db/device-tasks conf device-name))
     (res/response (mem/set-val! (k/device conf row) device-name))))
 
-(defn reset
-  [conf req]
+(defn reset [conf req]
   (when (u/get-val req)
     (res/response (mem/del-keys! (mem/pat->keys (k/del-pat conf (u/get-row req)))))))
 
-(defn default
-  [conf req]
+(defn default [conf req]
   (res/response (mem/set-val! (k/defaults conf (u/get-row req) (u/get-key req)) (u/get-val req))))
 
-(defn run
-  [conf req]
+(defn run [conf req]
   (let [row       (u/get-row req)
         task-name (u/get-val req)
         task      (memu/get-task conf row task-name)
@@ -130,21 +126,22 @@
         (res/response {:ToExchange
                        {:Target_pressure
                         {:Caption "target pressure", 
-                         :Select (mapv (fn [p] {:display (str p " Pa") :value (str p)}) c)
+                         :Select (mapv (fn [p] {:display (str p " Pa")
+                                                :value (str p)}) c)
                          :Selected (str next-p) 
                          :Unit "Pa"}}}))
       (res/response {:ToExchange
                      {:Target_pressure
                       {:Caption "target pressure", 
-                       :Select [{:display "1.0E-2 Pa" :value "1-0E-2"}]
+                       :Select [{:display "1.0E-2 Pa"
+                                 :value "1-0E-2"}]
                        :Selected "1.0E-2" 
                        :Unit "Pa"}}}))))
 
 ;;----------------------------------------------------------
 ;; calibration ids
 ;;----------------------------------------------------------
-(defn cal-ids
-  [conf req]
+(defn cal-ids [conf req]
   (mu/log ::cal-ids)
   (let [ids (memu/cal-ids conf)]
     (res/response {:ToExchange {:Ids (string/join "@" ids)} :ids ids})))
@@ -152,70 +149,79 @@
 ;;----------------------------------------------------------
 ;; device under test branch  (se3)
 ;;----------------------------------------------------------
-(defn save-dut-branch
-  [conf req]
+(defn save-dut-branch [conf req]
   (mu/log ::save-dut-branch)
   (let [p (u/get-doc-path req)
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
-      (res/response {:ok true :revs (mapv (fn [{id :id x :branch}] (db/save conf id [x] p)) v)})
+      (res/response {:ok true
+                     :revs (mapv
+                            (fn [{id :id x :branch}] (db/save conf id [x] p))
+                            v)})
       (res/response {:ok true :warn "no doc selected"}))))
 
 ;;----------------------------------------------------------
 ;; maintainer 
 ;;----------------------------------------------------------
-(defn save-maintainer
-  [conf req]
+(defn save-maintainer [conf req]
   (mu/log ::save-maintainer)
   (let [p          (u/get-doc-path req)
         ids        (memu/cal-ids conf)
         maintainer (mem/get-val! (k/maintainer conf))]
     (if (and (string? p) (string? maintainer))
-      (res/response {:ok true :revs (mapv (fn [id] (db/save conf id [maintainer] p)) ids)})
+      (res/response {:ok true
+                     :revs (mapv
+                            (fn [id] (db/save conf id [maintainer] p))
+                            ids)})
       (res/response {:ok true :warn "no maintainer selected"}))))
 
 ;;----------------------------------------------------------
 ;; gas
 ;;----------------------------------------------------------
-(defn save-gas
-  [conf req]
+(defn save-gas [conf req]
   (mu/log ::save-gas)
   (let [p   (u/get-doc-path req)
         ids (memu/cal-ids conf)
         gas (mem/get-val! (k/gas conf))]
     (if (and (string? p) (string? gas))
-      (res/response {:ok true :revs (mapv (fn [id] (db/save conf id [gas] p)) ids)})
+      (res/response {:ok true
+                     :revs (mapv
+                            (fn [id] (db/save conf id [gas] p))
+                            ids)})
       (res/response {:ok true :warn "no gas selected"}))))
 
 ;;----------------------------------------------------------
 ;; opx (ce3)
 ;;----------------------------------------------------------
-(defn save-opx
-  [conf req]
+(defn save-opx [conf req]
   (mu/log ::save-opx)
   (let [p (u/get-doc-path req)
         v (memu/id-and-opx conf)]
     (if (and (string? p) (not (empty? v)))
-      (res/response {:ok true :revs (mapv (fn [{id :id x :opx}] (db/save conf id [x] p)) v)})
+      (res/response {:ok true
+                     :revs (mapv
+                            (fn [{id :id x :opx}] (db/save conf id [x] p))
+                            v)})
       (res/response {:ok true :warn "no doc selected"}))))
 
 ;;----------------------------------------------------------
 ;; port (ce3)
 ;;----------------------------------------------------------
-(defn save-port
-  [conf req]
+(defn save-port [conf req]
   (mu/log ::save-port)
   (let [p (u/get-doc-path req)
         v (memu/id-and-port conf)]
     (if (and (string? p) (not (empty? v)))
-      (res/response {:ok true :revs (mapv (fn [{id :id x :port}] (db/save conf id [x] p)) v)})
+      (res/response {:ok true
+                     :revs (mapv
+                            (fn [{id :id x :port}] (db/save conf id [x] p))
+                            v)})
       (res/response {:ok true :warn "no doc selected"}))))
 
 ;;----------------------------------------------------------
 ;; device under test maximum
 ;;----------------------------------------------------------
-(defn dut-max
-  [conf req]
+(defn dut-max [conf req]
   (mu/log ::dut-max)
   (let [p   (u/get-doc-path req)
         v   (memu/branch-and-fullscale conf)
@@ -228,22 +234,19 @@
         ocb (u/open-or-close mt mb)
         occ (u/open-or-close mt mc)]
     (res/response
-     {:ToExchange {:revs (mapv (fn [id] (db/save conf id [{:Type "dut_a" :Value oca}
-                                                          {:Type "dut_b" :Value ocb}
-                                                          {:Type "dut_c" :Value occ}] p))
-                               ids)
-                   :Dut_A ma
-                   :Dut_B mb
-                   :Dut_C mc
-                   :Set_Dut_A oca
-                   :Set_Dut_B ocb
-                   :Set_Dut_C occ}})))
+     {:ToExchange {:revs
+                   (mapv
+                    (fn [id] (db/save conf id [{:Type "dut_a" :Value oca}
+                                               {:Type "dut_b" :Value ocb}
+                                               {:Type "dut_c" :Value occ}] p))
+                    ids)
+                   :Dut_A ma      :Dut_B mb      :Dut_C mc
+                   :Set_Dut_A oca :Set_Dut_B ocb :Set_Dut_C occ}})))
 
 ;;----------------------------------------------------------
 ;; start offset-sequences, offset, ind save results
 ;;----------------------------------------------------------
-(defn launch-task
-  [conf task row]
+(defn launch-task [conf task row]
   (mu/log ::launch-task)
   (if task
     (let [id     (mem/get-val! (k/id conf row))
@@ -254,13 +257,11 @@
       result)
     {:ok true :warn "no task"}))
 
-(defn launch-tasks
-  [conf tasks row]
+(defn launch-tasks [conf tasks row]
   (mu/log ::launch-tasks)
   (doall (map (fn [task] (launch-task conf task row)) tasks)))
 
-(defn launch-tasks-vec
-  [conf v]
+(defn launch-tasks-vec [conf v]
   (mu/log ::launch-tasks-vec)
   (let [mode (mem/get-val! (k/mode conf))
         f    (fn [{row :row tasks :tasks}]
@@ -270,8 +271,7 @@
       (doall (pmap f v))
       (doall (map f v)))))
 
-(defn get-task-vec
-  [conf k mt kind]
+(defn get-task-vec [conf k mt kind]
   (mu/log ::get-task-vec)
   (let [row   (k/get-row conf k)
         fs    (mem/get-val! k)
@@ -291,9 +291,10 @@
 ;;----------------------------------------------------------
 ;; exec indication mean value
 ;;----------------------------------------------------------
-(defn ind
-  [conf req]
-  (let [p (u/get-target-pressure req) u (u/get-target-unit req) mt {:Value p :Unit u}
+(defn ind [conf req]
+  (let [p  (u/get-target-pressure req)
+        u  (u/get-target-unit req)
+        mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :ind)) ks)
         r  (launch-tasks-vec conf v)]
@@ -303,22 +304,22 @@
 ;;----------------------------------------------------------
 ;; exec offset samples
 ;;----------------------------------------------------------
-(defn offset-sequences
-  [conf req]
-  (let [p (u/get-target-pressure req) u (u/get-target-unit req) mt {:Value p :Unit u}
+(defn offset-sequences [conf req]
+  (let [p  (u/get-target-pressure req)
+        u  (u/get-target-unit req)
+        mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :sequences)) ks)
         r  (launch-tasks-vec conf v)]
     (mu/log ::offset-sequences :pressure p :unit u)
     (res/response {:ok true})))
-        
+
 ;;----------------------------------------------------------
 ;; exec offset mean value 
 ;;----------------------------------------------------------
-(defn offset
-  [conf req]
-
-  (let [p (u/get-target-pressure req) u (u/get-target-unit req)
+(defn offset [conf req]
+  (let [p  (u/get-target-pressure req)
+        u  (u/get-target-unit req)
         mt {:Value p :Unit u}
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :offset)) ks)
