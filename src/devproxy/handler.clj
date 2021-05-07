@@ -73,11 +73,13 @@
   ```"
   [conf m]
   (let [ks (memu/cal-id-keys conf)
-        v  (mapv (fn [x] (assoc (memu/get-id-and-fullscale conf x)
-                                :row (k/get-row conf x)))
-                 ks)
-        v (filterv (fn [x] (u/measure? (u/max-pressure-by-fullscale conf (:fullscale x)) m))
-                   v)]
+        v  (mapv
+            #(assoc (memu/get-id-and-fullscale conf %)
+                    :row (k/get-row conf %))
+            ks)
+        v (filterv
+           #(not (u/measure? m (u/max-pressure-by-fullscale conf (:fullscale %))))
+           v)]
     (mapv :row v)))
 
 ;;----------------------------------------------------------
@@ -97,14 +99,20 @@
       (let  [next-p  (apply min next-ps)
              next-m  (u/target-pressure-map conf next-p)
              rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
-        (doall (mapv (fn [row] (mem/del-keys! (mem/pat->keys (k/del-pat conf row)))) rm-rows))
-        (mu/log ::target-pressure :message "next pressure" :pressure next-p :unit "Pa")
-        (res/response {:ToExchange {:revs (mapv (fn [id]
-                                                  (db/save conf id [next-m] (u/get-doc-path req)))
-                                                (memu/cal-ids conf))
-                                    :Target_pressure {:Selected next-p :Unit "Pa"}
-                                    :Continue_mesaurement {:Bool true}}}))
-      (res/response {:ToExchange {:Continue_mesaurement {:Bool false}}}))))
+        (doall
+         (mapv
+          #(mem/del-keys! (mem/pat->keys (k/del-pat conf %)))
+          rm-rows))
+        (mu/log ::target-pressure :message "next pressure"
+                :pressure next-p :unit "Pa")
+        (res/response {:ToExchange
+                       {:revs (mapv
+                               #(db/save conf % [next-m] (u/get-doc-path req))
+                               (memu/cal-ids conf))
+                        :Target_pressure {:Selected next-p :Unit "Pa"}
+                        :Continue_mesaurement {:Bool true}}}))
+      (res/response {:ToExchange
+                     {:Continue_mesaurement {:Bool false}}}))))
 
 ;;----------------------------------------------------------
 ;; target pressures
