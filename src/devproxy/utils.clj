@@ -1,8 +1,8 @@
 (ns devproxy.utils
-  (:require [clojure.string    :as string]
-            [cheshire.core     :as che]
-            [devproxy.conf          :as c] ;; for debug
-            [clojure.edn       :as edn]))
+  (:require  [devproxy.conf :as c] ;; for debug
+             [cheshire.core :as che]
+             [clojure.edn :as edn]
+             [clojure.string :as string]))
 
 (defn map-value [m f]
   (when-let [v (:Value m)]
@@ -10,13 +10,11 @@
       (assoc m :Value (mapv f v))
       (assoc m :Value (f v)))))
 
-(defn norm-unit
-  [m]
+(defn norm-unit [m]
   (when-let [u (:Unit m)]
     (keyword (string/lower-case u))))
 
-(defn in-si-unit
-  [m]
+(defn in-si-unit [m]
   (when-let [u (norm-unit m)]
     (let [f (condp = u
               :mbar  100.0
@@ -26,9 +24,11 @@
 
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s )))
+
 (defn parse-double [s] (edn/read-string s))
 
 (defn type-filter-fn [s] (fn [m] (= (:Type m) s)))
+
 (defn todo-pressure [d] (get-in d [:Calibration :ToDo :Values :Pressure]))
 
 (defn operable-value
@@ -36,24 +36,20 @@
 
   Example:
   ```clojure
-  (operable-value {:Type \"target_pressure\", :Value [\"100\" 200.3 300 \"500\" 700 1000.1  \"1000\"], :Unit \"Pa\"})
+  (operable-value {:Type \"target_pressure\",
+                   :Value [\"100\" 200.3 300 \"500\" 700 1000.1  \"1000\"],
+                   :Unit \"Pa\"})
   ;; =>
   ;;
   ;; {:Type target_pressure,
   ;; :Value [100 200.3 300 500 700 1000.1 1000],
   ;; :Unit Pa}
-
   ```"
   [m]
   (map-value m (fn [x] (if (string? x) (parse-double x) x))))
 
-(defn todo-si-value-vec
-  [d]
-  (-> d
-      todo-pressure
-      operable-value
-      in-si-unit
-      :Value))
+(defn todo-si-value-vec [d]
+  (-> d todo-pressure operable-value in-si-unit :Value))
 
 (defn compare-value [m](-> m operable-value in-si-unit :Value))
 
@@ -84,14 +80,12 @@
   ([[x n] v uf lf]
   (<= n (count (filter (fn [y] (and (< x (* y uf)) (> x (* y lf)))) v)))))
 
-(defn target-pressure
-  [d]
+(defn target-pressure [d]
   (when-let [ps (get-in d [:Calibration :Measurement :Values :Pressure])]
     (let [target? (type-filter-fn "target_pressure")]
      (first (filter target? ps)))))
 
-(defn next-target-pressure
-  [d]
+(defn next-target-pressure [d]
   (let [m-tdo (todo-pressure d)
         m-tar (target-pressure d)
         v     (compare-value m-tar)
@@ -112,8 +106,7 @@
 
 (defn fullscale-vec [conf] (:fullscale conf))
 
-(defn fullscale-of-branch
-  [v branch]
+(defn fullscale-of-branch [v branch]
   (when (and (vector? v) (string? branch))
     (->> v
          (filter (fn [x] (= branch (:branch x))))
@@ -132,7 +125,7 @@
   "
   [conf fs]
   (when (string? fs)
-    (->> conf fullscale-vec (filter (fn [m] (= fs (:Display m))))  first)))
+    (first (filter #(= fs (:Display %)) (fullscale-vec conf)))))
 
 (defn max-pressure
   "Returns a map containing at least `:Value` and `:Unit` for the given
@@ -145,10 +138,8 @@
 (defn measure?
   "Compares the `tar`get `x` with the `max`imum `x`. Returns `true` if
   the (maximum + 1%) is greater or equal the target."
-  [m-tar m-max]
-  (let [x-tar (compare-value m-tar)
-        x-max (* 1.01 (compare-value m-max))]
-    (if (>= x-max x-tar) true false)))
+  [m-tar m-max]  
+  (>= (* 1.01 (compare-value m-max)) (compare-value m-tar)))
 
 (defn open-or-close
   "Returns the string `open` or `close` depending on the values given
@@ -174,6 +165,7 @@
 
 
 (defn display-fullscale-vec [conf] (mapv :Display (fullscale-vec conf)))
+
 (defn range-factor [conf s] (get (:range-factor conf) s)) 
 
 (defn range-ok?
@@ -203,19 +195,16 @@
           (* fs (range-factor conf to))))
     true))
 
-(defn suitable-task
-  [conf tasks m-t m-f]
+(defn suitable-task [conf tasks m-t m-f]
   (first
    (filter (fn [{from :From to :To}] (range-ok? conf from to m-t m-f)) tasks)))
   
 (defn elem-id [conf a b] (str a "_" b))
 
-(defn fill-vec
-  [conf item vec]
+(defn fill-vec [conf item vec]
   (into (if item [item] [(:select conf)]) vec))
 
-(defn fill-kw
-  [conf item kw]
+(defn fill-kw [conf item kw]
   (into (if item [item] [(:select conf)]) (kw conf)))
 
 (defn map->json
@@ -229,8 +218,7 @@
   (che/parse-string j true))
 
 (defn replace-map
-  "Replaces the tokens given as keys in the map `m` in `task`.
-  "
+  "Replaces the tokens given as keys in the map `m` in `task`."
   [m task]
   (if (map? m)
     (json->map
