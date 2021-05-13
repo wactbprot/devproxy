@@ -13,11 +13,10 @@
                  [ring/ring-json                       "0.5.0"]
                  [hiccup                               "1.0.5"]
                  [cheshire                             "5.10.0"]
-                 [org.clojars.wactbprot/vl-data-insert "0.2.0"]
+                 [org.clojars.wactbprot/vl-data-insert "0.2.1"]
                  [com.brunobonacci/mulog               "0.6.0"]
                  [com.brunobonacci/mulog-elasticsearch "0.6.0"]
-                 [com.ashafa/clutch                    "0.4.0"]
-                 ]
+                 [com.ashafa/clutch                    "0.4.0"]]
   :plugins [[lein-ring "0.12.5"]
             [lein-codox  "0.10.7"]]
   :codox {:metadata {:doc/format :markdown}
