@@ -252,6 +252,25 @@
        (device-link   conf row)])))
 
 ;;----------------------------------------------------------
+;; dkm_ppc4 
+;;----------------------------------------------------------
+(defn item-dkm
+  [conf row]
+  (let [standard (mem/get-val! (k/standard conf))
+        year     (mem/get-val! (k/year conf))
+        fs       (mem/get-val! (k/fullscale conf row))
+        fs-vec   (u/display-fullscale-vec conf)
+        id       (mem/get-val! (k/id conf row))
+        id-vec   (db/cal-ids conf standard year)]
+    (if (and standard year)
+      [:div {:class "columns"}
+       (button        conf "reset"     "reset" row)
+       (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
+       (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
+       (device-stdout conf row "is-3")
+       (device-link   conf row)])))
+
+;;----------------------------------------------------------
 ;; items
 ;;----------------------------------------------------------
 (defn items
@@ -279,10 +298,10 @@
       (index-title conf s)
       (main-select conf)
       (condp = (keyword s)
-        :FRS5 (items  conf (fn [i] (item-frs conf i)))
-        :SE3  (items  conf (fn [i] (item-se3 conf i)))
-        :CE3  (items  conf (fn [i] (item-ce3 conf i)))
-
+        :FRS5     (items  conf (fn [i] (item-frs conf i)))
+        :SE3      (items  conf (fn [i] (item-se3 conf i)))
+        :CE3      (items  conf (fn [i] (item-ce3 conf i)))
+        :DKM_PPC4 (items  conf (fn [i] (item-dkm conf i)))
         (missing conf))
       (reset-button conf)
       (hp/include-js "/js/jquery-3.5.1.min.js")
