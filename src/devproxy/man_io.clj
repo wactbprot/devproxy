@@ -23,6 +23,16 @@
   [conf k]
   (str "__keyspace@" (get-in conf [:redis :conn :spec :db]) "*__:" k))
 
+(defn gen-f
+  "Generates a function that checks the io structur at key `s`."
+  [s]
+  (fn [x]
+    (prn x)
+    ;; if val ok (:Ready true):
+    ;; (deliver p)
+    ;; (close-listener (x->l x))
+    ))
+
 (defn receive
   " ...
   If a document `id` and a document `doc-path` is given, the `result`s
@@ -30,10 +40,15 @@
   ([conf task row]
    (receive conf task row nil nil))
   ([conf {v :Value} row doc-path id]
-   (let [p (k/manio conf row)
-         _ (mem/set-val! p v)
-         f (fn [x]
-             (prn x)
-             ;; (close-listener (x->l x))
-             )]
-     (swap! ls assoc p (mem/gen-listener conf (subs-pat conf p) f)))))
+   (let [p (promise)
+         s (k/manio conf row)
+         _ (mem/set-val! s v)
+         f (gen-f s)]
+     (swap! ls assoc s (mem/gen-listener conf (subs-pat conf s) f))
+     (let [result (deref p)]
+       ;; --> reset :Ready
+       {:ok     true
+        :row    row
+        :result result
+        :id     id
+        :rev (when (and id result doc-path) (db/save conf id result doc-path))}))))
