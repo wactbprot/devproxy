@@ -6,10 +6,11 @@
    [devproxy.utils             :as u]
    [devproxy.db                :as db]
    [devproxy.dev-hub           :as dev-hub]
+   [devproxy.man-io            :as man-io]
    [devproxy.conf              :as c] ;; for debug
    [devproxy.ws-server         :as ws-srv]
    [cheshire.core              :as che]
-   [com.brunobonacci.mulog     :as mu]
+   [com.brunobonacci.mulog     :as µ]
    [clojure.string             :as string]
    [ring.util.response         :as res] ))
 
@@ -47,10 +48,9 @@
         task-name (u/get-val req)
         task      (memu/get-task conf row task-name)
         res       (dev-hub/measure conf task row)]
-    (mu/log ::target-pressure :TaskName (:TaskName task))
+    (µ/log ::target-pressure :TaskName (:TaskName task))
     (ws-srv/send-to-ws-clients conf res)
     (res/response res)))
-
 
 ;;----------------------------------------------------------
 ;; target pressure 
@@ -88,9 +88,9 @@
   remaining documents. Sets `:Continue_mesaurement` to `false` if no
   next pressure can be determined."
   [conf req]
-  (let [next-ps (filter some? (map (fn [id]
-                                     (u/next-target-pressure (db/id->doc id conf)))
-                                   (memu/cal-ids conf)))]
+  (let [next-ps (filter some? (map
+                               #(u/next-target-pressure (db/id->doc % conf))
+                               (memu/cal-ids conf)))]
     (if-not (empty? next-ps)
       (let  [next-p  (apply min next-ps)
              next-m  (u/target-pressure-map conf next-p)
@@ -99,7 +99,7 @@
          (mapv
           #(mem/del-keys! (mem/pat->keys (k/del-pat conf %)))
           rm-rows))
-        (mu/log ::target-pressure :message "next pressure"
+        (µ/log ::target-pressure :message "next pressure"
                 :pressure next-p :unit "Pa")
         (res/response {:ToExchange
                        {:revs (mapv
@@ -142,7 +142,7 @@
 ;; calibration ids
 ;;----------------------------------------------------------
 (defn cal-ids [conf req]
-  (mu/log ::cal-ids)
+  (µ/log ::cal-ids)
   (let [ids (memu/cal-ids conf)]
     (res/response {:ToExchange {:Ids (string/join "@" ids)} :ids ids})))
 
@@ -150,7 +150,7 @@
 ;; device under test branch  (se3)
 ;;----------------------------------------------------------
 (defn save-dut-branch [conf req]
-  (mu/log ::save-dut-branch)
+  (µ/log ::save-dut-branch)
   (let [p (u/get-doc-path req)
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
@@ -164,7 +164,7 @@
 ;; maintainer 
 ;;----------------------------------------------------------
 (defn save-maintainer [conf req]
-  (mu/log ::save-maintainer)
+  (µ/log ::save-maintainer)
   (let [p          (u/get-doc-path req)
         ids        (memu/cal-ids conf)
         maintainer (mem/get-val! (k/maintainer conf))]
@@ -179,7 +179,7 @@
 ;; gas
 ;;----------------------------------------------------------
 (defn save-gas [conf req]
-  (mu/log ::save-gas)
+  (µ/log ::save-gas)
   (let [p   (u/get-doc-path req)
         ids (memu/cal-ids conf)
         gas (mem/get-val! (k/gas conf))]
@@ -194,7 +194,7 @@
 ;; opx (ce3)
 ;;----------------------------------------------------------
 (defn save-opx [conf req]
-  (mu/log ::save-opx)
+  (µ/log ::save-opx)
   (let [p (u/get-doc-path req)
         v (memu/id-and-opx conf)]
     (if (and (string? p) (not (empty? v)))
@@ -208,7 +208,7 @@
 ;; port (ce3)
 ;;----------------------------------------------------------
 (defn save-port [conf req]
-  (mu/log ::save-port)
+  (µ/log ::save-port)
   (let [p (u/get-doc-path req)
         v (memu/id-and-port conf)]
     (if (and (string? p) (not (empty? v)))
@@ -222,7 +222,7 @@
 ;; device under test maximum
 ;;----------------------------------------------------------
 (defn dut-max [conf req]
-  (mu/log ::dut-max)
+  (µ/log ::dut-max)
   (let [p   (u/get-doc-path req)
         v   (memu/branch-and-fullscale conf)
         ids (memu/cal-ids conf)
@@ -247,32 +247,34 @@
 ;; start offset-sequences, offset, ind save results
 ;;----------------------------------------------------------
 (defn launch-task [conf task row]
-  (mu/log ::launch-task)
+  (µ/log ::launch-task)
   (if task
     (let [id     (mem/get-val! (k/id conf row))
           p      (:DocPath task)
-          result (dev-hub/measure conf task row p id)]
+          action (keyword (:Action task))    
+          result (condp = action
+                   :manualInput (man-io/receive conf task row p id)
+                   :default     (dev-hub/measure conf task row p id))]
       (ws-srv/send-to-ws-clients conf result)
       (Thread/sleep (:seq-delay conf))
       result)
     {:ok true :warn "no task"}))
 
 (defn launch-tasks [conf tasks row]
-  (mu/log ::launch-tasks)
+  (µ/log ::launch-tasks)
   (doall (map (fn [task] (launch-task conf task row)) tasks)))
 
 (defn launch-tasks-vec [conf v]
-  (mu/log ::launch-tasks-vec)
+  (µ/log ::launch-tasks-vec)
   (let [mode (mem/get-val! (k/mode conf))
         f    (fn [{row :row tasks :tasks}]
-               (Thread/sleep (* (Integer/parseInt row) (:par-delay conf)))
+               (Thread/sleep (* (Integer/parseInt row)
+                                (:par-delay conf)))
                (launch-tasks conf tasks row))]
-    (if (= mode "parallel")
-      (doall (pmap f v))
-      (doall (map f v)))))
+    (if (= mode "parallel") (doall (pmap f v)) (doall (map f v)))))
 
 (defn get-task-vec [conf k mt kind]
-  (mu/log ::get-task-vec)
+  (µ/log ::get-task-vec)
   (let [row   (k/get-row conf k)
         fs    (mem/get-val! k)
         mm    (u/max-pressure-by-fullscale conf fs)
@@ -298,7 +300,7 @@
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :ind)) ks)
         r  (launch-tasks-vec conf v)]
-    (mu/log ::ind :pressure p :unit u)
+    (µ/log ::ind :pressure p :unit u)
     (res/response {:ok true})))
 
 ;;----------------------------------------------------------
@@ -311,7 +313,7 @@
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :sequences)) ks)
         r  (launch-tasks-vec conf v)]
-    (mu/log ::offset-sequences :pressure p :unit u)
+    (µ/log ::offset-sequences :pressure p :unit u)
     (res/response {:ok true})))
 
 ;;----------------------------------------------------------
@@ -324,5 +326,5 @@
         ks (mem/pat->keys (k/fullscale conf "*"))
         v  (mapv (fn [k] (get-task-vec conf k mt :offset)) ks)
         r  (launch-tasks-vec conf v)]
-    (mu/log ::offset :pressure p :unit u)
+    (µ/log ::offset :pressure p :unit u)
     (res/response {:ok true})))
