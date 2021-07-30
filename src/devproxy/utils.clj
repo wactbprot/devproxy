@@ -98,6 +98,7 @@
 (defn target-pressure-map [conf p] {:Type "target_pressure" :Value p :Unit "Pa"})
 
 (defn get-val [req] (get-in req [:body :value]))
+(defn get-taskname [req] (get-in req [:body :taskname]))
 (defn get-row [req] (get-in req [:body :row]))
 (defn get-key [req] (get-in req [:body :key]))
 (defn get-doc-path [req] (get-in req [:body :DocPath]))

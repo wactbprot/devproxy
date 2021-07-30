@@ -54,9 +54,18 @@
 ;;----------------------------------------------------------
 ;; manual input 
 ;;----------------------------------------------------------
-(defn man-input [conf req] (prn req))
+(defn man-input [conf req]
+  
+  (let [row       (u/get-row req)
+        task-name (u/get-taskname req)
+        k         (keyword (u/get-key req))
+        v         (u/get-val req)
+        task      (memu/get-task conf row task-name)]
+    (res/response  (memu/store-device-task conf row (assoc-in task [:Value k] v)))))
 
-(defn ready-button [conf req] (prn req))
+(defn ready-button [conf req] (prn req)
+  ;; next
+  (res/response {:ok true}))
 
 ;;----------------------------------------------------------
 ;; target pressure 

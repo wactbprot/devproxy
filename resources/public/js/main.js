@@ -103,3 +103,30 @@ $(".defaults").change( e => {
 	data = {"value": $this.val(), "row": row, "key": key};
     post( "default/" + row, data);
 });
+
+var ensure_type = (v, t) => {
+    var ret = v;
+    if (t == "string") ret = v;
+    if (t == "float") ret = parseFloat(v);
+    if (t == "integer") ret = parseInt(v);
+    
+    return ret
+}
+
+$(".input-value").change( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": ensure_type($this.val(), $this.data("type")),
+		"row": $this.data("row"),
+		"key": $this.data("key"),
+		"taskname": $this.data("taskname")};
+    post( "man_input", data);
+});
+
+$(".ready-button").click( e => {
+    var $this = $(e.currentTarget),
+	data = {"value": true,
+		"row": $this.data("row"),
+		"key": "Ready",
+		"taskname": $this.data("taskname")};
+    post( "ready_button", data);
+});

@@ -87,8 +87,7 @@
   [:section.section
    [:div.container.content
     [:div.box
-     [:div.columns
-      (button conf "reset" "reset all")]]]])
+     [:div.columns (button conf "reset" "reset all")]]]])
 
 (defn main-select [conf]
   (let [standard   (mem/get-val! (k/standard conf))
@@ -154,7 +153,6 @@
       [:p.control
        [:label.label k
         [:input.input.is-info.input-value
-         
          {:data-type (condp = k
                        :Value "float"
                        :Type "string"
@@ -166,14 +164,12 @@
           :value v
           :data-taskname taskname
           :data-row row
-          :data-url "/man_input"
           :data-key (name k)}]]]]]])
 
 (defn ready-button [conf row taskname]
   [:button.button.is-info.ready-button
    {:data-row row
     :data-taskname taskname
-    :data-url "/ready_button"
     :data-key  "Ready" } "ok"])
 
 (defn device-man-tasks [conf row tasks]
