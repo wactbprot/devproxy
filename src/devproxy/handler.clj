@@ -51,6 +51,12 @@
     (µ/log ::target-pressure :TaskName (:TaskName task))
     (ws-srv/send-to-ws-clients conf res)
     (res/response res)))
+;;----------------------------------------------------------
+;; manual input 
+;;----------------------------------------------------------
+(defn man-input [conf req] (prn req))
+
+(defn ready-button [conf req] (prn req))
 
 ;;----------------------------------------------------------
 ;; target pressure 
