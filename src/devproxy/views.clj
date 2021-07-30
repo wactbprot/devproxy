@@ -24,14 +24,14 @@
 
 (defn missing [conf]
   [:section.section
-   [:div {:class "container content"}
-    [:div {:class "box"}
+   [:div.container.content
+    [:div.box
      [:h3 "select standard, year and n<sup><i>(no of devices)</i></sup>"]]]])
 
 (defn not-implemented [conf]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
+  [:section.section
+   [:div.container.content
+    [:div.box
      [:h3 "Not implemented"]]]])
 
 (defn select
@@ -40,55 +40,54 @@
   ([conf ename init-vec row]
    (select conf ename init-vec row nil))
   ([conf ename init-vec row size-attr]
-   [:div {:class (str "column " (if size-attr size-attr ""))}
-    [:div {:class "field has-addons"}
-     [:div {:class "control"}
-      [:a {:class "button is-light"} ename]]
-    [:div {:class "control"}
-     [:div
-      (hf/drop-down {:id (if row (u/elem-id conf ename row) ename)
-                     :class (str "input is-light " ename)
-                     :data-row row}
-                    ename init-vec)]]]]))
+   [:div.column {:class (when size-attr size-attr)}
+    [:div.field.has-addons
+     [:div.control
+      [:a.button.is-light ename]]
+     [:div.control
+      [:div
+       (hf/drop-down {:id (if row (u/elem-id conf ename row) ename)
+                      :class (str "input is-light " ename)
+                      :data-row row}
+                     ename init-vec)]]]]))
 
 (defn button
   ([conf ename text]
    (button conf ename text nil))
   ([conf ename text row]
-   [:div {:class "column is-1"}
-    [:div {:class "field"}
-    [:div {:class "control"}
+   [:div.column.is-1
+    [:div.field
+    [:div.control
      (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
                         :class (str "button is-info " ename)
                         :data-row row} text)]]]))
 
 (defn device-link [conf row]
-  [:div {:class "column is-1"}
-   [:div {:class "field"}
-   [:div {:class "control"}
-    [:a {:href (str "/device/" row)
-         :class "is-link "}
-     [:i {:class "far fa-arrow-alt-circle-right fa-2x"} ]]]]])
+  [:div.column.is-1
+   [:div.field
+    [:div.control
+     [:a.is-link {:href (str "/device/" row)}
+      [:i.far.fa-arrow-alt-circle-right.fa-2x]]]]])
 
 (defn index-link [conf]
-  [:div {:class "column is-1"}
-   [:div {:class "field"}
-    [:div {:class "control"}
-    [:a {:href "/"
-         :class "is-link"}
-    [:i {:class "far fa-arrow-alt-circle-left fa-2x"} ]]]]])
+  [:div.column.is-1
+   [:div.field
+    [:div.control
+     [:a.is-link {:href "/"}
+      [:i.far.fa-arrow-alt-circle-left.fa-2x]]]]])
 
 (defn device-stdout [conf row size-attr]
-  [:div {:class (str "column " size-attr)}
-   [:div {:class "control"}
-    [:textarea {:id (u/elem-id conf "device-stdout" row)
-                :class "textarea is-light"
-                :data-row row}]]])
+  [:div.column {:class size-attr}
+   [:div.control
+    [:textarea.textarea.is-light
+     {:id (u/elem-id conf "device-stdout" row)
+      :data-row row}]]])
+
 (defn reset-button [conf]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     [:div {:class "columns"}
+  [:section.section
+   [:div.container.content
+    [:div.box
+     [:div.columns
       (button conf "reset" "reset all")]]]])
 
 (defn main-select [conf]
@@ -98,10 +97,10 @@
         maintainer (mem/get-val! (k/maintainer conf))
         gas        (mem/get-val! (k/gas conf))
         mode       (mem/get-val! (k/mode conf))]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     [:div {:class "columns"}
+  [:section.section
+   [:div.container.content
+    [:div.box
+     [:div.columns
       (select conf "standard"   (u/fill-kw conf standard :standards))
       (select conf "year"       (u/fill-kw conf year :years))
       (select conf "n"          (u/fill-kw conf n :n))
@@ -112,10 +111,10 @@
 (defn device-select [conf row]
   (let  [device-vec (db/device-vec conf)
          device     (mem/get-val! (k/device conf row))]
-    [:section {:class "section"}
-     [:div {:class "container content"}
-      [:div {:class "box"}
-       [:div {:class "columns"}
+    [:section.section
+     [:div.container.content
+      [:div.box
+       [:div.columns
         (index-link conf)
         (select conf "device"  (u/fill-vec conf device device-vec) row)]]]]))
 
@@ -220,7 +219,7 @@
    [:div.hero-body
       [:div.container
        [:h1.title (:main-title conf)]
-       [:h2.subtitle (str "standard: " std)]]]])
+       [:h2.subtitle std]]]])
 
 (defn device-title [conf row]
   (let [id (mem/get-val! (k/id conf row))]
