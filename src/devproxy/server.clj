@@ -63,7 +63,7 @@
 (def app
   (-> (handler/site app-routes)
       (middleware/wrap-json-body {:keywords? true})
-      middleware/wrap-json-response))
+      (middleware/wrap-json-response)))
 
 (defn init-log!
   [{conf :mulog }]

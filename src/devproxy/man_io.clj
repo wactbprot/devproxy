@@ -39,10 +39,9 @@
   are saved via `(db/save conf id result doc-path)`"
   ([conf task row]
    (receive conf task row nil nil))
-  ([conf {v :Value} row doc-path id]
+  ([conf {n :TaskName v :Value} row doc-path id]
    (let [p (promise)
-         s (k/manio conf row)
-         _ (mem/set-val! s v)
+         s (k/tasks conf row n)
          f (gen-f s)]
      (swap! ls assoc s (mem/gen-listener conf (subs-pat conf s) f))
      (let [result (deref p)]

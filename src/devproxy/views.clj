@@ -157,15 +157,31 @@
                 (default conf row (name dk) v))))
            defaults-seq)]]])
 
+(defn device-dev-tasks
+  [conf row tasks]
+  (when (seq tasks)
+    [:div {:class "columns"}
+     (select conf "task" (mapv :TaskName tasks) row)
+     (button conf "run" "run" row)
+     (device-stdout conf row "is-7")]))
+
+
+(defn device-man-tasks
+  [conf row tasks]
+  (prn tasks)
+  (when (seq tasks)
+    (into [:div {:class "columns"}]
+      (map (fn [{value :Value}]
+              (into [:div {:class "columns"}] (map (fn [[k v]] [:div (name k) [:div v]]) value)))
+           tasks))))
+
 (defn device-tasks
- [conf row tasks]
+  [conf row tasks]
   [:section {:class "section"}
    [:div {:class "container content"}
     [:div {:class "box"}
-     [:div {:class "columns"}
-      (select conf "task" (mapv :TaskName tasks) row)
-      (button conf "run" "run" row)
-      (device-stdout conf row "is-7")]]]])
+     (device-dev-tasks conf row (filterv #(not= "manualInput" (:Action %)) tasks))
+     (device-man-tasks conf row (filterv #(= "manualInput" (:Action %)) tasks))]]])
 
 (defn index-title
   [conf std]
