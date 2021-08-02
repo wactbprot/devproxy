@@ -79,11 +79,11 @@
     (mapv :row v)))
 
 ;;----------------------------------------------------------
-;; target pressures
+;; target pressure
 ;;----------------------------------------------------------
 (defn target-pressure
   "Returns the next `Target_pressure` in `Pa`. Checks if this pressure
-  is exceeds a fullscale of a initialized device and removes the
+  exceeds a fullscale of a initialized device and removes the
   corresponding `row` if so. Saves the `target-pressure-map` to the
   remaining documents. Sets `:Continue_mesaurement` to `false` if no
   next pressure can be determined."
