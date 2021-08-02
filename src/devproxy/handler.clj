@@ -261,15 +261,14 @@
 ;;----------------------------------------------------------
 ;; start offset-sequences, offset, ind save results
 ;;----------------------------------------------------------
-(defn launch-task [conf task row]
+(defn launch-task [conf {p :DocPath action :Action :as task} row]
   (µ/log ::launch-task)
   (if task
     (let [id     (mem/get-val! (k/id conf row))
-          p      (:DocPath task)
-          action (keyword (:Action task))    
-          result (condp = action
+          result (condp = (keyword action)
                    :manualInput (man-io/receive conf task row p id)
-                   :default     (dev-hub/measure conf task row p id))]
+                   ;; what else
+                   (dev-hub/measure conf task row p id))]
       (ws-srv/send-to-ws-clients conf result)
       (Thread/sleep (:seq-delay conf))
       result)

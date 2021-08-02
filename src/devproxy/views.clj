@@ -345,7 +345,7 @@
         :DKM_PPC4 (items  conf (fn [i] (item-dkm conf i)))
         (missing conf))
       (reset-button conf)
-      (hp/include-js "/js/jquery-3.5.1.min.js")
+      (hp/include-js "/js/jquery.js")
       (hp/include-js "/js/ws.js")
       (hp/include-js "/js/main.js")])))
 
@@ -364,6 +364,6 @@
       [:div
        (device-defaults conf row (db/device-defaults conf device-name))
        (device-tasks    conf row (db/device-tasks    conf device-name))])
-    (hp/include-js "/js/jquery-3.5.1.min.js")
+    (hp/include-js "/js/jquery.js")
     (hp/include-js "/js/ws.js")
     (hp/include-js "/js/main.js")]))
