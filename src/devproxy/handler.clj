@@ -95,11 +95,11 @@
     (mapv :row v)))
 
 ;;----------------------------------------------------------
-;; target pressures
+;; target pressure
 ;;----------------------------------------------------------
 (defn target-pressure
   "Returns the next `Target_pressure` in `Pa`. Checks if this pressure
-  is exceeds a fullscale of a initialized device and removes the
+  exceeds a fullscale of a initialized device and removes the
   corresponding `row` if so. Saves the `target-pressure-map` to the
   remaining documents. Sets `:Continue_mesaurement` to `false` if no
   next pressure can be determined."
@@ -262,15 +262,14 @@
 ;;----------------------------------------------------------
 ;; start offset-sequences, offset, ind save results
 ;;----------------------------------------------------------
-(defn launch-task [conf task row]
+(defn launch-task [conf {p :DocPath action :Action :as task} row]
   (µ/log ::launch-task)
   (if task
     (let [id     (mem/get-val! (k/id conf row))
-          p      (:DocPath task)
-          action (keyword (:Action task))    
-          result (condp = action
+          result (condp = (keyword action)
                    :manualInput (man-io/receive conf task row p id)
-                   :default     (dev-hub/measure conf task row p id))]
+                   ;; what else
+                   (dev-hub/measure conf task row p id))]
       (ws-srv/send-to-ws-clients conf result)
       (Thread/sleep (:seq-delay conf))
       result)
