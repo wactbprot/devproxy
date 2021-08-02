@@ -48,6 +48,8 @@
   (POST "/save_gas"          [:as req]     (h/save-gas         conf req))
   (POST "/save_port"         [:as req]     (h/save-port        conf req))
   (POST "/save_opx"          [:as req]     (h/save-opx         conf req))
+  (POST "/man_input"         [:as req]     (h/man-input        conf req))
+  (POST "/ready_button"      [:as req]     (h/ready-button     conf req))
   
   (POST "/dut_max"           [:as req]     (h/dut-max          conf req))
   
@@ -63,7 +65,7 @@
 (def app
   (-> (handler/site app-routes)
       (middleware/wrap-json-body {:keywords? true})
-      middleware/wrap-json-response))
+      (middleware/wrap-json-response)))
 
 (defn init-log!
   [{conf :mulog }]

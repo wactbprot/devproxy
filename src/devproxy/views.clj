@@ -1,15 +1,13 @@
 (ns devproxy.views
-  (:require
-   [devproxy.conf    :as c]
-   [hiccup.form :as hf]
-   [hiccup.page :as hp]
-   [devproxy.db      :as db]
-   [devproxy.keys    :as k]
-   [devproxy.mem     :as mem]
-   [devproxy.utils   :as u]))
+  (:require [devproxy.conf    :as c]
+            [hiccup.form :as hf]
+            [hiccup.page :as hp]
+            [devproxy.db      :as db]
+            [devproxy.keys    :as k]
+            [devproxy.mem     :as mem]
+            [devproxy.utils   :as u]))
 
-(defn page-header
-  [conf]
+(defn page-header [conf]
   [:head
    [:meta {:http-equiv "Cache-Control" :content="no-cache, no-store, must-revalidate"}]
    [:meta {:http-equiv "Pragma" :content "no-cache"}]
@@ -18,25 +16,22 @@
    (hp/include-css "/css/bulma.css")
    (hp/include-css "/css/all.css")])
 
-(defn not-found
-  []
+(defn not-found []
   (hp/html5
    [:h1 "404 Error!"]
    [:b "Page not found!"]
    [:p [:a {:href ".."} "Return to main page"]]))
 
-(defn missing
-  [conf]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
+(defn missing [conf]
+  [:section.section
+   [:div.container.content
+    [:div.box
      [:h3 "select standard, year and n<sup><i>(no of devices)</i></sup>"]]]])
 
-(defn not-implemented
-  [conf]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
+(defn not-implemented [conf]
+  [:section.section
+   [:div.container.content
+    [:div.box
      [:h3 "Not implemented"]]]])
 
 (defn select
@@ -45,73 +40,66 @@
   ([conf ename init-vec row]
    (select conf ename init-vec row nil))
   ([conf ename init-vec row size-attr]
-   [:div {:class (str "column " (if size-attr size-attr ""))}
-    [:div {:class "field has-addons"}
-     [:div {:class "control"}
-      [:a {:class "button is-light"} ename]]
-    [:div {:class "control"}
-     [:div
-      (hf/drop-down {:id (if row (u/elem-id conf ename row) ename)
-                     :class (str "input is-light " ename)
-                     :data-row row}
-                    ename init-vec)]]]]))
+   [:div.column {:class (when size-attr size-attr)}
+    [:div.field.has-addons
+     [:div.control
+      [:a.button.is-light ename]]
+     [:div.control
+      [:div
+       (hf/drop-down {:id (if row (u/elem-id conf ename row) ename)
+                      :class (str "input is-light " ename)
+                      :data-row row}
+                     ename init-vec)]]]]))
 
 (defn button
   ([conf ename text]
    (button conf ename text nil))
   ([conf ename text row]
-   [:div {:class "column is-1"}
-    [:div {:class "field"}
-    [:div {:class "control"}
+   [:div.column.is-1
+    [:div.field
+    [:div.control
      (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
                         :class (str "button is-info " ename)
                         :data-row row} text)]]]))
 
-(defn device-link
-  [conf row]
-  [:div {:class "column is-1"}
-   [:div {:class "field"}
-   [:div {:class "control"}
-    [:a {:href (str "/device/" row)
-         :class "is-link "}
-     [:i {:class "far fa-arrow-alt-circle-right fa-2x"} ]]]]])
+(defn device-link [conf row]
+  [:div.column.is-1
+   [:div.field
+    [:div.control
+     [:a.is-link {:href (str "/device/" row)}
+      [:i.far.fa-arrow-alt-circle-right.fa-2x]]]]])
 
-(defn index-link
-  [conf]
-  [:div {:class "column is-1"}
-   [:div {:class "field"}
-    [:div {:class "control"}
-    [:a {:href "/"
-         :class "is-link"}
-    [:i {:class "far fa-arrow-alt-circle-left fa-2x"} ]]]]])
+(defn index-link [conf]
+  [:div.column.is-1
+   [:div.field
+    [:div.control
+     [:a.is-link {:href "/"}
+      [:i.far.fa-arrow-alt-circle-left.fa-2x]]]]])
 
-(defn device-stdout
-  [conf row size-attr]
-  [:div {:class (str "column " size-attr)}
-   [:div {:class "control"}
-    [:textarea {:id (u/elem-id conf "device-stdout" row)
-                :class "textarea is-light"
-                :data-row row}]]])
-(defn reset-button
- [conf]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     [:div {:class "columns"}
-      (button conf "reset" "reset all")]]]])
+(defn device-stdout [conf row size-attr]
+  [:div.column {:class size-attr}
+   [:div.control
+    [:textarea.textarea.is-light
+     {:id (u/elem-id conf "device-stdout" row)
+      :data-row row}]]])
 
-(defn main-select
-  [conf]
+(defn reset-button [conf]
+  [:section.section
+   [:div.container.content
+    [:div.box
+     [:div.columns (button conf "reset" "reset all")]]]])
+
+(defn main-select [conf]
   (let [standard   (mem/get-val! (k/standard conf))
         year       (mem/get-val! (k/year conf))
         n          (mem/get-val! (k/n conf))
         maintainer (mem/get-val! (k/maintainer conf))
         gas        (mem/get-val! (k/gas conf))
         mode       (mem/get-val! (k/mode conf))]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     [:div {:class "columns"}
+  [:section.section
+   [:div.container.content
+    [:div.box
+     [:div.columns
       (select conf "standard"   (u/fill-kw conf standard :standards))
       (select conf "year"       (u/fill-kw conf year :years))
       (select conf "n"          (u/fill-kw conf n :n))
@@ -119,70 +107,123 @@
       (select conf "gas"        (u/fill-kw conf gas :gases))
       (select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
 
-(defn device-select
-  [conf row]
+(defn device-select [conf row]
   (let  [device-vec (db/device-vec conf)
          device     (mem/get-val! (k/device conf row))]
-    [:section {:class "section"}
-     [:div {:class "container content"}
-      [:div {:class "box"}
-       [:div {:class "columns"}
+    [:section.section
+     [:div.container.content
+      [:div.box
+       [:div.columns
         (index-link conf)
         (select conf "device"  (u/fill-vec conf device device-vec) row)]]]]))
 
-(defn default
-  [conf row k v]
-  [:div {:class "column"}
-   [:div {:class "field has-addons"}
-    [:div {:class "control"}
-     [:a {:class "button is-info"} k]]
-    [:div {:class="control"}
-     [:input {:class "input is-info defaults"
-              :type "text"
-              :value v
-              :data-key k
-              :data-value v
-              :data-row row}]]]])
+(defn default [conf row k v]
+  [:div.column
+   [:div.field.has-addons
+    [:div.control
+     [:a.button.is-info k]]
+    [:div.control
+     [:input.input.is-info.defaults
+      {:type "text"
+       :value v
+       :data-key k
+       :data-value v
+       :data-row row}]]]])
 
-(defn device-defaults
-  [conf row defaults-seq]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     (into [:div {:class "columns"}]
-           (map
-            (fn [[dk dv]]
-              (let [kk (k/defaults conf row (name dk))
-                    v (mem/get-val! kk)]
-                (default conf row (name dk) v))))
-           defaults-seq)]]])
+(defn device-defaults [conf row defaults-seq]
+  (when (seq defaults-seq)
+    [:section.section
+     [:div.container.content
+      [:div.box
+       (into [:div.columns]
+             (map
+              (fn [[dk dv]]
+                (let [kk (k/defaults conf row (name dk))
+                      v (mem/get-val! kk)]
+                  (default conf row (name dk) v))))
+             defaults-seq)]]]))
 
-(defn device-tasks
- [conf row tasks]
-  [:section {:class "section"}
-   [:div {:class "container content"}
-    [:div {:class "box"}
-     [:div {:class "columns"}
-      (select conf "task" (mapv :TaskName tasks) row)
-      (button conf "run" "run" row)
-      (device-stdout conf row "is-7")]]]])
+;;----------------------------------------------------------
+;; manual input tasks
+;;----------------------------------------------------------
+(defn input [conf row taskname k v]
+  [:div.column
+    [:div.field-body
+     [:div.field
+      [:p.control
+       [:label.label k
+        [:input.input.is-info.input-value
+         {:data-type (condp = k
+                       :Value "float"
+                       :Type "string"
+                       :Unit "string"
+                       :SdValue "float"
+                       :N "integer"
+                       "string")
+          :data-value v
+          :value v
+          :data-taskname taskname
+          :data-row row
+          :data-key (name k)}]]]]]])
 
-(defn index-title
-  [conf std]
-  [:section {:class "hero is-dark"}
-   [:div {:class "hero-body"}
-      [:div {:class "container"}
-       [:h1 {:class "title"} (:main-title conf)]
-       [:h2 {:class "subtitle"} (str "standard: " std)]]]])
+(defn ready-button [conf row taskname]
+  [:button.button.is-info.ready-button
+   {:data-row row
+    :data-taskname taskname
+    :data-key  "Ready" } "ok"])
 
-(defn device-title
-  [conf row]
+(defn device-man-tasks [conf row tasks]
+  (when (seq tasks)
+    (into [:section.section]
+          (map (fn [{value :Value taskname :TaskName}]
+                 (let [{u :Unit t :Type v :Value s :SdValue n :N} value]
+                   [:section.section
+                    [:h3.subtitle taskname]
+                    [:div.columns
+                     (input conf row taskname :Type t)
+                     (input conf row taskname :Value v )
+                     (input conf row taskname :Unit u )
+                     (when s (input conf row taskname :SdValue s))
+                     (when n (input conf row taskname :N n))]
+                    (ready-button conf row taskname)]))
+               tasks))))
+
+;;----------------------------------------------------------
+;; devhub tasks
+;;----------------------------------------------------------
+(defn device-dev-tasks [conf row tasks]
+  (when (seq tasks)
+    [:div.columns
+     (select conf "task" (mapv :TaskName tasks) row)
+     (button conf "run" "run" row)
+     (device-stdout conf row "is-7")]))
+
+;;----------------------------------------------------------
+;; device tasks
+;;----------------------------------------------------------
+(defn device-tasks [conf row tasks]
+  [:section.section
+   [:div.container.content
+    [:div.box
+     (device-dev-tasks conf row (filterv #(not= "manualInput" (:Action %)) tasks))
+     (device-man-tasks conf row (filterv #(= "manualInput" (:Action %)) tasks))]]])
+;;----------------------------------------------------------
+;; title
+;;----------------------------------------------------------
+(defn index-title [conf std]
+  [:section.hero.is-dark
+   [:div.hero-body
+      [:div.container
+       [:h1.title (:main-title conf)]
+       [:h2.subtitle std]]]])
+
+(defn device-title [conf row]
   (let [id (mem/get-val! (k/id conf row))]
-    [:section {:class "hero is-dark"}
-     [:div {:class "hero-body"}
-      [:div {:class "container"}
-       [:h1 {:class "title"} (:main-title conf)]
-       [:h2 {:class "subtitle"} (str "device setup for id: " id )]]]]))
+    [:section.hero.is-info
+     [:div.hero-body
+      [:div.container
+       [:h1.title (:main-title conf)]
+       [:h2.subtitle id ]]]]))
 
 ;;----------------------------------------------------------
 ;; se3 
@@ -198,7 +239,7 @@
         fs-vec   (u/display-fullscale-vec conf)
         br-vec   (get-in conf [:items :se3-branch])]
     (if (and standard year)
-      [:div {:class "columns"}
+      [:div.columns
        (button        conf "reset"     "reset"                     row)
        (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
        (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
@@ -223,7 +264,7 @@
         port-vec (get-in conf [:items :ce3-port])
         ]
     (if (and standard year)
-      [:div {:class "columns"}
+      [:div.columns
        (button        conf "reset"     "reset" row)
        (select        conf "id"        (u/fill-vec conf id   id-vec)   row "is-3")
        (select        conf "port"      (u/fill-vec conf port port-vec) row)
@@ -244,7 +285,7 @@
         id       (mem/get-val! (k/id conf row))
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
-      [:div {:class "columns"}
+      [:div.columns
        (button        conf "reset"     "reset" row)
        (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
        (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
@@ -263,7 +304,7 @@
         id       (mem/get-val! (k/id conf row))
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
-      [:div {:class "columns"}
+      [:div.columns
        (button        conf "reset"     "reset" row)
        (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
        (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
@@ -279,9 +320,9 @@
         year     (mem/get-val! (k/year conf))
         n        (mem/get-val! (k/n conf))]
     (if (and standard year n)
-      [:section {:class "section"}
-       [:div {:class "container content"}
-        (into [:div {:class "box"}]
+      [:section.section
+       [:div.container.content
+        (into [:div.box]
               (map f (range (Integer/parseInt n))))]]
       (missing conf))))
 

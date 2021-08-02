@@ -141,12 +141,13 @@
 ;;----------------------------------------------------------
 ;; tasks
 ;;----------------------------------------------------------
+(defn store-device-task [conf row {taskname :TaskName :as task}]
+  (mem/set-val! (k/tasks conf row taskname) task))
+
 (defn store-device-tasks 
- "Store `tasks` to mem when not already there."
+ "Store `tasks` to mem."
   [conf row tasks]
-  (run!
-   (fn [task] (mem/set-val! (k/tasks conf row (:TaskName task)) task))
-   tasks))
+  (run! #(store-device-task conf row %) tasks))
 
 (defn update-task
   "Updates the task with the active defaults."

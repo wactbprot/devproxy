@@ -40,3 +40,4 @@
 (defn device     [conf row] (from-conf conf :device row))
 (defn defaults   [conf row value] (from-conf conf :default row value))
 (defn tasks      [conf row value] (from-conf conf :task row value))
+(defn manio      [conf row] (from-conf conf :manio row))

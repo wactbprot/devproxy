@@ -1,14 +1,6 @@
 {
  :mulog {:type :multi
-         :publishers[
-                     ;; send events to the stdout
-                     ;; {:type :console
-                     ;;  :pretty? true}
-                     ;; send events to a file
-                     ;; {:type :simple-file
-                     ;;  :filename "/tmp/mulog/events.log"}
-                     ;; send events to ELS
-                     {:type :elasticsearch
+         :publishers[{:type :elasticsearch
                       :url  "http://a75438:9200/"
                       :els-version  :v7.x
                       :data-stream  "vl-log-stream"
@@ -93,4 +85,5 @@
         :device "device"
         :default "default"
         :task "task"
+        :manio "manio"
         :fullscale "fullscale"}}
