@@ -303,6 +303,7 @@
                              [(u/suitable-task conf (memu/auto-init-tasks    conf row) mt mm)
                               (u/suitable-task conf (memu/range-offset-tasks conf row) mt mm)
                               (u/suitable-task conf (memu/offset-tasks       conf row) mt mm)]))]
+    
     {:tasks tasks :row row}))
 
 ;;----------------------------------------------------------
