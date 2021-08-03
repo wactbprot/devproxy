@@ -22,6 +22,7 @@
               :torr  133.322)]
       (map-value m (fn [x] (* x f))))))
 
+(defn id->cert-issue [id] (string/replace (last (string/split id #"-")) "_" "/"))
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s )))
 

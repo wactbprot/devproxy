@@ -1,20 +1,22 @@
 (ns devproxy.views
-  (:require [devproxy.conf    :as c]
+  (:require [devproxy.conf :as c]
             [hiccup.form :as hf]
             [hiccup.page :as hp]
-            [devproxy.db      :as db]
-            [devproxy.keys    :as k]
-            [devproxy.mem     :as mem]
-            [devproxy.utils   :as u]))
+            [devproxy.db :as db]
+            [devproxy.keys :as k]
+            [devproxy.mem :as mem]
+            [devproxy.utils :as u]))
 
-(defn page-header [conf]
-  [:head
-   [:meta {:http-equiv "Cache-Control" :content="no-cache, no-store, must-revalidate"}]
-   [:meta {:http-equiv "Pragma" :content "no-cache"}]
-   [:meta {:http-equiv "Expires" :content "0"}]
-   [:title (:page-title conf)]
-   (hp/include-css "/css/bulma.css")
-   (hp/include-css "/css/all.css")])
+(defn page-header
+  ([conf]
+   (page-header conf (:page-title conf)))
+  ([conf title]
+   [:head
+    [:meta {:http-equiv "Cache-Control" :content="no-cache, no-store, must-revalidate"}]
+    [:meta {:http-equiv "Pragma" :content "no-cache"}]
+    [:meta {:http-equiv "Expires" :content "0"}]
+    [:title title]
+    (hp/include-css "/css/bulma.css")]))
 
 (defn not-found []
   (hp/html5
@@ -55,26 +57,20 @@
   ([conf ename text]
    (button conf ename text nil))
   ([conf ename text row]
-   [:div.column.is-1
-    [:div.field
-    [:div.control
-     (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
-                        :class (str "button is-info " ename)
-                        :data-row row} text)]]]))
+   [:div.column.is-four-fifths
+    (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
+                       :class (str "button is-info " ename)
+                       :data-row row} text)]))
 
-(defn device-link [conf row]
-  [:div.column.is-1
-   [:div.field
-    [:div.control
-     [:a.is-link {:href (str "/device/" row)}
-      [:i.far.fa-arrow-alt-circle-right.fa-2x]]]]])
+(defn link [conf ref s]
+  [:div.column
+   [:div.tags.has-addons 
+    [:span.tag.is-medium "&#128279;"]
+    [:a.tag.is-info.is-medium {:href ref} s]]])
 
-(defn index-link [conf]
-  [:div.column.is-1
-   [:div.field
-    [:div.control
-     [:a.is-link {:href "/"}
-      [:i.far.fa-arrow-alt-circle-left.fa-2x]]]]])
+(defn device-link [conf row] (link conf (str "/device/" row) " device"))
+
+(defn index-link [conf]  (link conf "/" " home"))
 
 (defn device-stdout [conf row size-attr]
   [:div.column {:class size-attr}
@@ -114,8 +110,8 @@
      [:div.container.content
       [:div.box
        [:div.columns
-        (index-link conf)
-        (select conf "device"  (u/fill-vec conf device device-vec) row)]]]]))
+        (select conf "device"  (u/fill-vec conf device device-vec) row)
+        (index-link conf)]]]]))
 
 (defn default [conf row k v]
   [:div.column
@@ -202,16 +198,16 @@
 ;; device tasks
 ;;----------------------------------------------------------
 (defn device-tasks [conf row tasks]
-  [:section.section
-   [:div.container.content
-    [:div.box
-     (device-dev-tasks conf row (filterv #(not= "manualInput" (:Action %)) tasks))
-     (device-man-tasks conf row (filterv #(= "manualInput" (:Action %)) tasks))]]])
+  [:div.container.content
+   [:div.box
+    (device-dev-tasks conf row (filterv #(not= "manualInput" (:Action %)) tasks))
+    (device-man-tasks conf row (filterv #(= "manualInput" (:Action %)) tasks))]])
+
 ;;----------------------------------------------------------
 ;; title
 ;;----------------------------------------------------------
 (defn index-title [conf std]
-  [:section.hero.is-dark
+  [:section.hero.is-info
    [:div.hero-body
       [:div.container
        [:h1.title (:main-title conf)]
@@ -223,13 +219,12 @@
      [:div.hero-body
       [:div.container
        [:h1.title (:main-title conf)]
-       [:h2.subtitle id ]]]]))
+       [:h2.subtitle (when id "Certificate: " (u/id->cert-issue id))]]]]))
 
 ;;----------------------------------------------------------
 ;; se3 
 ;;----------------------------------------------------------
-(defn item-se3
-  [conf row]
+(defn item-se3 [conf row]
   (let [standard (mem/get-val! (k/standard conf))
         year     (mem/get-val! (k/year conf))
         id       (mem/get-val! (k/id conf row))
@@ -239,13 +234,15 @@
         fs-vec   (u/display-fullscale-vec conf)
         br-vec   (get-in conf [:items :se3-branch])]
     (if (and standard year)
-      [:div.columns
-       (button        conf "reset"     "reset"                     row)
-       (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
-       (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
-       (select        conf "branch"    (u/fill-vec conf br br-vec) row)
-       (device-stdout conf row "is-3")
-       (device-link   conf row)])))
+      [:div.box
+       [:div.columns
+        (select conf "id"        (u/fill-vec conf id id-vec) row "is-3")
+        (select conf "fullscale" (u/fill-vec conf fs fs-vec) row)
+        (select conf "branch"    (u/fill-vec conf br br-vec) row)
+        (device-stdout conf row "is-3")]
+       [:div.columns
+        (button conf "reset" "reset" row)
+        (device-link conf row)]])))
 
 ;;----------------------------------------------------------
 ;; ce3 
@@ -264,14 +261,16 @@
         port-vec (get-in conf [:items :ce3-port])
         ]
     (if (and standard year)
-      [:div.columns
-       (button        conf "reset"     "reset" row)
-       (select        conf "id"        (u/fill-vec conf id   id-vec)   row "is-3")
-       (select        conf "port"      (u/fill-vec conf port port-vec) row)
-       (select        conf "fullscale" (u/fill-vec conf fs fs-vec)     row)
-       (select        conf "opx"       (u/fill-vec conf opx  opx-vec)  row)
-       (device-stdout conf row "is-3")
-       (device-link   conf row)])))
+      [::div.box
+       [:div.columns
+        (select        conf "id"        (u/fill-vec conf id   id-vec)   row "is-3")
+        (select        conf "port"      (u/fill-vec conf port port-vec) row)
+        (select        conf "fullscale" (u/fill-vec conf fs fs-vec)     row)
+        (select        conf "opx"       (u/fill-vec conf opx  opx-vec)  row)
+        (device-stdout conf row "is-3")]
+       [:div.columns
+        (button conf "reset" "reset" row)
+        (device-link   conf row)]])))
 
 ;;----------------------------------------------------------
 ;; frs 
@@ -285,12 +284,14 @@
         id       (mem/get-val! (k/id conf row))
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
-      [:div.columns
-       (button        conf "reset"     "reset" row)
-       (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
-       (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
-       (device-stdout conf row "is-3")
-       (device-link   conf row)])))
+      [:div.box
+       [:div.columns
+        (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
+        (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
+        (device-stdout conf row "is-3")]
+       [:div.columns
+        (button conf "reset" "reset" row)
+        (device-link   conf row)]])))
 
 ;;----------------------------------------------------------
 ;; dkm_ppc4 
@@ -304,33 +305,31 @@
         id       (mem/get-val! (k/id conf row))
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
-      [:div.columns
-       (button        conf "reset"     "reset" row)
-       (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
-       (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
-       (device-stdout conf row "is-3")
-       (device-link   conf row)])))
+      [::div.box 
+       [:div.columns
+        (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
+        (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
+        (device-stdout conf row "is-3")]
+       [:div.columns
+        (button conf "reset" "reset" row)
+        (device-link   conf row)]])))
 
 ;;----------------------------------------------------------
 ;; items
 ;;----------------------------------------------------------
-(defn items
-  [conf f] 
+(defn items [conf f] 
   (let [standard (mem/get-val! (k/standard conf))
         year     (mem/get-val! (k/year conf))
         n        (mem/get-val! (k/n conf))]
     (if (and standard year n)
-      [:section.section
-       [:div.container.content
-        (into [:div.box]
-              (map f (range (Integer/parseInt n))))]]
+      (into [:div.container.content]
+            (map f (range (Integer/parseInt n))))
       (missing conf))))
 
 ;;----------------------------------------------------------
 ;; index page
 ;;----------------------------------------------------------
-(defn index
-  [conf req]
+(defn index [conf req]
   (let [s (mem/get-val! (k/standard conf))
         s (if s s "~")]
     (hp/html5
@@ -353,17 +352,18 @@
 ;;----------------------------------------------------------
 ;; device page
 ;;----------------------------------------------------------
-(defn device
-  [conf req row]
-  (hp/html5
-   (page-header conf)
-   [:body
-    (device-title conf row)
-    (device-select conf row)
-    (when-let [device-name (mem/get-val! (k/device conf row))]
-      [:div
-       (device-defaults conf row (db/device-defaults conf device-name))
-       (device-tasks    conf row (db/device-tasks    conf device-name))])
-    (hp/include-js "/js/jquery.js")
-    (hp/include-js "/js/ws.js")
-    (hp/include-js "/js/main.js")]))
+(defn device [conf req row]
+  (let [id (mem/get-val! (k/id conf row))
+        title (if id (u/id->cert-issue id) "~")]
+    (hp/html5
+     (page-header conf title)
+     [:body
+      (device-title conf row)
+      (device-select conf row)
+      (when-let [device-name (mem/get-val! (k/device conf row))]
+        [:div
+         (device-defaults conf row (db/device-defaults conf device-name))
+         (device-tasks    conf row (db/device-tasks    conf device-name))])
+      (hp/include-js "/js/jquery.js")
+      (hp/include-js "/js/ws.js")
+      (hp/include-js "/js/main.js")])))
