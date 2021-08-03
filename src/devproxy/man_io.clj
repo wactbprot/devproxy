@@ -35,8 +35,6 @@
      (mem/set-val! s (assoc (mem/get-val! s) :Ready false))
      (swap! ls assoc s (mem/gen-listener conf (subs-pat conf s) f))
      (let [result (deref p)]
-       {:ok     true
-        :row    row
-        :result result
-        :id     id
-        :rev (when (and id result doc-path) (db/save conf id [result] doc-path))}))))
+       {:result result
+        :rev (when (and id result doc-path) (db/save conf id [result] doc-path))
+        :ok     true}))))

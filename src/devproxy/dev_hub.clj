@@ -19,14 +19,9 @@
           exch   :ToExchange
           err    :error} (che/decode body true)]
      (if (> 400 status)
-       {:ok     true
-        :row    row
+       {
         :result result
-        :exch   exch
-        :id     id
         :rev (when (and id result doc-path) (db/save conf id result doc-path))
-        :error err}
-       {:error  true
-        :reason "http error"
-        :status status
-        :row    row}))))
+        :ok true}
+       {:error  err
+        :status status}))))

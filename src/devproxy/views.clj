@@ -75,8 +75,10 @@
 (defn device-stdout [conf row size-attr]
   [:div.column {:class size-attr}
    [:div.control
-    [:textarea.textarea.is-light
-     {:id (u/elem-id conf "device-stdout" row)
+    [:textarea.textarea.is-light 
+     {:placeholder "device request result"
+      :disabled ""
+      :id (u/elem-id conf "device-stdout" row)
       :data-row row}]]])
 
 (defn reset-button [conf]
@@ -235,11 +237,12 @@
         br-vec   (get-in conf [:items :se3-branch])]
     (if (and standard year)
       [:div.box
+       [:h3.title "Device № " row]
        [:div.columns
         (select conf "id"        (u/fill-vec conf id id-vec) row "is-3")
         (select conf "fullscale" (u/fill-vec conf fs fs-vec) row)
         (select conf "branch"    (u/fill-vec conf br br-vec) row)
-        (device-stdout conf row "is-3")]
+        (device-stdout conf row "is-4")]
        [:div.columns
         (button conf "reset" "reset" row)
         (device-link conf row)]])))
@@ -262,12 +265,13 @@
         ]
     (if (and standard year)
       [::div.box
+       [:h3.title "Device № " row]
        [:div.columns
         (select        conf "id"        (u/fill-vec conf id   id-vec)   row "is-3")
         (select        conf "port"      (u/fill-vec conf port port-vec) row)
         (select        conf "fullscale" (u/fill-vec conf fs fs-vec)     row)
         (select        conf "opx"       (u/fill-vec conf opx  opx-vec)  row)
-        (device-stdout conf row "is-3")]
+        (device-stdout conf row "is-4")]
        [:div.columns
         (button conf "reset" "reset" row)
         (device-link   conf row)]])))
@@ -285,10 +289,11 @@
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
       [:div.box
+       [:h3.title "Device № " row]
        [:div.columns
         (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
         (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
-        (device-stdout conf row "is-3")]
+        (device-stdout conf row "is-4")]
        [:div.columns
         (button conf "reset" "reset" row)
         (device-link   conf row)]])))
@@ -305,7 +310,8 @@
         id       (mem/get-val! (k/id conf row))
         id-vec   (db/cal-ids conf standard year)]
     (if (and standard year)
-      [::div.box 
+      [::div.box
+       [:h3.title "Device № " row]
        [:div.columns
         (select        conf "id"        (u/fill-vec conf id id-vec) row "is-3")
         (select        conf "fullscale" (u/fill-vec conf fs fs-vec) row)
