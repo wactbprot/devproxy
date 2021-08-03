@@ -57,7 +57,7 @@
   ([conf ename text]
    (button conf ename text nil))
   ([conf ename text row]
-   [:div.column.is-four-fifths
+   [:div.column
     (hf/submit-button {:id (if row (u/elem-id conf ename row) ename)
                        :class (str "button is-info " ename)
                        :data-row row} text)]))
