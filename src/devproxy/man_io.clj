@@ -37,4 +37,5 @@
      (let [result (deref p)]
        {:result result
         :rev (when (and id result doc-path) (db/save conf id [result] doc-path))
-        :ok     true}))))
+        :ok true
+        :row row}))))

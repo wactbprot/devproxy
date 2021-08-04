@@ -68,7 +68,7 @@
     [:span.tag.is-medium "&#128279;"]
     [:a.tag.is-info.is-medium {:href ref} s]]])
 
-(defn device-link [conf row] (link conf (str "/device/" row) " device"))
+(defn device-link [conf row] (link conf (str "/device/" row) " select readout device"))
 
 (defn index-link [conf]  (link conf "/" " home"))
 

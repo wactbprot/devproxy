@@ -79,7 +79,7 @@
 (defn get-id-and-port
   [conf k]
   {:id  (mem/get-val! k)
-   :port (mem/get-val! (k/opx conf (k/get-row conf k)))})
+   :port (mem/get-val! (k/port conf (k/get-row conf k)))})
 
 (defn id-and-port
   "Returns a `map` containing `id` and `port`."

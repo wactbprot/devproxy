@@ -184,7 +184,7 @@
   (let [p          (u/get-doc-path req)
         ids        (memu/cal-ids conf)
         maintainer (mem/get-val! (k/maintainer conf))]
-    (if (and (string? p) (string? maintainer))
+      (if (and (string? p) (string? maintainer))
       (res/response {:ok true
                      :revs (mapv
                             (fn [id] (db/save conf id [maintainer] p))
