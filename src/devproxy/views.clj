@@ -65,7 +65,7 @@
 (defn link [conf ref s]
   [:div.column
    [:div.tags.has-addons 
-    [:span.tag.is-medium "&#128279;"]
+    [:span.tag.is-medium "&#10143;"]
     [:a.tag.is-info.is-medium {:href ref} s]]])
 
 (defn device-link [conf row] (link conf (str "/device/" row) " select readout device"))
@@ -100,10 +100,11 @@
      [:div.columns
       (select conf "standard"   (u/fill-kw conf standard :standards))
       (select conf "year"       (u/fill-kw conf year :years))
-      (select conf "n"          (u/fill-kw conf n :n))
+      (select conf "n"          (u/fill-kw conf n :n))]
+     [:div.columns
       (select conf "maintainer" (u/fill-kw conf maintainer :maintainers))
-      (select conf "gas"        (u/fill-kw conf gas :gases))
-      (select conf "mode"       (u/fill-kw conf mode :modes))]]]]))
+      (select conf "mode"       (u/fill-kw conf mode :modes))
+      (select conf "gas"        (u/fill-kw conf gas :gases))]]]]))
 
 (defn device-select [conf row]
   (let  [device-vec (db/device-vec conf)
