@@ -67,9 +67,8 @@
       (middleware/wrap-json-body {:keywords? true})
       (middleware/wrap-json-response)))
 
-(defn init-log!
-  [{conf :mulog }]
-  (mu/set-global-context! {:app-name "devproxy"})
+(defn init-log! [{conf :mulog ctx :log-context}]
+  (mu/set-global-context! ctx)
   (mu/start-publisher! conf))
 
 (defn stop []
@@ -84,8 +83,7 @@
   (mu/log ::start :message "start devproxy server")
   (reset! server (run-server app {:port 8009})))
 
-(defn ascii-logo
-  []
+(defn ascii-logo []
   (println "\n")
   (println "     d)                                                          ")
   (println "     d)                                                          ")

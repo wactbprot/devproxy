@@ -1,4 +1,4 @@
-{
+{:log-context {:app-name "devproxy"}
  :mulog {:type :multi
          :publishers[{:type :elasticsearch
                       :url  "http://a75438:9200/"
