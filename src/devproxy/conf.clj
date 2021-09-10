@@ -26,7 +26,7 @@
     (-> c
         (assoc-in kl-c (or  (System/getenv "DEVPROXY_FACILITY")
                             (System/getenv "DEVHUB_FACILITY")
-                            (System/getenv "METIS_FACILITY"))
+                            (System/getenv "METIS_FACILITY")))
         (assoc-in kd-h (or  (System/getenv "DEVHUB_HOST") (get-in c kd-h)))
         (assoc-in kd-p (or  (System/getenv "DEVHUB_PORT") (get-in c kd-p)))
         (assoc-in kr-h (or  (System/getenv "REDIS_HOST")  (get-in c kr-h)))
