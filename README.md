@@ -64,6 +64,17 @@ Default configurations are in `resources/conf.edn`. Some entries may be overwrit
 * COUCH_HOST
 
 
+## systemd
+
+```shell
+cd /path/to/devproxy
+sudo mkdir /usr/local/share/devproxy
+sudo cp devproxy.jar /usr/local/share/devproxy
+sudo cp devproxy.service  /etc/systemd/system/
+sudo systemctl enable devproxy.service
+sudo systemctl start devproxy.service
+sudo systemctl status devproxy.service
+```
 
 ### tools.deps and tools.build
 
