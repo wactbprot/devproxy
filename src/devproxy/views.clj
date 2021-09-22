@@ -238,7 +238,7 @@
         br-vec   (get-in conf [:items :se3-branch])]
     (if (and standard year)
       [:div.box
-       [:h3.title "Device № " row]
+       [:h3.title "Device № " (inc row)]
        [:div.columns
         (select conf "id"        (u/fill-vec conf id id-vec) row "is-3")
         (select conf "fullscale" (u/fill-vec conf fs fs-vec) row)
