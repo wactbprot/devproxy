@@ -1,4 +1,6 @@
 (ns devproxy.conf
+  ^{:author "Thomas Bock <wactbprot@gmail.com>"
+    :doc "get configuration from conf.edn. assoc env vars."}
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]))
 

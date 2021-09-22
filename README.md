@@ -4,10 +4,63 @@
 
 See documentation on [wactbprot.github.io](https://wactbprot.github.io/devproxy/)
 
-## Configuration
+```
 
-Softlink your spezial configuration (here `ce3-conf.edn`) to `cond.edn`.
+ ┌───────────────────┐      ┌────────────────────────┐
+ │                   ◄──────┤                        │
+ │  DevProxy         │      │         Metis          │
+ │                   ├──────►                        │
+ └───┬───────────▲───┘      └───┬────────────────▲───┘
+     │           │              │                │
+ ┌───▼───────────┴──────────────▼────────────────┴────┐
+ │                                                    │
+ │   DevHub                                           │
+ │                                                    │
+ └───┬───────────▲──────────────┬────────────────▲────┘
+     │           │              │                │
+ ┌───▼───────────┴───┐       ┌──▼────────────────┴───┐
+ │                   │       │                       │
+ │  DUT              │       │    Standard           │
+ │                   │       │                       │
+ │ ┌───────────────┐ │       │   ┌───────────────┐   │
+ │ │ TCP device    │ │       │   │ VXI11 device  │   │
+ │ ├───────────────┤ │       │   ├───────────────┤   │
+ │ ├───────────────┤ │       │   ├───────────────┤   │
+ │ │ MODBUS device │ │       │   │ TCP device    │   │
+ │ ├───────────────┤ │       │   ├───────────────┤   │
+ │ ├───────────────┤ │       │   ├───────────────┤   │
+ │ │ ...           │ │       │   │ MODBUS device │   │
+ └─┴───────────────┴─┘       │   ├───────────────┤   │
+                             │   ├───────────────┤   │
+                             │   │ ...           │   │
+                             └───┴───────────────┴───┘
+```
+
+## configuration
+
+Default configurations are in `resources/conf.edn`. Some entries may be overwritten by environment variables:
+
+* DEVPROXY_FACILITY (fallbacks: DEVHUB_FACILITY, METIS_FACILITY)
+* DEVHUB_HOST
+* DEVHUB_PORT
+* REDIS_HOST
+* COUCH_HOST
+
+
+
+### tools.deps and tools.build
+
+Build a stand alone app with:
 
 ```shell
-ln -s /<path-to-devproxy>/devproxy/resources/ce3-conf.edn /<path-to-devproxy>/devproxy/resources/conf.edn
+clj -T:build clean
+clj -T:build prep
+clj -T:build uber
 ```
+
+Run it with:
+
+```shell
+java -jar target/devproxy-x.y.z-standalone.jar
+```
+
