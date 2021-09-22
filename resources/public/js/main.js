@@ -11,18 +11,22 @@ var post = (path, data, callback) => {
 	dataType: "json"
     });
 }
+// true is necessary for firefox only
+var reload = () => {
+    location.reload(true);
+};
 //----------------------------------
 $("#year").change( e => {
     var $this = $(e.currentTarget);
-    post( "year", {"value": $this.val()}, () => {location.reload();});
+    post( "year", {"value": $this.val()}, () => {reload();});
 });
 $("#standard").change( e => {
     var $this = $(e.currentTarget);
-    post( "standard",{"value": $this.val()}, () => {location.reload();});
+    post( "standard",{"value": $this.val()}, () => {reload();});
 });
 $("#n").change( e => {
     var $this = $(e.currentTarget);
-    post( "n", {"value": $this.val()}, () => {location.reload();});
+    post( "n", {"value": $this.val()}, () => {reload();});
 });
 
 $("#gas").change( e => {
@@ -46,7 +50,7 @@ $(".run").click( e => {
 	row = $this.data("row"),
 	data = {"value": $("#task_" + row).val(), "row": row};
     $("#device-stdout_" + row).val("...will post to server");
-    post( "run", data);
+    post("run", data);
     
 });
 
@@ -55,15 +59,14 @@ $(".device").change(e => {
     var $this = $(e.currentTarget),
 	row =  $this.data("row"),
 	data = {"value": $this.val(), "row": row};
-    post( "device/"+ row, data, () => {location.reload(); });
+    post( "device/"+ row, data, () => {reload(); });
 });
 
 //----------------------------------
 $(".reset").click( e => {
     var $this = $(e.currentTarget),
-	row = $this.data("row"),
-	data = {"value": true, "row": row};
-    post( "reset", data, () => {location.reload()});
+	row = $this.data("row");
+    post( "reset", {"value": true, "row": row}, () => {reload()});
 });
 
 $(".id").change( e => {
