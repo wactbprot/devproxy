@@ -1,6 +1,6 @@
 (ns devproxy.server
   ^{:author "Thomas Bock <thomas.bock@ptb.de>"
-    :doc "Starts a server. Dispatches requests."}
+    :doc "Start/stop of devproxy server. Routing and request dispatching."}
   (:require [compojure.route          :as route]
             [com.brunobonacci.mulog   :as mu]
             [devproxy.views           :as v]

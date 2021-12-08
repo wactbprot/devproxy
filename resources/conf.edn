@@ -22,6 +22,7 @@
                 :spec {:host "127.0.0.1"
                        :port 6379
                        :db 1}}}
+ ;; binds to 0.0.0.0 by default
  :server {:port 8009 :join? false}
  ;; parallel request that go to the same device
  ;; need some relaxation time:
