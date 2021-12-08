@@ -1,4 +1,6 @@
 (ns devproxy.db
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Handles the database io."}
   (:require [com.ashafa.clutch   :as couch]
             [vl-data-insert.core :as i]
             [devproxy.conf       :as c]
@@ -29,8 +31,7 @@
 
 (defn devices
   "Returns all devices."
-  ([conf]
-   (devices conf nil))
+  ([conf] (devices conf nil))
   ([conf dev]
    (let [conn (c/couch-conn conf)
          cc   (:couch conf)
@@ -48,10 +49,8 @@
   (get-in (first (devices conf dev)) [:value :DeviceClass :Defaults]))
 
 (defn device-tasks
-  ([conf]
-   (get-in (first (devices conf)) [:value :DeviceClass :Task]))
-  ([conf dev]
-   (get-in (first (devices conf dev)) [:value :DeviceClass :Task])))
+  ([conf]     (get-in (first (devices conf))     [:value :DeviceClass :Task]))
+  ([conf dev] (get-in (first (devices conf dev)) [:value :DeviceClass :Task])))
 
 (defn cal-ids
   "Returns all calibration ids belonging to a standard and a year."

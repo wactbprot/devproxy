@@ -1,4 +1,7 @@
 (ns devproxy.dev-hub
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Sends requests to the device hub. Receives the response and
+    triggers database io."}
   (:require
    [devproxy.db           :as db]
    [devproxy.conf         :as c] ;; for debug
@@ -9,8 +12,7 @@
   "Sends the `task` to the device hub. If a document `id` and a document
   `doc-path` is given, the `result`s are saved via
   `(db/save conf id result doc-path)`"
-  ([conf task row]
-   (measure conf task row nil nil))
+  ([conf task row]  (measure conf task row nil nil))
   ([conf task row doc-path id]
    (let [req  (assoc (get-in conf [:dev-hub :request]) :body (che/encode task))
          res  (deref (http/post (c/devhub-conn conf) req))

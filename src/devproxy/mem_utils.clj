@@ -1,4 +1,6 @@
 (ns devproxy.mem-utils
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Utils name space for mem database (redis) io."}
   (:require [clojure.string :as string]
             [devproxy.keys       :as k]
             [devproxy.utils      :as u] ;; for debug
@@ -21,8 +23,7 @@
   (cal-ids (c/config))
   ;; =>
   ;; [ cal-2021-se3-kk-75003_0001 cal-2021-se3-kk-75002_0001]
-  ```
-  "
+  ```"
   [conf]
   (mapv mem/get-val! (cal-id-keys conf)))
 
@@ -51,8 +52,7 @@
   ;; =>
   
   ;; [{:id cal-2020-se3-pn-4025_0012 :branch dut-a}]
-  ```
-  "
+  ```"
   [conf]
   (let [id-keys (cal-id-keys conf)]
     (when-not (empty? id-keys)
@@ -130,8 +130,7 @@
   (default-map (c/config) 0)
   ;; =>
   ;; {@channel 101 @device gpib0,8 @host e75416}
-  ```
-  "
+  ```"
   [conf row]
   (let [pat (re-pattern (:sep conf))
         ks  (mem/pat->keys (k/defaults conf row "*"))
@@ -163,8 +162,7 @@
   (get-task (c/config) 0 \"ind\")
   ;; =>
   ;; [{:TaskName ind ... }]
-  ```
-  "
+  ```"
   [conf row task-name]
   (update-task conf row (mem/get-val! (k/tasks conf row task-name))))
 
@@ -177,8 +175,7 @@
   (tasks-by-pat (c/config) 0 \"ind*\")
   ;; =>
   ;; [{:TaskName ind ... }]
-  ```
-  "
+  ```"
   [conf row pat]
   (let [ks (sort (mem/pat->keys (k/tasks conf row pat)))]
     (mapv (fn [k] (update-task conf row (mem/get-val! k))) ks)))

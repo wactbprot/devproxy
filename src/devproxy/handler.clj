@@ -1,4 +1,6 @@
 (ns devproxy.handler
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Handles all devproxy requests."}
   (:require
    [devproxy.mem-utils         :as memu]
    [devproxy.mem               :as mem]

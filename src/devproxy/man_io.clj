@@ -1,4 +1,7 @@
 (ns devproxy.man-io
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Provides the opportunity for manual input (instead device
+    hub request)."}
   (:require [devproxy.keys :as k]
             [devproxy.db :as db]
             [devproxy.mem :as mem]
@@ -9,8 +12,7 @@
 
 (defn subs-pat
   "Generates subscribe patterns which matches depending on:"
-  [conf k]
-  (str "__keyspace@" (get-in conf [:redis :conn :spec :db]) "*__:" k))
+  [conf k] (str "__keyspace@" (get-in conf [:redis :conn :spec :db]) "*__:" k))
 
 (defn gen-f
   "Generates a closure. Function checks if `task.Ready`is true. If so,
@@ -26,8 +28,7 @@
   promise if Ready is set to `true`. If a document `id` and a document
   `doc-path` is given, the `result`s are saved via `(db/save conf id
   result doc-path)`"
-  ([conf task row]
-   (receive conf task row nil nil))
+  ([conf task row] (receive conf task row nil nil))
   ([conf {n :TaskName v :Value} row doc-path id]
    (let [p    (promise)
          s    (k/tasks conf row n)

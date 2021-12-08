@@ -1,10 +1,11 @@
 (ns devproxy.mem
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Handles the mem database (redis) io."}
   (:require [taoensso.carmine :as car :refer (wcar)]
             [devproxy.utils :as u]
             [clojure.string :as string]
             [devproxy.conf           :as c]
-            [cheshire.core :as che]
-            ))
+            [cheshire.core :as che]))
 
 (def conn (get-in (c/config) [:redis :conn]))
 

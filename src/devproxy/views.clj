@@ -1,4 +1,6 @@
 (ns devproxy.views
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Provides the gui (html-pages) for interaction."}
   (:require [devproxy.conf :as c]
             [hiccup.form :as hf]
             [hiccup.page :as hp]

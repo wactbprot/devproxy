@@ -1,4 +1,6 @@
 (ns devproxy.server
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Starts a server. Dispatches requests."}
   (:require [compojure.route          :as route]
             [com.brunobonacci.mulog   :as mu]
             [devproxy.views           :as v]
@@ -6,7 +8,9 @@
             [devproxy.conf            :as c]
             [devproxy.ws-server       :as ws-srv]
             [devproxy.handler         :as h]
-            [compojure.core           :refer :all]
+            [compojure.core           :refer [GET
+                                              POST
+                                              defroutes]]
             [compojure.handler        :as handler]
             [org.httpkit.server       :refer [run-server]]
             [ring.middleware.json     :as middleware])

@@ -1,5 +1,6 @@
-
 (ns devproxy.ws-server
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Websocket connection between client and server."}
   (:require
    [cheshire.core           :as che]
    [com.brunobonacci.mulog  :as mu]

@@ -1,4 +1,6 @@
 (ns devproxy.utils
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Utils name space."}
   (:require  [devproxy.conf :as c] ;; for debug
              [cheshire.core :as che]
              [clojure.edn :as edn]

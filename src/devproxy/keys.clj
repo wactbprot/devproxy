@@ -1,4 +1,6 @@
 (ns devproxy.keys
+  ^{:author "Thomas Bock <thomas.bock@ptb.de>"
+    :doc "Provides consistent keys for mem db (redis) access."}
   (:require [clojure.string :as string]
             [devproxy.mem :as mem]))
 
@@ -8,10 +10,8 @@
     (nth (string/split k (re-pattern (:sep conf))) 1 nil)))
 
 (defn from-conf
-  ([conf kw]
-   (from-conf conf kw nil))
-  ([conf kw row]
-   (from-conf conf kw  row nil ))
+  ([conf kw]     (from-conf conf kw  nil))
+  ([conf kw row] (from-conf conf kw  row nil ))
   ([conf kw row v]
    (let [s (:sep conf)
          p (:prefix conf)
