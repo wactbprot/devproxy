@@ -278,9 +278,76 @@ curl http://localhost:8009/target_pressures
 			}, {
 				"display": "0.02 Pa",
 				"value": "0.02"
-			},
-            //...
-            {
+			}, {
+				"display": "0.03 Pa",
+				"value": "0.03"
+			}, {
+				"display": "0.05 Pa",
+				"value": "0.05"
+			}, {
+				"display": "0.09 Pa",
+				"value": "0.09"
+			}, {
+				"display": "0.13 Pa",
+				"value": "0.13"
+			}, {
+				"display": "0.2 Pa",
+				"value": "0.2"
+			}, {
+				"display": "0.3 Pa",
+				"value": "0.3"
+			}, {
+				"display": "0.5 Pa",
+				"value": "0.5"
+			}, {
+				"display": "0.9 Pa",
+				"value": "0.9"
+			}, {
+				"display": "1.0 Pa",
+				"value": "1.0"
+			}, {
+				"display": "1.3 Pa",
+				"value": "1.3"
+			}, {
+				"display": "2.0 Pa",
+				"value": "2.0"
+			}, {
+				"display": "3.0 Pa",
+				"value": "3.0"
+			}, {
+				"display": "5.0 Pa",
+				"value": "5.0"
+			}, {
+				"display": "7.0 Pa",
+				"value": "7.0"
+			}, {
+				"display": "9.0 Pa",
+				"value": "9.0"
+			}, {
+				"display": "10.0 Pa",
+				"value": "10.0"
+			}, {
+				"display": "13.0 Pa",
+				"value": "13.0"
+			}, {
+				"display": "20.0 Pa",
+				"value": "20.0"
+			}, {
+				"display": "30.0 Pa",
+				"value": "30.0"
+			}, {
+				"display": "50.0 Pa",
+				"value": "50.0"
+			}, {
+				"display": "70.0 Pa",
+				"value": "70.0"
+			}, {
+				"display": "90.0 Pa",
+				"value": "90.0"
+			}, {
+				"display": "100.0 Pa",
+				"value": "100.0"
+			}, {
 				"display": "130.0 Pa",
 				"value": "130.0"
 			}],
