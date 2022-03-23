@@ -53,6 +53,7 @@
     (µ/log ::target-pressure :TaskName (:TaskName task))
     (ws-srv/send-to-ws-clients conf res)
     (res/response res)))
+
 ;;----------------------------------------------------------
 ;; manual input 
 ;;----------------------------------------------------------
@@ -118,7 +119,7 @@
           #(mem/del-keys! (mem/pat->keys (k/del-pat conf %)))
           rm-rows))
         (µ/log ::target-pressure :message "next pressure"
-                :pressure next-p :unit "Pa")
+               :pressure next-p :unit "Pa")
         (res/response {:ToExchange
                        {:revs (mapv
                                #(db/save conf % [next-m] (u/get-doc-path req))
@@ -145,7 +146,7 @@
                        {:Target_pressure
                         {:Caption "target pressure", 
                          :Select (mapv (fn [p] {:display (str p " Pa")
-                                                :value (str p)}) c)
+                                               :value (str p)}) c)
                          :Selected (str next-p) 
                          :Unit "Pa"}}}))
       (res/response {:ToExchange
@@ -160,7 +161,6 @@
 ;; calibration ids
 ;;----------------------------------------------------------
 (defn cal-ids [conf req]
-  (µ/log ::cal-ids)
   (let [ids (memu/cal-ids conf)]
     (res/response {:ToExchange {:Ids (string/join "@" ids)} :ids ids})))
 
@@ -168,7 +168,6 @@
 ;; device under test branch  (se3)
 ;;----------------------------------------------------------
 (defn save-dut-branch [conf req]
-  (µ/log ::save-dut-branch)
   (let [p (u/get-doc-path req)
         v (memu/id-and-branch conf)]
     (if (and (string? p) (not (empty? v)))
@@ -182,11 +181,10 @@
 ;; maintainer 
 ;;----------------------------------------------------------
 (defn save-maintainer [conf req]
-  (µ/log ::save-maintainer)
   (let [p          (u/get-doc-path req)
         ids        (memu/cal-ids conf)
         maintainer (mem/get-val! (k/maintainer conf))]
-      (if (and (string? p) (string? maintainer))
+    (if (and (string? p) (string? maintainer))
       (res/response {:ok true
                      :revs (mapv
                             (fn [id] (db/save conf id [maintainer] p))
@@ -197,7 +195,6 @@
 ;; gas
 ;;----------------------------------------------------------
 (defn save-gas [conf req]
-  (µ/log ::save-gas)
   (let [p   (u/get-doc-path req)
         ids (memu/cal-ids conf)
         gas (mem/get-val! (k/gas conf))]
@@ -212,7 +209,6 @@
 ;; opx (ce3)
 ;;----------------------------------------------------------
 (defn save-opx [conf req]
-  (µ/log ::save-opx)
   (let [p (u/get-doc-path req)
         v (memu/id-and-opx conf)]
     (if (and (string? p) (not (empty? v)))
@@ -226,7 +222,6 @@
 ;; port (ce3)
 ;;----------------------------------------------------------
 (defn save-port [conf req]
-  (µ/log ::save-port)
   (let [p (u/get-doc-path req)
         v (memu/id-and-port conf)]
     (if (and (string? p) (not (empty? v)))
@@ -240,7 +235,6 @@
 ;; device under test maximum
 ;;----------------------------------------------------------
 (defn dut-max [conf req]
-  (µ/log ::dut-max)
   (let [p   (u/get-doc-path req)
         v   (memu/branch-and-fullscale conf)
         ids (memu/cal-ids conf)
@@ -255,8 +249,8 @@
      {:ToExchange {:revs
                    (mapv
                     (fn [id] (db/save conf id [{:Type "dut_a" :Value oca}
-                                               {:Type "dut_b" :Value ocb}
-                                               {:Type "dut_c" :Value occ}] p))
+                                              {:Type "dut_b" :Value ocb}
+                                              {:Type "dut_c" :Value occ}] p))
                     ids)
                    :Dut_A ma      :Dut_B mb      :Dut_C mc
                    :Set_Dut_A oca :Set_Dut_B ocb :Set_Dut_C occ}})))
@@ -264,8 +258,7 @@
 ;;----------------------------------------------------------
 ;; start offset-sequences, offset, ind save results
 ;;----------------------------------------------------------
-(defn launch-task [conf {p :DocPath action :Action :as task} row]
-  (µ/log ::launch-task)
+(defn launch-task [{delay :seq-delay :as conf} {p :DocPath action :Action :as task} row]
   (if task
     (let [id     (mem/get-val! (k/id conf row))
           result (condp = (keyword action)
@@ -273,25 +266,61 @@
                    ;; what else
                    (dev-hub/measure conf task row p id))]
       (ws-srv/send-to-ws-clients conf result)
-      (Thread/sleep (:seq-delay conf))
+      (Thread/sleep delay)
       result)
     {:ok true :warn "no task"}))
 
 (defn launch-tasks [conf tasks row]
-  (µ/log ::launch-tasks)
-  (doall (map (fn [task] (launch-task conf task row)) tasks)))
+  (mapv (fn [task] (launch-task conf task row)) tasks))
 
-(defn launch-tasks-vec [conf v]
-  (µ/log ::launch-tasks-vec)
-  (let [mode (mem/get-val! (k/mode conf))
-        f    (fn [{row :row tasks :tasks}]
-               (Thread/sleep (* (Integer/parseInt row)
-                                (:par-delay conf)))
-               (launch-tasks conf tasks row))]
-    (if (= mode "parallel") (doall (pmap f v)) (doall (map f v)))))
+(defn launch-tasks-vec
+  "Launches the tasks in for the different rows given with `v`
+  **sequential** or **parallel** depending on `mode`. The vector `v`
+  looks like this:
 
-(defn get-task-vec [conf k mt kind]
-  (µ/log ::get-task-vec)
+  ```clojure
+  [{:tasks [{:TaskName init-task-1}
+            {:TaskName ind-task-1}
+            {:TaskName ind-task-2}]
+    :row \"0\"}
+  {:tasks [{:TaskName init-task-1}
+            {:TaskName init-task-2}
+            {:TaskName ind-task-1}]
+    :row \"1\"}
+  ...]
+  ```
+  "
+  [{delay :par-delay :as conf} v]
+  (let [f (fn [{row :row tasks :tasks}]
+            (Thread/sleep (* delay (Integer/parseInt row)))
+            (launch-tasks conf tasks row))]
+    (if (= "parallel" (mem/get-val! (k/mode conf)))
+      (doall (pmap f v))
+      (doall (map f v)))))
+
+(defn get-task-vec
+  "Returns a map with the keys `tasks` (a vector) and `row` (a
+  string). Since version 0.9.x the `tasks`-vector may have multiple
+  tasks of one subkind (e.g. multiple ind-tasks) in **alphanumeric
+  order**. The `tasks`-vector is a sequence of tasks consisting of:
+
+  ```clojure
+  ; pseudocode
+  [
+  ;; init-tasks
+  {:TaskName :init-a-reset} {:TaskName :init-b-channel} {:TaskName :init-c-current} 
+
+  ;; range-tasks
+  {:TaskName :range-low}
+  
+  ;; ind- or offset-tasks
+  {:TaskName :ind-anode} {:TaskName :ind-faraday} {:TaskName :ind-collector}
+  ]
+  ```
+
+  modeling a  measurement for gaining a correct indication or offset values.
+  "
+  [conf k mt kind]
   (let [row   (k/get-row conf k)
         fs    (mem/get-val! k)
         mm    (u/max-pressure-by-fullscale conf fs)
@@ -305,8 +334,7 @@
                              [(u/suitable-task conf (memu/auto-init-tasks    conf row) mt mm)
                               (u/suitable-task conf (memu/range-offset-tasks conf row) mt mm)
                               (u/suitable-task conf (memu/offset-tasks       conf row) mt mm)]))]
-    
-    {:tasks tasks :row row}))
+    {:tasks (into [] (flatten tasks)) :row row}))
 
 ;;----------------------------------------------------------
 ;; exec indication mean value

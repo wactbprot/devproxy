@@ -2,7 +2,7 @@
   (:require [clojure.tools.build.api :as b]))
 
 (def lib 'com.github.wactbprot/devproxy)
-(def version (format "0.8.%s" (b/git-count-revs nil)))
+(def version (format "0.9.%s" (b/git-count-revs nil)))
 (def class-dir "target/classes")
 (def basis (b/create-basis {:project "deps.edn" :aliases [:dev]}))
 (def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))

@@ -1,6 +1,6 @@
 (ns devproxy.utils
   ^{:author "Thomas Bock <thomas.bock@ptb.de>"
-    :doc "Utils name space."}
+    :doc "Utils namespace."}
   (:require  [devproxy.conf :as c] ;; for debug
              [cheshire.core :as che]
              [clojure.edn :as edn]
@@ -54,7 +54,7 @@
 (defn todo-si-value-vec [d]
   (-> d todo-pressure operable-value in-si-unit :Value))
 
-(defn compare-value [m](-> m operable-value in-si-unit :Value))
+(defn compare-value [m] (-> m operable-value in-si-unit :Value))
 
 (defn measured?
   "Checks if number `x` is in vector `v` `n` times. The value in `v` must fit within 1%.
@@ -78,8 +78,7 @@
   ;; =>
   ;; false
   "
-  ([[x n] v ]
-   (measured? [x n] v 1.01 0.99))
+  ([[x n] v ] (measured? [x n] v 1.01 0.99))
   ([[x n] v uf lf]
   (<= n (count (filter (fn [y] (and (< x (* y uf)) (> x (* y lf)))) v)))))
 
@@ -199,10 +198,12 @@
           (* fs (range-factor conf to))))
     true))
 
-(defn suitable-task [conf tasks m-t m-f]
-  (first
-   (filter (fn [{from :From to :To}] (range-ok? conf from to m-t m-f)) tasks)))
-  
+(defn suitable-task
+  "Since version 0.9.x the function returns a **vector** with all
+  suitable tasks."
+  [conf tasks mt mf]
+  (filter (fn [{from :From to :To}] (range-ok? conf from to mt mf)) tasks))
+
 (defn elem-id [conf a b] (str a "_" b))
 
 (defn fill-vec [conf item vec]
@@ -212,12 +213,12 @@
   (into (if item [item] [(:select conf)]) (kw conf)))
 
 (defn map->json
-  "Transforms a hash-map  to a json string"
+  "Transforms a map into a json string"
   [m]
   (che/generate-string m))
 
 (defn json->map
-  "Transforms a json object to a map."
+  "Transforms a json string into a map."
   [j]
   (che/parse-string j true))
 
