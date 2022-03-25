@@ -1,9 +1,19 @@
 {:deps {org.clojure/clojure {:mvn/version "1.10.3"}}
- 
+
  :aliases  {:build {:extra-paths ["src" "resources"]
                     :deps {io.github.clojure/tools.build {:git/tag "v0.2.1" :git/sha "dd64636"}}
                     :ns-default build}
-  
+
+            :codox {:extra-deps {codox/codox {:mvn/version "0.10.7"}
+                                 codox-theme-rdash/codox-theme-rdash {:mvn/version "0.1.2"}}
+                    :exec-fn codox.main/generate-docs
+                    :exec-args {:source-paths  ["src"]
+                                :metadata {:doc/format :markdown}
+                                :doc-files ["README.md" "examples.md"]
+                                :source-uri "https://gitlab1.ptb.de/vaclab/devproxy/-/blob/main/{filepath}#L{line}"
+                                :language :clojure
+                                :output-path "docs"}}
+
             :dev {:extra-paths ["src" "resources"]
                   :extra-deps {compojure/compojure {:mvn/version "1.6.1"}
                                com.taoensso/carmine {:mvn/version "3.0.0"}

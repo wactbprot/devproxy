@@ -7,6 +7,8 @@
             [devproxy.conf       :as c] ;; for debug
             [devproxy.mem        :as mem]))
 
+(comment
+  (def conf (c/env-update (c/config))))
 ;;----------------------------------------------------------
 ;; id, ids
 ;;----------------------------------------------------------

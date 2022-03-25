@@ -1,8 +1,10 @@
-![devproxy](devproxy_main.png)
+# Overview
 
-(**devproxy**) is a device proxy and interface written in [clojure](https://clojure.org/).
+![DevProxy](devproxy_main.png)
 
-See documentation on [wactbprot.github.io](https://wactbprot.github.io/devproxy/)
+**DevProxy** is an interface written in [clojure](https://clojure.org/).
+**DevProxy** allows the implementation of measurement sequences that are
+independent of client or customer devices. It is therefore a **dev**ice **proxy**
 
 ```
  ┌────────────────────────────────────────────────────┐
@@ -53,18 +55,43 @@ See documentation on [wactbprot.github.io](https://wactbprot.github.io/devproxy/
                └─┴───────────────┴─┘                  └───────────────────────┴───────┘
 ```
 
-## configuration
+
+# Documentation
+
+[API documentation](https://a75438.berlin.ptb.de/devproxy/docs/index.html)
+
+## Configuration
 
 Default configurations are in `resources/conf.edn`. Some entries may be overwritten by environment variables:
 
-* DEVPROXY_FACILITY (fallbacks: DEVHUB_FACILITY, METIS_FACILITY)
-* DEVHUB_HOST
-* DEVHUB_PORT
-* REDIS_HOST
-* COUCH_HOST
+* `DEVPROXY_FACILITY` (fallbacks: DEVHUB_FACILITY, METIS_FACILITY)
+* `DEVHUB_HOST` (default `localhost`)
+* `DEVHUB_PORT` (default `8009`)
+* `REDIS_HOST` (default `localhost`)
+* `COUCH_HOST`
+* `CAL_USR`
+* `CAL_PWD`
 
+# Start
 
-## systemd
+At the [nrepl prompt](https://nrepl.org/nrepl/index.html) type:
+
+```clojure
+(start)
+```
+
+This starts a server [localhost (default port: 8009)](http://localhost:8009).
+
+The folder `devproxy/target/uberjar/` contains a standalone version of
+**DevProxy** (build with `lein uberjar`). Run with:
+
+```shell
+java -jar devproxy/target/uberjar/devproxy-x.y.z-standalone.jar
+```
+
+## System integration
+
+`systemd` configuration:
 
 ```shell
 cd /path/to/devproxy
@@ -76,7 +103,7 @@ sudo systemctl start devproxy.service
 sudo systemctl status devproxy.service
 ```
 
-### tools.deps and tools.build
+### `tools.deps` and `tools.build`
 
 Build a stand alone app with:
 
@@ -92,3 +119,24 @@ Run it with:
 java -jar target/devproxy-x.y.z-standalone.jar
 ```
 
+
+## Generate api docs
+
+```shell
+clojure -X:dev:codox
+```
+
+upload:
+
+```shell
+scp -r docs/ bock04@a75438://var/www/html/devproxy/
+```
+
+## Notes
+
+* `[clojure-interop/java.nio "1.0.5"]`
+* https://cljdoc.org/d/clojure-interop/java.nio/1.0.5
+*  overcome `SSL peer shut down incorrectly` error by:
+```shell
+export JAVA_TOOL_OPTIONS=-Dhttps.protocols=TLSv1,TLSv1.1,TLSv1.2
+```

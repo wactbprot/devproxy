@@ -65,6 +65,7 @@
  :page-title "DevProxy"
  :main-title "DevProxy"
  :select "select"
+
  :years ["2022" "2021"]
  :n ["1" "2" "3" "4" "5" "6" "7" "8" "9" "10"]
  :maintainers ["Christian Buchmann" "Thomas Bock"]

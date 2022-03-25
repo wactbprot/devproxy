@@ -1,4 +1,3 @@
-
 var post = (path, data, callback) => { 
     if(! callback){callback = () => {console.log("ok")}}
     
