@@ -85,7 +85,7 @@
   (reset! logger (init-log! conf))
   (pp/pprint conf)
   (mu/log ::start :message "start devproxy server")
-  (reset! server (run-server app {:port 8009})))
+  (reset! server (run-server #'app {:port 8009})))
 
 (defn ascii-logo []
   (println "\n")

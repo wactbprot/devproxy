@@ -113,10 +113,10 @@
       (let  [next-p  (apply min next-ps)
              next-m  (u/target-pressure-map conf next-p)
              rm-rows (remove-rows conf {:Value next-p :Unit "Pa"})]
-        (doall
-         (mapv
-          #(mem/del-keys! (mem/pat->keys (k/del-pat conf %)))
-          rm-rows))
+        ;; ===> rm doall because mapv is not lazy
+        (mapv
+         #(mem/del-keys! (mem/pat->keys (k/del-pat conf %)))
+         rm-rows)
         (µ/log ::target-pressure :message "next pressure"
                 :pressure next-p :unit "Pa")
         (res/response {:ToExchange
@@ -279,7 +279,7 @@
 
 (defn launch-tasks [conf tasks row]
   (µ/log ::launch-tasks)
-  (doall (map (fn [task] (launch-task conf task row)) tasks)))
+   (mapv (fn [task] (launch-task conf task row)) tasks))
 
 (defn launch-tasks-vec [conf v]
   (µ/log ::launch-tasks-vec)
@@ -288,7 +288,9 @@
                (Thread/sleep (* (Integer/parseInt row)
                                 (:par-delay conf)))
                (launch-tasks conf tasks row))]
-    (if (= mode "parallel") (doall (pmap f v)) (doall (map f v)))))
+    (if (= mode "parallel")
+      (doall (pmap f v))
+      (doall (map f v)))))
 
 (defn get-task-vec [conf k mt kind]
   (µ/log ::get-task-vec)

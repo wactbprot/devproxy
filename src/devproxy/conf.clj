@@ -8,7 +8,7 @@
 (defn config-file [] (io/resource "conf.edn"))
 
 (defn config
-  "Reads a `edn` configuration in file `f`." 
+   "Reads a `edn` configuration in file `f`." 
   ([] (config (config-file)))
   ([f] (-> f slurp edn/read-string)))
 
