@@ -140,9 +140,9 @@
 
 (defn measure?
   "Compares the `tar`get `x` with the `max`imum `x`. Returns `true` if
-  the (maximum + 1%) is greater or equal the target."
+  the (maximum + 10%) is greater or equal the target."
   [m-tar m-max]  
-  (>= (* 1.01 (compare-value m-max)) (compare-value m-tar)))
+  (>= (* 1.1 (compare-value m-max)) (compare-value m-tar)))
 
 (defn open-or-close
   "Returns the string `open` or `close` depending on the values given
