@@ -30,9 +30,9 @@
 
 (defn parse-double [s] (edn/read-string s))
 
-(defn type-filter-fn [s] (fn [m] (= (:Type m) s)))
+(defn type-filter-fn [s] (fn [{t :Type}] (= t s)))
 
-(defn todo-pressure [d] (get-in d [:Calibration :ToDo :Values :Pressure]))
+(defn todo-pressure [d] (-> d :Calibration :ToDo :Values :Pressure))
 
 (defn operable-value
   "Ensures that all `:Value`s of `m` are numbers.
@@ -57,7 +57,9 @@
 (defn compare-value [m] (-> m operable-value in-si-unit :Value))
 
 (defn measured?
-  "Checks if number `x` is in vector `v` `n` times. The value in `v` must fit within 1%.
+  "Checks if number `x` is in vector `v` `n` times. The value
+  in `v` must fit within 1%.
+
   Example:
   ```clojure
   (def mv (mapv vector  [200.0 300.0 500.0 700.0 1000.0] [1 1 1 1 3]))
@@ -77,7 +79,7 @@
   (measured? (last mv) v) ;; 1000 3x
   ;; =>
   ;; false
-  "
+  ``` "
   ([[x n] v ] (measured? [x n] v 1.01 0.99))
   ([[x n] v uf lf]
   (<= n (count (filter (fn [y] (and (< x (* y uf)) (> x (* y lf)))) v)))))
@@ -95,44 +97,44 @@
         n     (:N m-tdo)
         n     (if n n (take (count x) (repeat 1)))
         xn    (map vector x n)]
-    (first (first (filter (fn [xn] (not (measured? xn v))) xn)))))
+    (-> (filter #(not (measured? % v)) xn)
+        first
+        first)))
 
 (defn target-pressure-map [conf p] {:Type "target_pressure" :Value p :Unit "Pa"})
-
-(defn get-val [req] (get-in req [:body :value]))
-(defn get-taskname [req] (get-in req [:body :taskname]))
-(defn get-row [req] (get-in req [:body :row]))
-(defn get-key [req] (get-in req [:body :key]))
-(defn get-doc-path [req] (get-in req [:body :DocPath]))
-(defn get-target-pressure [req] (get-in req [:body :Target_pressure_value]))
-(defn get-target-unit [req] (get-in req [:body :Target_pressure_unit]))
-
+(defn body [{b :body}] b)
+(defn get-val [req] (-> (body req) :value))
+(defn get-taskname [req] (-> (body req) :taskname))
+(defn get-row [req] (-> (body req) :row))
+(defn get-key [req] (-> (body req) :key))
+(defn get-doc-path [req] (-> (body req) :DocPath))
+(defn get-target-pressure [req] (-> (body req) :Target_pressure_value))
+(defn get-target-unit [req] (-> (body req) :Target_pressure_unit))
 (defn fullscale-vec [conf] (:fullscale conf))
 
 (defn fullscale-of-branch [v branch]
   (when (and (vector? v) (string? branch))
-    (->> v
-         (filter (fn [x] (= branch (:branch x))))
-         first ;; get min would be better
-         :fullscale)))
+    (-> (filter (fn [{b :branch}] (= branch b)) v)
+        first ;; get min would be better
+        :fullscale)))
 
 (defn max-pressure-by-fullscale
-  "Returns a `map` with at least `:Type` and `Unit` belonging to the given fullscale (`string`).
+  "Returns a `map` with at least `:Type` and `Unit` belonging
+  to the given fullscale (`string`).
 
   Example:
   ```clojure
   (max-pressure-by-fullscale (c/config) \"1mbar\")
   ;; =>
   ;; {:Unit Pa :Display 1mbar :Value 100}
-  ```
-  "
+  ```"
   [conf fs]
   (when (string? fs)
     (first (filter #(= fs (:Display %)) (fullscale-vec conf)))))
 
 (defn max-pressure
   "Returns a map containing at least `:Value` and `:Unit` for the given
-  `branch`." 
+  `branch`."
   [conf v branch]
   (if-let [fs (fullscale-of-branch v branch)]
     (max-pressure-by-fullscale conf fs)
@@ -141,14 +143,14 @@
 (defn measure?
   "Compares the `tar`get `x` with the `max`imum `x`. Returns `true` if
   the (maximum + 10%) is greater or equal the target."
-  [m-tar m-max]  
+  [m-tar m-max]
   (>= (* 1.1 (compare-value m-max)) (compare-value m-tar)))
 
 (defn open-or-close
   "Returns the string `open` or `close` depending on the values given
   with `mt` (target pressure) and `mb` (fullscale of device at branch.
 
-  Example:   
+  Example:
   ```clojure
   (open-or-close {:Value 0.099, :Unit \"Pa\"} {:Value 0.099, :Unit \"Pa\"})
   ;; =>
@@ -169,7 +171,7 @@
 
 (defn display-fullscale-vec [conf] (mapv :Display (fullscale-vec conf)))
 
-(defn range-factor [conf s] (get (:range-factor conf) s)) 
+(defn range-factor [conf s] (get (:range-factor conf) s))
 
 (defn range-ok?
   "Checks for task `range-ok?`. The task ranges are given in the form:
@@ -182,7 +184,7 @@
   ```clojure
   (def from  \"fullscale/100000\")
   (def to \"fullscale/10\")
-  
+
   (range-ok? (c/config) from to  {:Value 14. :Unit \"Pa\"} {:Value 133. :Unit \"Pa\"})
   ;; =>
   ;; false
@@ -193,16 +195,18 @@
   [conf from to m-t m-f]
   (if (and from to)
     (let [fs (compare-value m-f)]
-      (<= (* fs (range-factor conf from))
-          (compare-value m-t)
-          (* fs (range-factor conf to))))
+      (and
+       (< (* fs (range-factor conf from)) (compare-value m-t))
+       (<= (compare-value m-t)  (* fs (range-factor conf to)))))
     true))
 
 (defn suitable-task
   "Since version 0.9.x the function returns a **vector** with all
   suitable tasks."
   [conf tasks mt mf]
-  (filter (fn [{from :From to :To}] (range-ok? conf from to mt mf)) tasks))
+  (filter
+   (fn [{from :From to :To}] (range-ok? conf from to mt mf))
+   tasks))
 
 (defn elem-id [conf a b] (str a "_" b))
 
@@ -227,8 +231,9 @@
   [m task]
   (if (map? m)
     (json->map
-     (reduce (fn [s [k v]] (string/replace s (re-pattern k) (str v)))
-             (map->json task) m))
+     (reduce
+      (fn [s [k v]] (string/replace s (re-pattern k) (str v)))
+      (map->json task) m))
     task))
 
 (defn body->msg-data-map
@@ -238,5 +243,3 @@
     {:Result res :Exchange exc :Error err}))
 
 (defn body->msg-data [body] (che/generate-string (body->msg-data-map body)))
-
-  
