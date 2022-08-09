@@ -9,8 +9,8 @@
            :host "localhost"
            :port 9009
            :request {:headers {"Content-Type" "application/json"}
-                     :keepalive 300000
-                     :timeout 300000  }}
+                     :keepalive 3000000
+                     :timeout 3000000  }}
  :couch {:prot "http"
          :host "localhost"
          :port 5984
