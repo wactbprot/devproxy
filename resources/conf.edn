@@ -57,7 +57,8 @@
                 "fullscale/1000" 0.001
                 "fullscale/10000" 0.0001
                 "fullscale/100000" 0.00001
-                "fullscale/1000000" 0.000001}
+                "fullscale/1000000" 0.000001
+                "zero" 1e-20}
  :items {:frs nil
          :se3-branch ["dut-a" "dut-b" "dut-c"]
          :ce3-opx ["opK1" "opK2" "opK3" "opK4" "opK5"]
