@@ -1,6 +1,6 @@
 (ns devproxy.server
   ^{:author "Thomas Bock <thomas.bock@ptb.de>"
-    :doc "Start/stop of devproxy server. Routing and request dispatching."}
+    :doc "Start/stop of devproxy server. Routing and request dispatch."}
   (:require [compojure.route          :as route]
             [com.brunobonacci.mulog   :as mu]
             [devproxy.views           :as v]
@@ -34,16 +34,16 @@
   (POST "/mode"              [:as req]     (h/mode             conf req))
   (POST "/gas"               [:as req]     (h/gas              conf req))
   (POST "/maintainer"        [:as req]     (h/maintainer       conf req))
-                                                               
+
   (POST "/id"                [:as req]     (h/id               conf req))
   (POST "/branch"            [:as req]     (h/branch           conf req))
   (POST "/opx"               [:as req]     (h/opx              conf req))
   (POST "/port"              [:as req]     (h/port             conf req))
   (POST "/fullscale"         [:as req]     (h/fullscale        conf req))
-                                                               
+
   (POST "/reset"             [:as req]     (h/reset            conf req))
   (POST "/run"               [:as req]     (h/run              conf req))
-  
+
   (POST "/target_pressure"   [:as req]     (h/target-pressure  conf req))
   (GET "/target_pressures"   [:as req]     (h/target-pressures conf req))
   (GET "/cal_ids"            [:as req]     (h/cal-ids          conf req))
@@ -54,14 +54,14 @@
   (POST "/save_opx"          [:as req]     (h/save-opx         conf req))
   (POST "/man_input"         [:as req]     (h/man-input        conf req))
   (POST "/ready_button"      [:as req]     (h/ready-button     conf req))
-  
+
   (POST "/dut_max"           [:as req]     (h/dut-max          conf req))
-  
+
   (POST "/offset_sequences"  [:as req]     (h/offset-sequences conf req))
   (POST "/offset"            [:as req]     (h/offset           conf req))
   (POST "/ind"               [:as req]     (h/ind              conf req))
-  
-  (GET "/ws"                 [:as req]     (ws-srv/ws          conf req))  
+
+  (GET "/ws"                 [:as req]     (ws-srv/ws          conf req))
 
   (route/resources "/")
   (route/not-found (v/not-found)))
