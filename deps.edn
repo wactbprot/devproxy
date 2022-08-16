@@ -10,7 +10,7 @@
                     :exec-args {:source-paths  ["src"]
                                 :metadata {:doc/format :markdown}
                                 :doc-files ["README.md" "examples.md"]
-                                :source-uri "https://gitlab1.ptb.de/vaclab/devproxy/-/blob/main/{filepath}#L{line}"
+                                :source-uri "https://gitlab1.ptb.de/vaclab/devproxy/-/blob/master/{filepath}#L{line}"
                                 :language :clojure
                                 :output-path "docs"}}
 
